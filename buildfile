@@ -13,10 +13,8 @@ define 'mock-jedis' do
     project.version = THIS_VERSION
     compile.with JEDIS
     doc.using(:windowtitle => "MockJedis", :private => true)
-    package(
-        :jar,
-        :file=> _('target/mock-jedis.jar')).with(
-            :manifest=>manifest.merge({
+    package(:jar).with(
+        :manifest=>manifest.merge({
                 "Class-Path" => compile.dependencies.map {
                     |item| "lib/" + File.basename(item.to_s)
                 }.join(" ")
