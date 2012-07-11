@@ -1,0 +1,12 @@
+<classpath>
+  <classpathentry path="src/main/java" excluding="**/.svn/|**/CVS/" kind="src"/>
+  <classpathentry path="target/classes" kind="output"/>
+  <classpathentry path="M2_REPO/redis/clients/jedis/2.1.0/jedis-2.1.0.jar" sourcepath="M2_REPO/redis/clients/jedis/2.1.0/jedis-2.1.0-sources.jar" kind="var" javadocpath="M2_REPO/redis/clients/jedis/2.1.0/jedis-2.1.0-javadoc.jar"/>
+  <classpathentry path="M2_REPO/commons-pool/commons-pool/1.5.5/commons-pool-1.5.5.jar" sourcepath="M2_REPO/commons-pool/commons-pool/1.5.5/commons-pool-1.5.5-sources.jar" kind="var" javadocpath="M2_REPO/commons-pool/commons-pool/1.5.5/commons-pool-1.5.5-javadoc.jar"/>
+  <classpathentry path="M2_REPO/asm/asm-tree/3.0/asm-tree-3.0.jar" sourcepath="M2_REPO/asm/asm-tree/3.0/asm-tree-3.0-sources.jar" kind="var" javadocpath="M2_REPO/asm/asm-tree/3.0/asm-tree-3.0-javadoc.jar"/>
+  <classpathentry path="M2_REPO/oro/oro/2.0.8/oro-2.0.8.jar" sourcepath="M2_REPO/oro/oro/2.0.8/oro-2.0.8-sources.jar" kind="var" javadocpath="M2_REPO/oro/oro/2.0.8/oro-2.0.8-javadoc.jar"/>
+  <classpathentry path="M2_REPO/asm/asm/3.0/asm-3.0.jar" sourcepath="M2_REPO/asm/asm/3.0/asm-3.0-sources.jar" kind="var" javadocpath="M2_REPO/asm/asm/3.0/asm-3.0-javadoc.jar"/>
+  <classpathentry path="M2_REPO/net/sourceforge/cobertura/cobertura/1.9.4.1/cobertura-1.9.4.1.jar" sourcepath="M2_REPO/net/sourceforge/cobertura/cobertura/1.9.4.1/cobertura-1.9.4.1-sources.jar" kind="var" javadocpath="M2_REPO/net/sourceforge/cobertura/cobertura/1.9.4.1/cobertura-1.9.4.1-javadoc.jar"/>
+  <classpathentry path="M2_REPO/log4j/log4j/1.2.9/log4j-1.2.9.jar" sourcepath="M2_REPO/log4j/log4j/1.2.9/log4j-1.2.9-sources.jar" kind="var" javadocpath="M2_REPO/log4j/log4j/1.2.9/log4j-1.2.9-javadoc.jar"/>
+  <classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
+</classpath>
