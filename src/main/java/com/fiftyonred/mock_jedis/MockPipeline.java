@@ -121,6 +121,9 @@ public class MockPipeline extends Pipeline {
 		Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
 		List<byte[]> result = new ArrayList<byte[]>();
 		if (!hashStorage.containsKey(key)) {
+			for (int i = 0, l = fields.length; i < l; ++i) {
+				result.add(null);
+			}
 			response.set(result);
 			return response;
 		}

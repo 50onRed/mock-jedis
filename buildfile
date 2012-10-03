@@ -1,8 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'buildr/java/cobertura'
-require 'readline'
-
 THIS_VERSION = "0.1.0"
 
 repositories.remote << 'http://mirrors.ibiblio.org/pub/mirrors/maven2'
