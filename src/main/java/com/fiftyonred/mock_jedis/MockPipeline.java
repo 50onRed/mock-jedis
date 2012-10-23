@@ -56,6 +56,11 @@ public class MockPipeline extends Pipeline {
 	}
 	
 	@Override
+	public Response<Long> decr(String key) {
+		return decrBy(key, 1);
+	}
+	
+	@Override
 	public Response<Long> decrBy(String key, long integer) {
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		String val = storage.get(key);
@@ -63,6 +68,11 @@ public class MockPipeline extends Pipeline {
 		storage.put(key, result.toString());
 		response.set(result);
 		return response;
+	}
+	
+	@Override
+	public Response<Long> incr(String key) {
+		return incrBy(key, 1);
 	}
 	
 	@Override
