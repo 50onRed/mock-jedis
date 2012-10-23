@@ -32,6 +32,11 @@ public class MockPipeline extends Pipeline {
 	}
 	
 	@Override
+	public Response<String> setex(String key, int seconds, String value) {
+		return set(key, value);
+	}
+	
+	@Override
 	public Response<String> get(String key) {
 		Response<String> response = new Response<String>(BuilderFactory.STRING);
 		String val = storage.get(key);
