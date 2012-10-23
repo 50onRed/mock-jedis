@@ -40,6 +40,13 @@ public class MockPipeline extends Pipeline {
 	}
 	
 	@Override
+	public Response<Long> expire(String key, int seconds) {
+		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		response.set(seconds);
+		return response;
+	}
+	
+	@Override
 	public Response<List<String>> mget(String... keys) {
 		Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
 		
