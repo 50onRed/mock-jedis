@@ -84,6 +84,11 @@ public class MockJedis extends Jedis {
 	public String hget(final String key, final String field) {
 		return pipeline.hget(key, field).get();
 	}
+
+	@Override
+	public Map<String, String> hgetAll(final String key) {
+		return pipeline.hgetAll(key).get();
+	}
 	
 	@Override
 	public String hmset(final String key, final Map<String, String> hash) {
