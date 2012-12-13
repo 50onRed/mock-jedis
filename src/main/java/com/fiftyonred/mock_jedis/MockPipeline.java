@@ -8,6 +8,7 @@ import java.util.Map;
 import redis.clients.jedis.BuilderFactory;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
+import redis.clients.util.SafeEncoder;
 
 public class MockPipeline extends Pipeline {
 
@@ -119,7 +120,25 @@ public class MockPipeline extends Pipeline {
 		}
 		return response;
 	}
-	
+
+	@Override
+	public Response<Map<String, String>> hgetAll(String key) {
+		Response<Map<String, String>> response = new Response<Map<String, String>>(BuilderFactory.STRING_MAP);
+		Map<String, String> result = hashStorage.get(key);
+
+		if (hashStorage.containsKey(key)) {
+			List<byte[]> encodedResult = new ArrayList<byte[]>();
+			for (String k : result.keySet()) {
+				encodedResult.add(SafeEncoder.encode(k));
+				encodedResult.add(SafeEncoder.encode(result.get(k)));
+			}
+			response.set(encodedResult);
+		} else {
+			response.set(new ArrayList<byte[]>());
+		}
+		return response;
+	}
+
 	@Override
 	public Response<Long> hset(String key, String field, String value) {
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
