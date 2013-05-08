@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-THIS_VERSION = "0.1.0"
+THIS_VERSION = "0.1.1"
 
 repositories.remote << 'http://mirrors.ibiblio.org/pub/mirrors/maven2'
 
