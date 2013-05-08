@@ -7,3 +7,5 @@
 
 reports
 target
+build
+.gradle

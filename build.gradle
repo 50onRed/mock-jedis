@@ -1,0 +1,14 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'com.fiftyonred'
+version = '0.1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'redis.clients:jedis:2.1.0'
+    testCompile 'junit:junit:4.11'
+}
