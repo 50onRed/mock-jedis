@@ -3,6 +3,7 @@
 # Package Files #
 *.war
 *.ear
+*.iml
 
 reports
 target
@@ -10,3 +11,4 @@ build
 .gradle
 .classpath
 .project
+.idea
