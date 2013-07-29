@@ -8,3 +8,4 @@ reports
 target
 build
 .gradle
+.classpath
