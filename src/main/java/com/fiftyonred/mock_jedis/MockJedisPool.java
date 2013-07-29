@@ -6,7 +6,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 public class MockJedisPool extends JedisPool {
-	public MockJedis client = null;
+	private MockJedis client = null;
 
 	public MockJedisPool(Config poolConfig, String host) {
 		super(poolConfig, host);

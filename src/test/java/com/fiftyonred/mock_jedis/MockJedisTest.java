@@ -8,7 +8,7 @@ import org.junit.Test;
 import redis.clients.jedis.Jedis;
 
 public class MockJedisTest {
-	Jedis j;
+	private Jedis j;
 	
 	@Before
 	public void setUp() {

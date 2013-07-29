@@ -9,7 +9,7 @@ import redis.clients.jedis.exceptions.JedisDataException;
 
 public class MockJedis extends Jedis {
 	
-	public MockPipeline pipeline = null;
+	private MockPipeline pipeline = null;
 
 	public MockJedis(String host) {
 		super(host);
