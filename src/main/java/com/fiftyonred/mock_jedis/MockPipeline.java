@@ -123,7 +123,7 @@ public class MockPipeline extends Pipeline {
 	public Response<String> hget(String key, String field) {
 		Response<String> response = new Response<String>(BuilderFactory.STRING);
 		if (hashStorage.containsKey(key)) {
-			response.set(hashStorage.get(key).get(field));
+			response.set(hashStorage.get(key).get(field).getBytes());
 		}
 		return response;
 	}
