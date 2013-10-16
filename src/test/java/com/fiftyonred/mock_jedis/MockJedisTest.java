@@ -28,6 +28,12 @@ public class MockJedisTest {
 	}
 
 	@Test
+	public void testHget() {
+		j.hset("test", "name", "value");
+		assertEquals("value", j.hget("test", "name"));
+	}
+
+	@Test
 	public void testKeys() {
 		j.set("A1", "value");
 		j.set("A2", "value");
