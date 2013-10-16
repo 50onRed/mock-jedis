@@ -7,13 +7,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Iterator;
+import java.util.Collection;
 
 import redis.clients.jedis.BuilderFactory;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.util.SafeEncoder;
 
+import com.fiftyonred.utils.WildcardMatcher;
+
 public class MockPipeline extends Pipeline {
+	private WildcardMatcher wildcardMatcher = new WildcardMatcher();
 
 	private Map<String, String> storage = null;
 	private Map<String, Map<String, String>> hashStorage = null;
@@ -206,61 +210,19 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public Response<Set<String>> keys(final String pattern) {
 		Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
+
 		List<byte[]> result = new ArrayList<byte[]>();
-
-		Iterator<String> it = storage.keySet().iterator();
-		while(it.hasNext()) {
-			String key = it.next();
-			if(wildCardMatch(key, pattern)) result.add(key.getBytes());
-		}
-
-		it = hashStorage.keySet().iterator();
-		while(it.hasNext()) {
-			String key = it.next();
-			if(wildCardMatch(key, pattern)) result.add(key.getBytes());
-		}
+		filterKeys(pattern, storage.keySet(), result);
+		filterKeys(pattern, hashStorage.keySet(), result);
 
 		response.set(result);
 		return response;
 	}
 
-    /**
-     * Performs a wildcard matching for the text and pattern 
-     * provided.
-     * 
-     * @param text the text to be tested for matches.
-     * 
-     * @param pattern the pattern to be matched for.
-     * This can contain the wildcard character '*' (asterisk).
-     * 
-     * @return <tt>true</tt> if a match is found, <tt>false</tt> 
-     * otherwise.
-     */
-
-    public static boolean wildCardMatch(String text, String pattern)
-    {
-        // Create the cards by splitting using a RegEx. If more speed 
-        // is desired, a simpler character based splitting can be done.
-        String [] cards = pattern.split("\\*");
-
-        // Iterate over the cards.
-        for (String card : cards)
-        {
-            int idx = text.indexOf(card);
-            
-            // Card not detected in the text.
-            if(idx == -1)
-            {
-                return false;
-            }
-            
-            // Move ahead, towards the right of the text.
-            text = text.substring(idx + card.length());
-        }
-        
-        return true;
-    }
-    
-
-
+	public void filterKeys(final String pattern, final Collection<String> collection, final List<byte[]> result) {
+		for(String key: collection) {
+			if(wildcardMatcher.match(key, pattern))
+				result.add(key.getBytes());
+		}
+	}
 }
