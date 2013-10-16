@@ -2,6 +2,7 @@ package com.fiftyonred.mock_jedis;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
@@ -103,5 +104,10 @@ public class MockJedis extends Jedis {
 	@Override
 	public Pipeline pipelined() {
 		return pipeline;
+	}
+
+	@Override
+	public Set<String> keys(final String pattern) {
+		return pipeline.keys(pattern).get();
 	}
 }

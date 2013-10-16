@@ -1,16 +1,23 @@
 package com.fiftyonred.mock_jedis;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Iterator;
+import java.util.Collection;
 
 import redis.clients.jedis.BuilderFactory;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.util.SafeEncoder;
 
+import com.fiftyonred.utils.WildcardMatcher;
+
 public class MockPipeline extends Pipeline {
+	private WildcardMatcher wildcardMatcher = new WildcardMatcher();
 
 	private Map<String, String> storage = null;
 	private Map<String, Map<String, String>> hashStorage = null;
@@ -153,7 +160,7 @@ public class MockPipeline extends Pipeline {
 		if (!hashStorage.containsKey(key)) {
 			hashStorage.put(key, m);
 		}
-		response.set("OK");
+		
 		return response;
 	}
 	
@@ -199,4 +206,23 @@ public class MockPipeline extends Pipeline {
 	public void sync() {
 		// do nothing
 	}	
+
+	@Override
+	public Response<Set<String>> keys(final String pattern) {
+		Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
+
+		List<byte[]> result = new ArrayList<byte[]>();
+		filterKeys(pattern, storage.keySet(), result);
+		filterKeys(pattern, hashStorage.keySet(), result);
+
+		response.set(result);
+		return response;
+	}
+
+	public void filterKeys(final String pattern, final Collection<String> collection, final List<byte[]> result) {
+		for(String key: collection) {
+			if(wildcardMatcher.match(key, pattern))
+				result.add(key.getBytes());
+		}
+	}
 }
