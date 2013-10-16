@@ -4,7 +4,7 @@ THIS_VERSION = "0.1.2"
 
 repositories.remote << 'http://mirrors.ibiblio.org/pub/mirrors/maven2'
 
-JEDIS = transitive('redis.clients:jedis:jar:2.1.0')
+JEDIS = transitive('redis.clients:jedis:jar:2.2.1')
 
 define 'mock-jedis' do
     project.version = THIS_VERSION
