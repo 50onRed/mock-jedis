@@ -3,7 +3,7 @@ package com.fiftyonred.mock_jedis;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Iterator;
@@ -23,8 +23,8 @@ public class MockPipeline extends Pipeline {
 	private Map<String, Map<String, String>> hashStorage = null;
 	
 	public MockPipeline() {
-		storage = new HashMap<String, String>();
-		hashStorage = new HashMap<String, Map<String, String>>();
+		storage = new ConcurrentHashMap<String, String>();
+		hashStorage = new ConcurrentHashMap<String, Map<String, String>>();
 	}
 	
 	public void clear() {
@@ -151,7 +151,7 @@ public class MockPipeline extends Pipeline {
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		Map<String, String> m;
 		if (!hashStorage.containsKey(key)) {
-			m = new HashMap<String, String>();
+			m = new ConcurrentHashMap<String, String>();
 		} else {
 			m = hashStorage.get(key);
 		}
@@ -188,7 +188,7 @@ public class MockPipeline extends Pipeline {
 		Response<String> response = new Response<String>(BuilderFactory.STRING);
 		Map<String, String> m;
 		if (!hashStorage.containsKey(key)) {
-			m = new HashMap<String, String>();
+			m = new ConcurrentHashMap<String, String>();
 		} else {
 			m = hashStorage.get(key);
 		}
