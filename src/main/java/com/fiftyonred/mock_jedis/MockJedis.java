@@ -1,12 +1,12 @@
 package com.fiftyonred.mock_jedis;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.exceptions.JedisDataException;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class MockJedis extends Jedis {
 	

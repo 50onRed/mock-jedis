@@ -1,20 +1,12 @@
 package com.fiftyonred.mock_jedis;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Iterator;
-import java.util.Collection;
-
+import com.fiftyonred.utils.WildcardMatcher;
 import redis.clients.jedis.BuilderFactory;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.util.SafeEncoder;
 
-import com.fiftyonred.utils.WildcardMatcher;
+import java.util.*;
 
 public class MockPipeline extends Pipeline {
 	private WildcardMatcher wildcardMatcher = new WildcardMatcher();
@@ -32,7 +24,7 @@ public class MockPipeline extends Pipeline {
 	}
 	
 	@Override
-	public Response<String> set(String key, String value) {
+	public synchronized Response<String> set(String key, String value) {
 		Response<String> response = new Response<String>(BuilderFactory.STRING);
 		storage.put(key, value);
 		response.set("OK".getBytes());
@@ -45,7 +37,7 @@ public class MockPipeline extends Pipeline {
 	}
 	
 	@Override
-	public Response<String> get(String key) {
+	public synchronized Response<String> get(String key) {
 		Response<String> response = new Response<String>(BuilderFactory.STRING);
 		String val = storage.get(key);
 		response.set(val != null ? val.getBytes() : null);
@@ -60,7 +52,7 @@ public class MockPipeline extends Pipeline {
 	}
 	
 	@Override
-	public Response<List<String>> mget(String... keys) {
+	public synchronized Response<List<String>> mget(String... keys) {
 		Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
 		
 		List<byte[]> result = new ArrayList<byte[]>();
@@ -81,7 +73,7 @@ public class MockPipeline extends Pipeline {
 	}
 	
 	@Override
-	public Response<Long> decrBy(String key, long integer) {
+	public synchronized Response<Long> decrBy(String key, long integer) {
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		String val = storage.get(key);
 		Long result = val == null ? 0L - integer : Long.valueOf(val) - integer;
@@ -96,7 +88,7 @@ public class MockPipeline extends Pipeline {
 	}
 	
 	@Override
-	public Response<Long> incrBy(String key, long integer) {
+	public synchronized Response<Long> incrBy(String key, long integer) {
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		String val = storage.get(key);
 		Long result = val == null ? integer : Long.valueOf(val) + integer;
@@ -106,7 +98,7 @@ public class MockPipeline extends Pipeline {
 	}
 	
 	@Override
-	public Response<Long> del(String... keys) {
+	public synchronized Response<Long> del(String... keys) {
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		Long result = 0L;
 		for (String key: keys) {
@@ -120,7 +112,7 @@ public class MockPipeline extends Pipeline {
 	}
 	
 	@Override
-	public Response<String> hget(String key, String field) {
+	public synchronized Response<String> hget(String key, String field) {
 		Response<String> response = new Response<String>(BuilderFactory.STRING);
 		if (hashStorage.containsKey(key)) {
 			response.set(hashStorage.get(key).get(field).getBytes());
@@ -129,7 +121,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Map<String, String>> hgetAll(String key) {
+	public synchronized Response<Map<String, String>> hgetAll(String key) {
 		Response<Map<String, String>> response = new Response<Map<String, String>>(BuilderFactory.STRING_MAP);
 		Map<String, String> result = hashStorage.get(key);
 
@@ -147,7 +139,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Long> hset(String key, String field, String value) {
+	public synchronized Response<Long> hset(String key, String field, String value) {
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		Map<String, String> m;
 		if (!hashStorage.containsKey(key)) {
@@ -165,7 +157,7 @@ public class MockPipeline extends Pipeline {
 	}
 	
 	@Override
-	public Response<List<String>> hmget(String key, String... fields) {
+	public synchronized Response<List<String>> hmget(String key, String... fields) {
 		Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
 		List<byte[]> result = new ArrayList<byte[]>();
 		if (!hashStorage.containsKey(key)) {
@@ -184,7 +176,7 @@ public class MockPipeline extends Pipeline {
 	}
 	
 	@Override
-	public Response<String> hmset(String key, Map<String, String> hash) {
+	public synchronized Response<String> hmset(String key, Map<String, String> hash) {
 		Response<String> response = new Response<String>(BuilderFactory.STRING);
 		Map<String, String> m;
 		if (!hashStorage.containsKey(key)) {
@@ -208,7 +200,7 @@ public class MockPipeline extends Pipeline {
 	}	
 
 	@Override
-	public Response<Set<String>> keys(final String pattern) {
+	public synchronized Response<Set<String>> keys(final String pattern) {
 		Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
 
 		List<byte[]> result = new ArrayList<byte[]>();

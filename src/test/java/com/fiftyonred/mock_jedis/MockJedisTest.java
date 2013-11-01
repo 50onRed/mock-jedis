@@ -1,14 +1,13 @@
 package com.fiftyonred.mock_jedis;
 
-import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import redis.clients.jedis.Jedis;
 
+import static org.junit.Assert.assertEquals;
+
 public class MockJedisTest {
-	private Jedis j;
+	private Jedis j = null;
 	
 	@Before
 	public void setUp() {
