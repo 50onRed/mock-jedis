@@ -16,9 +16,9 @@ public class MockPipeline extends Pipeline {
 	private final Map<String, List<String>> listStorage;
 	
 	public MockPipeline() {
-		storage = new HashMap<String, String>();
-		hashStorage = new HashMap<String, Map<String, String>>();
-		listStorage = new HashMap<String, List<String>>();
+		storage = new HashMap<>();
+		hashStorage = new HashMap<>();
+		listStorage = new HashMap<>();
 	}
 	
 	public void clear() {
@@ -27,7 +27,7 @@ public class MockPipeline extends Pipeline {
 	
 	@Override
 	public synchronized Response<String> set(String key, String value) {
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		Response<String> response = new Response<>(BuilderFactory.STRING);
 		storage.put(key, value);
 		response.set("OK".getBytes());
 		return response;
@@ -40,7 +40,7 @@ public class MockPipeline extends Pipeline {
 	
 	@Override
 	public synchronized Response<String> get(String key) {
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		Response<String> response = new Response<>(BuilderFactory.STRING);
 		String val = storage.get(key);
 		response.set(val != null ? val.getBytes() : null);
 		return response;
@@ -48,16 +48,16 @@ public class MockPipeline extends Pipeline {
 	
 	@Override
 	public Response<Long> expire(String key, int seconds) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		Response<Long> response = new Response<>(BuilderFactory.LONG);
 		response.set(seconds);
 		return response;
 	}
 	
 	@Override
 	public synchronized Response<List<String>> mget(String... keys) {
-		Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
+		Response<List<String>> response = new Response<>(BuilderFactory.STRING_LIST);
 		
-		List<byte[]> result = new ArrayList<byte[]>();
+		List<byte[]> result = new ArrayList<>();
 		for (String key: keys) {
 			if (storage.containsKey(key)) {
 				result.add(storage.get(key).getBytes());
@@ -76,7 +76,7 @@ public class MockPipeline extends Pipeline {
 	
 	@Override
 	public synchronized Response<Long> decrBy(String key, long integer) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		Response<Long> response = new Response<>(BuilderFactory.LONG);
 		String val = storage.get(key);
 		Long result = val == null ? 0L - integer : Long.valueOf(val) - integer;
 		storage.put(key, result.toString());
@@ -91,7 +91,7 @@ public class MockPipeline extends Pipeline {
 	
 	@Override
 	public synchronized Response<Long> incrBy(String key, long integer) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		Response<Long> response = new Response<>(BuilderFactory.LONG);
 		String val = storage.get(key);
 		Long result = val == null ? integer : Long.valueOf(val) + integer;
 		storage.put(key, result.toString());
@@ -101,7 +101,7 @@ public class MockPipeline extends Pipeline {
 	
 	@Override
 	public synchronized Response<Long> del(String... keys) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		Response<Long> response = new Response<>(BuilderFactory.LONG);
 		Long result = 0L;
 		for (String key: keys) {
 			String i = storage.remove(key);
@@ -115,7 +115,7 @@ public class MockPipeline extends Pipeline {
 	
 	@Override
 	public synchronized Response<String> hget(String key, String field) {
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		Response<String> response = new Response<>(BuilderFactory.STRING);
 		if (hashStorage.containsKey(key)) {
 			response.set(hashStorage.get(key).get(field).getBytes());
 		}
@@ -124,11 +124,11 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<Map<String, String>> hgetAll(String key) {
-		Response<Map<String, String>> response = new Response<Map<String, String>>(BuilderFactory.STRING_MAP);
+		Response<Map<String, String>> response = new Response<>(BuilderFactory.STRING_MAP);
 		Map<String, String> result = hashStorage.get(key);
 
 		if (hashStorage.containsKey(key)) {
-			List<byte[]> encodedResult = new ArrayList<byte[]>();
+			List<byte[]> encodedResult = new ArrayList<>();
 			for (String k : result.keySet()) {
 				encodedResult.add(SafeEncoder.encode(k));
 				encodedResult.add(SafeEncoder.encode(result.get(k)));
@@ -142,10 +142,10 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<Long> hset(String key, String field, String value) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		Response<Long> response = new Response<>(BuilderFactory.LONG);
 		Map<String, String> m;
 		if (!hashStorage.containsKey(key)) {
-			m = new HashMap<String, String>();
+			m = new HashMap<>();
 		} else {
 			m = hashStorage.get(key);
 		}
@@ -160,8 +160,8 @@ public class MockPipeline extends Pipeline {
 	
 	@Override
 	public synchronized Response<List<String>> hmget(String key, String... fields) {
-		Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
-		List<byte[]> result = new ArrayList<byte[]>();
+		Response<List<String>> response = new Response<>(BuilderFactory.STRING_LIST);
+		List<byte[]> result = new ArrayList<>();
 		if (!hashStorage.containsKey(key)) {
 			for (String field: fields) {
 				result.add(null);
@@ -179,10 +179,10 @@ public class MockPipeline extends Pipeline {
 	
 	@Override
 	public synchronized Response<String> hmset(String key, Map<String, String> hash) {
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		Response<String> response = new Response<>(BuilderFactory.STRING);
 		Map<String, String> m;
 		if (!hashStorage.containsKey(key)) {
-			m = new HashMap<String, String>();
+			m = new HashMap<>();
 		} else {
 			m = hashStorage.get(key);
 		}
@@ -198,10 +198,10 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<Long> lpush(String key, String... string) {
-		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Response<Long> response = new Response<>(BuilderFactory.LONG);
 		List<String> list = listStorage.get(key);
 		if (list == null) {
-			list = new ArrayList<String>();
+			list = new ArrayList<>();
 			listStorage.put(key, list);
 		}
 		Collections.addAll(list, string);
@@ -211,7 +211,7 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<String> lpop(String key) {
-		final Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final Response<String> response = new Response<>(BuilderFactory.STRING);
 		final List<String> list = listStorage.get(key);
 		if (list == null || list.isEmpty()) {
 			response.set(null);
@@ -223,7 +223,7 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<Long> llen(String key) {
-		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Response<Long> response = new Response<>(BuilderFactory.LONG);
 		final List<String> list = listStorage.get(key);
 		if (list == null) {
 			response.set(0L);
@@ -240,9 +240,9 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<Set<String>> keys(final String pattern) {
-		Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
+		Response<Set<String>> response = new Response<>(BuilderFactory.STRING_SET);
 
-		List<byte[]> result = new ArrayList<byte[]>();
+		List<byte[]> result = new ArrayList<>();
 		filterKeys(pattern, storage.keySet(), result);
 		filterKeys(pattern, hashStorage.keySet(), result);
 

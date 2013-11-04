@@ -5,6 +5,9 @@ apply plugin: 'signing'
 group = 'com.fiftyonred'
 version = '0.1.2'
 
+sourceCompatibility = 7
+targetCompatibility = 7
+
 repositories {
     mavenCentral()
 }
