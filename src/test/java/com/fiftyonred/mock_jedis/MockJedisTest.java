@@ -33,6 +33,23 @@ public class MockJedisTest {
 	}
 
 	@Test
+	public void testList() {
+		assertEquals(Long.valueOf(0), j.llen("test"));
+
+		j.lpush("test", "a");
+		j.lpush("test", "b");
+		j.lpush("test", "c");
+
+		assertEquals(Long.valueOf(3), j.llen("test"));
+
+		assertEquals("c", j.lpop("test"));
+		assertEquals("b", j.lpop("test"));
+		assertEquals("a", j.lpop("test"));
+
+		assertEquals(Long.valueOf(0), j.llen("test"));
+	}
+
+	@Test
 	public void testKeys() {
 		j.set("A1", "value");
 		j.set("A2", "value");

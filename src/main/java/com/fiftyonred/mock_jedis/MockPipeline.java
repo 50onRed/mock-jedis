@@ -9,14 +9,16 @@ import redis.clients.util.SafeEncoder;
 import java.util.*;
 
 public class MockPipeline extends Pipeline {
-	private WildcardMatcher wildcardMatcher = new WildcardMatcher();
+	private final WildcardMatcher wildcardMatcher = new WildcardMatcher();
 
-	private Map<String, String> storage = null;
-	private Map<String, Map<String, String>> hashStorage = null;
+	private final Map<String, String> storage;
+	private final Map<String, Map<String, String>> hashStorage;
+	private final Map<String, List<String>> listStorage;
 	
 	public MockPipeline() {
 		storage = new HashMap<String, String>();
 		hashStorage = new HashMap<String, Map<String, String>>();
+		listStorage = new HashMap<String, List<String>>();
 	}
 	
 	public void clear() {
@@ -191,6 +193,43 @@ public class MockPipeline extends Pipeline {
 			hashStorage.put(key, m);
 		}
 		response.set("OK".getBytes());
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Long> lpush(String key, String... string) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		List<String> list = listStorage.get(key);
+		if (list == null) {
+			list = new ArrayList<String>();
+			listStorage.put(key, list);
+		}
+		Collections.addAll(list, string);
+		response.set((long) string.length);
+		return response;
+	}
+
+	@Override
+	public synchronized Response<String> lpop(String key) {
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final List<String> list = listStorage.get(key);
+		if (list == null || list.isEmpty()) {
+			response.set(null);
+		} else {
+			response.set(list.remove(list.size() - 1).getBytes());
+		}
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Long> llen(String key) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final List<String> list = listStorage.get(key);
+		if (list == null) {
+			response.set(0L);
+		} else {
+			response.set((long) list.size());
+		}
 		return response;
 	}
 	

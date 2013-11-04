@@ -100,6 +100,21 @@ public class MockJedis extends Jedis {
 	public List<String> hmget(final String key, final String... fields) {
 		return pipeline.hmget(key, fields).get();
 	}
+
+	@Override
+	public Long lpush(final String key, String... strings) {
+		return pipeline.lpush(key, strings).get();
+	}
+
+	@Override
+	public String lpop(final String key) {
+		return pipeline.lpop(key).get();
+	}
+
+	@Override
+	public Long llen(final String key) {
+		return pipeline.llen(key).get();
+	}
 	
 	@Override
 	public Pipeline pipelined() {
