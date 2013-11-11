@@ -8,17 +8,17 @@ import static org.junit.Assert.assertEquals;
 
 public class MockJedisTest {
 	private Jedis j = null;
-	
+
 	@Before
 	public void setUp() {
 		j = new MockJedis("test");
 	}
-	
+
 	@Test
 	public void testSet() {
 		assertEquals("OK", j.set("test", "123"));
 	}
-	
+
 	@Test
 	public void testGet() {
 		j.set("test", "123");
