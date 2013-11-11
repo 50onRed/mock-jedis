@@ -125,4 +125,19 @@ public class MockJedis extends Jedis {
 	public Set<String> keys(final String pattern) {
 		return pipeline.keys(pattern).get();
 	}
+
+	@Override
+	public void connect() {
+		// do nothing
+	}
+
+	@Override
+	public void disconnect() {
+		// do nothing
+	}
+
+	@Override
+	public String quit() {
+		return "OK";
+	}
 }
