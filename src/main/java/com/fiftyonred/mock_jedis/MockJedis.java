@@ -102,6 +102,11 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
+	public Long hincrBy(String key, String field, long value) {
+		return pipeline.hincrBy(key, field, value).get();
+	}
+
+	@Override
 	public Long lpush(final String key, String... strings) {
 		return pipeline.lpush(key, strings).get();
 	}

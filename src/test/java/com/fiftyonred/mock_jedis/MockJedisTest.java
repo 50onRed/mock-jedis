@@ -33,6 +33,19 @@ public class MockJedisTest {
 	}
 
 	@Test
+	public void testHincrBy() {
+		j.hincrBy("test1", "name", 10);
+		assertEquals("10", j.hget("test1", "name"));
+
+		j.hincrBy("test1", "name", 2);
+		assertEquals("12", j.hget("test1", "name"));
+
+		j.hset("test1", "name", "5");
+		j.hincrBy("test1", "name", 2);
+		assertEquals("7", j.hget("test1", "name"));
+	}
+
+	@Test
 	public void testList() {
 		assertEquals(Long.valueOf(0), j.llen("test"));
 

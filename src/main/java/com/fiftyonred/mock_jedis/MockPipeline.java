@@ -197,6 +197,24 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public synchronized Response<Long> hincrBy(String key, String field, long value) {
+		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		if (!hashStorage.containsKey(key)) {
+			hashStorage.put(key, new HashMap<String, String>());
+		}
+		Map<String, String> m = hashStorage.get(key);
+
+		if (!m.containsKey(field)) {
+			m.put(field, Long.valueOf(0).toString());
+		}
+		String val = m.get(field);
+		Long result = val == null ? value : Long.valueOf(val) + value;
+		m.put(field, result.toString());
+		response.set(result);
+		return response;
+	}
+
+	@Override
 	public synchronized Response<Long> lpush(String key, String... string) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		List<String> list = listStorage.get(key);
