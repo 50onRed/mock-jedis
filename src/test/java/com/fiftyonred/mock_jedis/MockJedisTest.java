@@ -8,17 +8,17 @@ import static org.junit.Assert.assertEquals;
 
 public class MockJedisTest {
 	private Jedis j = null;
-	
+
 	@Before
 	public void setUp() {
 		j = new MockJedis("test");
 	}
-	
+
 	@Test
 	public void testSet() {
 		assertEquals("OK", j.set("test", "123"));
 	}
-	
+
 	@Test
 	public void testGet() {
 		j.set("test", "123");
@@ -30,6 +30,19 @@ public class MockJedisTest {
 	public void testHget() {
 		j.hset("test", "name", "value");
 		assertEquals("value", j.hget("test", "name"));
+	}
+
+	@Test
+	public void testHincrBy() {
+		j.hincrBy("test1", "name", 10);
+		assertEquals("10", j.hget("test1", "name"));
+
+		j.hincrBy("test1", "name", 2);
+		assertEquals("12", j.hget("test1", "name"));
+
+		j.hset("test1", "name", "5");
+		j.hincrBy("test1", "name", 2);
+		assertEquals("7", j.hget("test1", "name"));
 	}
 
 	@Test

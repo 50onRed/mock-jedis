@@ -11,12 +11,12 @@ public class MockJedisPool extends JedisPool {
 	public MockJedisPool(Config poolConfig, String host) {
 		super(poolConfig, host);
 	}
-	
+
 	public Jedis getResource() {
-        if (client == null) {
-        	client = new MockJedis("localhost");
-        }
-        return client;
-    }
-	
+		if (client == null) {
+			client = new MockJedis("localhost");
+		}
+		return client;
+	}
+
 }

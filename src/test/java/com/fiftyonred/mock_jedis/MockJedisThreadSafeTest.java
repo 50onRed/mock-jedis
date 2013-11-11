@@ -8,12 +8,12 @@ import static org.junit.Assert.assertEquals;
 
 public class MockJedisThreadSafeTest {
 	private Jedis j = null;
-	
+
 	@Before
 	public void setUp() {
 		j = new MockJedis("test");
 	}
-	
+
 	@Test
 	public void testThreadSafety() throws InterruptedException {
 		final Thread t1 = new Thread(new Runnable() {
