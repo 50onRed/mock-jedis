@@ -5,6 +5,8 @@ import org.junit.Test;
 import redis.clients.jedis.Jedis;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class MockJedisTest {
 	private Jedis j = null;
@@ -27,9 +29,16 @@ public class MockJedisTest {
 	}
 
 	@Test
-	public void testHget() {
+	public void testHashes() {
+		assertEquals(0L, j.hlen("test").longValue());
+		assertEquals(0L, j.hdel("test", "name").longValue());
+		assertEquals(null, j.hget("test", "name"));
 		j.hset("test", "name", "value");
+		assertTrue(j.hexists("test", "name"));
+		assertFalse(j.hexists("test", "name2"));
+		assertEquals(1L, j.hlen("test").longValue());
 		assertEquals("value", j.hget("test", "name"));
+		assertEquals(1L, j.hdel("test", "name").longValue());
 	}
 
 	@Test

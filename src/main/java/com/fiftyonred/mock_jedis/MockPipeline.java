@@ -113,22 +113,32 @@ public class MockPipeline extends Pipeline {
 		return response;
 	}
 
+	private Map<String, String> getOrCreateHash(final String key) {
+		Map<String, String> result = hashStorage.get(key);;
+		if (result == null) {
+			result = new HashMap<String, String>();
+			hashStorage.put(key, result);
+		}
+		return result;
+	}
+	
 	@Override
-	public synchronized Response<String> hget(String key, String field) {
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
+	public synchronized Response<String> hget(final String key, final String field) {
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		if (hashStorage.containsKey(key)) {
-			response.set(hashStorage.get(key).get(field).getBytes());
+			final Map<String, String> result = hashStorage.get(key);
+			response.set(result.containsKey(field) ? result.get(field).getBytes() : null);
 		}
 		return response;
 	}
 
 	@Override
-	public synchronized Response<Map<String, String>> hgetAll(String key) {
-		Response<Map<String, String>> response = new Response<Map<String, String>>(BuilderFactory.STRING_MAP);
-		Map<String, String> result = hashStorage.get(key);
+	public synchronized Response<Map<String, String>> hgetAll(final String key) {
+		final Response<Map<String, String>> response = new Response<Map<String, String>>(BuilderFactory.STRING_MAP);
+		final Map<String, String> result = hashStorage.get(key);
 
-		if (hashStorage.containsKey(key)) {
-			List<byte[]> encodedResult = new ArrayList<byte[]>();
+		if (result != null) {
+			final List<byte[]> encodedResult = new ArrayList<byte[]>();
 			for (String k : result.keySet()) {
 				encodedResult.add(SafeEncoder.encode(k));
 				encodedResult.add(SafeEncoder.encode(result.get(k)));
@@ -141,27 +151,19 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> hset(String key, String field, String value) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-		Map<String, String> m;
-		if (!hashStorage.containsKey(key)) {
-			m = new HashMap<String, String>();
-		} else {
-			m = hashStorage.get(key);
-		}
+	public synchronized Response<Long> hset(final String key, final String field, final String value) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Map<String, String> m = getOrCreateHash(key);
 		response.set(m.containsKey(field) ? 0L : 1L);
 		m.put(field, value);
-		if (!hashStorage.containsKey(key)) {
-			hashStorage.put(key, m);
-		}
 
 		return response;
 	}
 
 	@Override
-	public synchronized Response<List<String>> hmget(String key, String... fields) {
-		Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
-		List<byte[]> result = new ArrayList<byte[]>();
+	public synchronized Response<List<String>> hmget(final String key, final String... fields) {
+		final Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
+		final List<byte[]> result = new ArrayList<byte[]>();
 		if (!hashStorage.containsKey(key)) {
 			for (String field : fields) {
 				result.add(null);
@@ -169,8 +171,9 @@ public class MockPipeline extends Pipeline {
 			response.set(result);
 			return response;
 		}
+
 		for (String field : fields) {
-			String v = hashStorage.get(key).get(field);
+			final String v = hashStorage.get(key).get(field);
 			result.add(v != null ? v.getBytes() : null);
 		}
 		response.set(result);
@@ -178,31 +181,20 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<String> hmset(String key, Map<String, String> hash) {
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
-		Map<String, String> m;
-		if (!hashStorage.containsKey(key)) {
-			m = new HashMap<String, String>();
-		} else {
-			m = hashStorage.get(key);
-		}
+	public synchronized Response<String> hmset(final String key, Map<String, String> hash) {
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final Map<String, String> m = getOrCreateHash(key);
 		for (Map.Entry<String, String> e : hash.entrySet()) {
 			m.put(e.getKey(), e.getValue());
-		}
-		if (!hashStorage.containsKey(key)) {
-			hashStorage.put(key, m);
 		}
 		response.set("OK".getBytes());
 		return response;
 	}
 
 	@Override
-	public synchronized Response<Long> hincrBy(String key, String field, long value) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-		if (!hashStorage.containsKey(key)) {
-			hashStorage.put(key, new HashMap<String, String>());
-		}
-		Map<String, String> m = hashStorage.get(key);
+	public synchronized Response<Long> hincrBy(final String key, final String field, final long value) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Map<String, String> m = getOrCreateHash(key);
 
 		if (!m.containsKey(field)) {
 			m.put(field, Long.valueOf(0).toString());
@@ -211,6 +203,43 @@ public class MockPipeline extends Pipeline {
 		Long result = val == null ? value : Long.valueOf(val) + value;
 		m.put(field, result.toString());
 		response.set(result);
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Long> hdel(final String key, final String... fields) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Map<String, String> m = getOrCreateHash(key);
+		long result = 0;
+		for (String field : fields) {
+			if (m.remove(field) != null) {
+				++result;
+			}
+		}
+		response.set(result);
+
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Boolean> hexists(final String key, final String field) {
+		final Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
+		if (hashStorage.containsKey(key)) {
+			response.set(hashStorage.get(key).containsKey(field) ? 1L : 0L);
+		}
+
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Long> hlen(final String key) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		if (hashStorage.containsKey(key)) {
+			response.set((long) hashStorage.get(key).size());
+		} else {
+			response.set(0L);
+		}
+
 		return response;
 	}
 

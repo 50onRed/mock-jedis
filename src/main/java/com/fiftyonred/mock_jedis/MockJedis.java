@@ -107,6 +107,21 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
+	public Long hdel(final String key, final String... fields) {
+		return pipeline.hdel(key, fields).get();
+	}
+
+	@Override
+	public Boolean hexists(final String key, final String field) {
+		return pipeline.hexists(key, field).get();
+	}
+
+	@Override
+	public Long hlen(final String key) {
+		return pipeline.hlen(key).get();
+	}
+
+	@Override
 	public Long lpush(final String key, String... strings) {
 		return pipeline.lpush(key, strings).get();
 	}
