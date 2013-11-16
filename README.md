@@ -17,9 +17,9 @@ buildr package
 
 ## Adding mock-jedis to your project
 
-Compile the JAR with gradle/build/maven, install locally, and add it as a dependency to your project.
+Add it as a dependency to your project.
 
-Here's a sample gradle script that will pull mock-jedis 0.1.2 from github and compile
+Here's a sample gradle script that will pull mock-jedis 0.1.2 from maven-central
 ```gradle
 buildscript {
     repositories {
@@ -31,10 +31,9 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'git-dependencies'
 
 dependencies {
-  testCompile('com.fiftyonred:mock-jedis:0.1.2').ext.git = 'git://github.com/50onRed/mock-jedis.git'
+  testCompile 'com.fiftyonred:mock-jedis:0.1.2'
 }
 ```
 
