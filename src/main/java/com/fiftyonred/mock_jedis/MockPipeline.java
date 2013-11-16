@@ -139,9 +139,43 @@ public class MockPipeline extends Pipeline {
 
 		if (result != null) {
 			final List<byte[]> encodedResult = new ArrayList<byte[]>();
+			for (Map.Entry<String, String> e : result.entrySet()) {
+				encodedResult.add(SafeEncoder.encode(e.getKey()));
+				encodedResult.add(SafeEncoder.encode(e.getValue()));
+			}
+			response.set(encodedResult);
+		} else {
+			response.set(new ArrayList<byte[]>());
+		}
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Set<String>> hkeys(final String key) {
+		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
+		final Map<String, String> result = hashStorage.get(key);
+
+		if (result != null) {
+			final List<byte[]> encodedResult = new ArrayList<byte[]>();
 			for (String k : result.keySet()) {
 				encodedResult.add(SafeEncoder.encode(k));
-				encodedResult.add(SafeEncoder.encode(result.get(k)));
+			}
+			response.set(encodedResult);
+		} else {
+			response.set(new ArrayList<byte[]>());
+		}
+		return response;
+	}
+
+	@Override
+	public synchronized Response<List<String>> hvals(final String key) {
+		final Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
+		final Map<String, String> result = hashStorage.get(key);
+
+		if (result != null) {
+			final List<byte[]> encodedResult = new ArrayList<byte[]>();
+			for (String v : result.values()) {
+				encodedResult.add(SafeEncoder.encode(v));
 			}
 			response.set(encodedResult);
 		} else {
@@ -156,6 +190,20 @@ public class MockPipeline extends Pipeline {
 		final Map<String, String> m = getOrCreateHash(key);
 		response.set(m.containsKey(field) ? 0L : 1L);
 		m.put(field, value);
+
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Long> hsetnx(final String key, final String field, final String value) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Map<String, String> m = getOrCreateHash(key);
+		long result = 0L;
+		if (!m.containsKey(field)) {
+			m.put(field, value);
+			result = 1L;
+		}
+		response.set(result);
 
 		return response;
 	}
@@ -196,13 +244,28 @@ public class MockPipeline extends Pipeline {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Map<String, String> m = getOrCreateHash(key);
 
-		if (!m.containsKey(field)) {
-			m.put(field, Long.valueOf(0).toString());
-		}
 		String val = m.get(field);
-		Long result = val == null ? value : Long.valueOf(val) + value;
+		if (val == null) {
+			val = Long.valueOf(0L).toString();
+		}
+		final Long result = Long.valueOf(val) + value; // TODO: raise exception if value is not a long
 		m.put(field, result.toString());
 		response.set(result);
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Double> hincrByFloat(final String key, final String field, final double value) {
+		final Response<Double> response = new Response<Double>(BuilderFactory.DOUBLE);
+		final Map<String, String> m = getOrCreateHash(key);
+
+		String val = m.get(field);
+		if (val == null) {
+			val = Double.valueOf(0D).toString();
+		}
+		final Double result = Double.parseDouble(val) + value; // TODO: raise exception if value is not a double
+		m.put(field, result.toString());
+		response.set(result.toString().getBytes());
 		return response;
 	}
 

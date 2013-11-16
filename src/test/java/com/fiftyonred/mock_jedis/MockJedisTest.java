@@ -4,9 +4,11 @@ import org.junit.Before;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.Assert.*;
 
 public class MockJedisTest {
 	private Jedis j = null;
@@ -34,6 +36,15 @@ public class MockJedisTest {
 		assertEquals(0L, j.hdel("test", "name").longValue());
 		assertEquals(null, j.hget("test", "name"));
 		j.hset("test", "name", "value");
+		final Set<String> keys = j.hkeys("test");
+		final Map<String, String> entries = j.hgetAll("test");
+		final List<String> vals = j.hvals("test");
+		assertTrue(keys.contains("name"));
+		assertEquals(1, keys.size());
+		assertEquals(1, entries.size());
+		assertEquals("value", entries.get("name"));
+		assertTrue(vals.contains("value"));
+		assertEquals(1, vals.size());
 		assertTrue(j.hexists("test", "name"));
 		assertFalse(j.hexists("test", "name2"));
 		assertEquals(1L, j.hlen("test").longValue());
@@ -46,12 +57,15 @@ public class MockJedisTest {
 		j.hincrBy("test1", "name", 10);
 		assertEquals("10", j.hget("test1", "name"));
 
-		j.hincrBy("test1", "name", 2);
-		assertEquals("12", j.hget("test1", "name"));
+		j.hincrBy("test1", "name", -2);
+		assertEquals("8", j.hget("test1", "name"));
 
 		j.hset("test1", "name", "5");
 		j.hincrBy("test1", "name", 2);
 		assertEquals("7", j.hget("test1", "name"));
+
+		j.hincrByFloat("test1", "name", -0.5D);
+		assertEquals("6.5", j.hget("test1", "name"));
 	}
 
 	@Test

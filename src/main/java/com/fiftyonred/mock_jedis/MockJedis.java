@@ -82,6 +82,11 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
+	public Long hsetnx(final String key, final String field, final String value) {
+		return pipeline.hsetnx(key, field, value).get();
+	}
+
+	@Override
 	public String hget(final String key, final String field) {
 		return pipeline.hget(key, field).get();
 	}
@@ -89,6 +94,16 @@ public class MockJedis extends Jedis {
 	@Override
 	public Map<String, String> hgetAll(final String key) {
 		return pipeline.hgetAll(key).get();
+	}
+
+	@Override
+	public Set<String> hkeys(final String key) {
+		return pipeline.hkeys(key).get();
+	}
+
+	@Override
+	public List<String> hvals(final String key) {
+		return pipeline.hvals(key).get();
 	}
 
 	@Override
@@ -104,6 +119,11 @@ public class MockJedis extends Jedis {
 	@Override
 	public Long hincrBy(String key, String field, long value) {
 		return pipeline.hincrBy(key, field, value).get();
+	}
+
+	@Override
+	public Double hincrByFloat(String key, String field, double value) {
+		return pipeline.hincrByFloat(key, field, value).get();
 	}
 
 	@Override
