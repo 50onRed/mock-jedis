@@ -54,3 +54,15 @@ Jedis j = new MockJedis("test");
 j.set("test", "123");
 assertEquals("123", j.get("test"));
 ```
+
+## Supported Commands
+Currently the following commands are supported by mock-jedis
+ - KEYS: DEL EXPIRE KEYS
+ - STRINGS: DECR DECRBY GET INCR INCRBY MGET MSET SET SETEX
+ - HASHES: HDEL HEXISTS HGET HGETALL HINCRBY HINCRBYFLOAT HKEYS HLEN HMGET HMSET HSET HSETNX HVALS
+ - LISTS: LLEN LPOP LPUSH
+ - PIPELINES
+
+## Unsupported Things
+ - Key expiration
+ - All commands not listed above
