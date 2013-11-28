@@ -7,14 +7,17 @@ import redis.clients.jedis.Response;
 import redis.clients.util.SafeEncoder;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MockPipeline extends Pipeline {
 	private final WildcardMatcher wildcardMatcher = new WildcardMatcher();
 
-	private final Map<String, String> storage;
-	private final Map<String, Map<String, String>> hashStorage;
-	private final Map<String, List<String>> listStorage;
+    private final Map<String, Long> ttls = new ConcurrentHashMap<String, Long>();
 
+    private final Map<String, String> storage;
+    private final Map<String, Map<String, String>> hashStorage;
+    private final Map<String, List<String>> listStorage;
+    
 	public MockPipeline() {
 		storage = new HashMap<String, String>();
 		hashStorage = new HashMap<String, Map<String, String>>();
@@ -34,24 +37,81 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<String> setex(String key, int seconds, String value) {
-		return set(key, value);
-	}
-
-	@Override
 	public synchronized Response<String> get(String key) {
 		Response<String> response = new Response<String>(BuilderFactory.STRING);
-		String val = storage.get(key);
+		String val = getFromStorage(storage, key);
 		response.set(val != null ? val.getBytes() : null);
 		return response;
 	}
 
-	@Override
-	public Response<Long> expire(String key, int seconds) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-		response.set(seconds);
-		return response;
-	}
+    @Override
+    public synchronized Response<String> setex(String key, int seconds, String value) {
+        return psetex(key, seconds * 1000, value);
+    }
+
+    @Override
+    public synchronized Response<String> psetex(String key, int milliseconds, String value) {
+        Response<String> response = set(key, value);
+        pexpire(key, milliseconds);
+        return response;
+    }
+
+    @Override
+    public synchronized Response<Long> expire(String key, int seconds) {
+        return expireAt(key, System.currentTimeMillis() / 1000 + seconds);
+    }
+
+    @Override
+    public synchronized Response<Long> expireAt(String key, long seconds) {
+        return pexpireAt(key, seconds * 1000);
+    }
+
+    @Override
+    public synchronized Response<Long> pexpire(String key, int milliseconds) {
+        return pexpireAt(key, System.currentTimeMillis() + milliseconds);
+    }
+
+    @Override
+    public synchronized Response<Long> pexpireAt(String key, long millisecondsTimestamp) {
+        Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+        if(!(storageContainsKey(storage, key) || storageContainsKey(hashStorage, key) || storageContainsKey(listStorage, key))) {
+            response.set(0L);
+        } else {
+            ttls.put(key, millisecondsTimestamp);
+            response.set(1L);
+        }
+
+        return response;
+    }
+
+    @Override
+    public synchronized Response<Long> ttl(String key) {
+        Long pttlInResponse = pttl(key).get();
+        
+        Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+        if(pttlInResponse != -1) {
+            if(pttlInResponse > 0 && pttlInResponse < 1000L) {
+                pttlInResponse = 1000L;
+            }
+            response.set(pttlInResponse / 1000L);
+        } else {
+            response.set(pttlInResponse);
+        }
+        return response;
+    }
+
+    @Override
+    public synchronized Response<Long> pttl(String key) {
+        checkExpiration(key);
+        Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+        Long ttl = ttls.get(key);
+        if(ttl != null) {
+            response.set(ttl - System.currentTimeMillis());
+        } else {
+            response.set(-1L);
+        }
+        return response;
+    }
 
 	@Override
 	public synchronized Response<List<String>> mget(String... keys) {
@@ -59,8 +119,8 @@ public class MockPipeline extends Pipeline {
 
 		List<byte[]> result = new ArrayList<byte[]>();
 		for (String key : keys) {
-			if (storage.containsKey(key)) {
-				result.add(storage.get(key).getBytes());
+			if (storageContainsKey(storage, key)) {
+				result.add(getFromStorage(storage, key).getBytes());
 			} else {
 				result.add(null);
 			}
@@ -77,7 +137,7 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public synchronized Response<Long> decrBy(String key, long integer) {
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-		String val = storage.get(key);
+		String val = getFromStorage(storage, key);
 		Long result = val == null ? 0L - integer : Long.valueOf(val) - integer;
 		storage.put(key, result.toString());
 		response.set(result);
@@ -92,7 +152,7 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public synchronized Response<Long> incrBy(String key, long integer) {
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-		String val = storage.get(key);
+		String val = getFromStorage(storage, key);
 		Long result = val == null ? integer : Long.valueOf(val) + integer;
 		storage.put(key, result.toString());
 		response.set(result);
@@ -104,6 +164,7 @@ public class MockPipeline extends Pipeline {
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		Long result = 0L;
 		for (String key : keys) {
+            clearExpiration(key);
 			String i = storage.remove(key);
 			if (i != null) {
 				++result;
@@ -114,7 +175,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	private Map<String, String> getOrCreateHash(final String key) {
-		Map<String, String> result = hashStorage.get(key);;
+		Map<String, String> result = getFromStorage(hashStorage, key);
 		if (result == null) {
 			result = new HashMap<String, String>();
 			hashStorage.put(key, result);
@@ -125,8 +186,8 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public synchronized Response<String> hget(final String key, final String field) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
-		if (hashStorage.containsKey(key)) {
-			final Map<String, String> result = hashStorage.get(key);
+		if (storageContainsKey(hashStorage, key)) {
+			final Map<String, String> result = getFromStorage(hashStorage, key);
 			response.set(result.containsKey(field) ? result.get(field).getBytes() : null);
 		}
 		return response;
@@ -135,7 +196,7 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public synchronized Response<Map<String, String>> hgetAll(final String key) {
 		final Response<Map<String, String>> response = new Response<Map<String, String>>(BuilderFactory.STRING_MAP);
-		final Map<String, String> result = hashStorage.get(key);
+		final Map<String, String> result = getFromStorage(hashStorage, key);
 
 		if (result != null) {
 			final List<byte[]> encodedResult = new ArrayList<byte[]>();
@@ -153,7 +214,7 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public synchronized Response<Set<String>> hkeys(final String key) {
 		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
-		final Map<String, String> result = hashStorage.get(key);
+		final Map<String, String> result = getFromStorage(hashStorage, key);
 
 		if (result != null) {
 			final List<byte[]> encodedResult = new ArrayList<byte[]>();
@@ -170,7 +231,7 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public synchronized Response<List<String>> hvals(final String key) {
 		final Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
-		final Map<String, String> result = hashStorage.get(key);
+		final Map<String, String> result = getFromStorage(hashStorage, key);
 
 		if (result != null) {
 			final List<byte[]> encodedResult = new ArrayList<byte[]>();
@@ -212,7 +273,7 @@ public class MockPipeline extends Pipeline {
 	public synchronized Response<List<String>> hmget(final String key, final String... fields) {
 		final Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
 		final List<byte[]> result = new ArrayList<byte[]>();
-		if (!hashStorage.containsKey(key)) {
+		if (!storageContainsKey(hashStorage, key)) {
 			for (String field : fields) {
 				result.add(null);
 			}
@@ -221,7 +282,7 @@ public class MockPipeline extends Pipeline {
 		}
 
 		for (String field : fields) {
-			final String v = hashStorage.get(key).get(field);
+			final String v = getFromStorage(hashStorage, key).get(field);
 			result.add(v != null ? v.getBytes() : null);
 		}
 		response.set(result);
@@ -287,8 +348,8 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public synchronized Response<Boolean> hexists(final String key, final String field) {
 		final Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
-		if (hashStorage.containsKey(key)) {
-			response.set(hashStorage.get(key).containsKey(field) ? 1L : 0L);
+		if (storageContainsKey(hashStorage, key)) {
+			response.set(getFromStorage(hashStorage, key).containsKey(field) ? 1L : 0L);
 		}
 
 		return response;
@@ -297,8 +358,8 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public synchronized Response<Long> hlen(final String key) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-		if (hashStorage.containsKey(key)) {
-			response.set((long) hashStorage.get(key).size());
+		if (storageContainsKey(hashStorage, key)) {
+			response.set((long) getFromStorage(hashStorage, key).size());
 		} else {
 			response.set(0L);
 		}
@@ -309,7 +370,7 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public synchronized Response<Long> lpush(String key, String... string) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-		List<String> list = listStorage.get(key);
+		List<String> list = getFromStorage(listStorage, key);
 		if (list == null) {
 			list = new ArrayList<String>();
 			listStorage.put(key, list);
@@ -322,7 +383,7 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public synchronized Response<String> lpop(String key) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
-		final List<String> list = listStorage.get(key);
+		final List<String> list = getFromStorage(listStorage, key);
 		if (list == null || list.isEmpty()) {
 			response.set(null);
 		} else {
@@ -334,7 +395,7 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public synchronized Response<Long> llen(String key) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-		final List<String> list = listStorage.get(key);
+		final List<String> list = getFromStorage(listStorage, key);
 		if (list == null) {
 			response.set(0L);
 		} else {
@@ -353,8 +414,8 @@ public class MockPipeline extends Pipeline {
 		Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
 
 		List<byte[]> result = new ArrayList<byte[]>();
-		filterKeys(pattern, storage.keySet(), result);
-		filterKeys(pattern, hashStorage.keySet(), result);
+		filterKeys(pattern, storageKeySet(storage), result);
+		filterKeys(pattern, storageKeySet(hashStorage), result);
 
 		response.set(result);
 		return response;
@@ -366,4 +427,39 @@ public class MockPipeline extends Pipeline {
 				result.add(key.getBytes());
 		}
 	}
+
+    protected <T> T getFromStorage(Map<String, T> storage, String key) {
+        checkExpiration(key);
+        return storage.get(key);
+    }
+
+    protected <T> boolean storageContainsKey(Map<String, T> storage, String key) {
+        checkExpiration(key);
+        return storage.containsKey(key);
+    }
+
+    protected Set<String> storageKeySet(Map<String, ?> storage) {
+        for (String key : storage.keySet()) {
+            checkExpiration(key);
+        }
+        return storage.keySet();
+    }
+    
+    protected synchronized void checkExpiration(String key) {
+        Long ttl = ttls.get(key);
+        if(ttl == null) {
+            return;
+        }
+        
+        if(ttl < System.currentTimeMillis()) {
+            storage.remove(key);
+            hashStorage.remove(key);
+            listStorage.remove(key);
+            ttls.remove(key);
+        }
+    }
+    
+    protected synchronized void clearExpiration(String key) {
+        ttls.remove(key);
+    }
 }

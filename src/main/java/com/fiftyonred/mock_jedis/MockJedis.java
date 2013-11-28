@@ -53,10 +53,40 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long expire(String key, int seconds) {
-		return 1L;
+		return pipeline.expire(key, seconds).get();
 	}
 
-	@Override
+    @Override
+    public Long expireAt(String key, long unixTime) {
+        return pipeline.expireAt(key, unixTime).get();
+    }
+
+    @Override
+    public String psetex(String key, int milliseconds, String value) {
+        return pipeline.psetex(key, milliseconds, value).get();
+    }
+
+    @Override
+    public Long ttl(String key) {
+        return pipeline.ttl(key).get();
+    }
+
+    @Override
+    public Long pttl(String key) {
+        return pipeline.pttl(key).get();
+    }
+
+    @Override
+    public Long pexpire(String key, int milliseconds) {
+        return pipeline.pexpire(key, milliseconds).get();
+    }
+
+    @Override
+    public Long pexpireAt(String key, long millisecondsTimestamp) {
+        return pipeline.pexpireAt(key, millisecondsTimestamp).get();
+    }
+
+    @Override
 	public Long incr(String key) {
 		return incrBy(key, 1L);
 	}
@@ -66,10 +96,10 @@ public class MockJedis extends Jedis {
 		return pipeline.incrBy(key, integer).get();
 	}
 
-	@Override
-	public String setex(String key, int seconds, String value) {
-		return set(key, value);
-	}
+    @Override
+    public String setex(String key, int seconds, String value) {
+        return pipeline.setex(key, seconds, value).get();
+    }
 
 	@Override
 	public Long del(String... keys) {
