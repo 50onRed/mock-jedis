@@ -20,8 +20,8 @@ task wrapper(type: Wrapper) {
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
+    from project.tasks.javadoc.destinationDir
     classifier = 'javadoc'
-    from 'build/docs/javadoc'
 }
 
 task sourcesJar(type: Jar) {
