@@ -7,12 +7,11 @@ import redis.clients.jedis.Response;
 import redis.clients.util.SafeEncoder;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class MockPipeline extends Pipeline {
 	private final WildcardMatcher wildcardMatcher = new WildcardMatcher();
 
-    private final Map<String, Long> ttls = new ConcurrentHashMap<String, Long>();
+    private final Map<String, Long> ttls;
 
     private final Map<String, String> storage;
     private final Map<String, Map<String, String>> hashStorage;
@@ -22,6 +21,7 @@ public class MockPipeline extends Pipeline {
 		storage = new HashMap<String, String>();
 		hashStorage = new HashMap<String, Map<String, String>>();
 		listStorage = new HashMap<String, List<String>>();
+		ttls = new HashMap<String, Long>();
 	}
 
 	public void clear() {
@@ -445,7 +445,7 @@ public class MockPipeline extends Pipeline {
         return storage.keySet();
     }
     
-    protected synchronized void checkExpiration(String key) {
+    protected void checkExpiration(String key) {
         Long ttl = ttls.get(key);
         if(ttl == null) {
             return;
@@ -459,7 +459,7 @@ public class MockPipeline extends Pipeline {
         }
     }
     
-    protected synchronized void clearExpiration(String key) {
+    protected void clearExpiration(String key) {
         ttls.remove(key);
     }
 }
