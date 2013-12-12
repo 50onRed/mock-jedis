@@ -3,6 +3,7 @@ package com.fiftyonred.mock_jedis;
 import org.junit.Before;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.List;
 import java.util.Map;
@@ -83,6 +84,42 @@ public class MockJedisTest {
 		assertEquals("a", j.lpop("test"));
 
 		assertEquals(Long.valueOf(0), j.llen("test"));
+	}
+
+	@Test(expected=JedisDataException.class)
+	public void testInvalidKeyTypeHashToString() {
+		j.hset("test", "test", "1");
+		j.get("test");
+	}
+
+	@Test(expected=JedisDataException.class)
+	public void testInvalidKeyTypeHashToList() {
+		j.hset("test", "test", "1");
+		j.llen("test");
+	}
+
+	@Test(expected=JedisDataException.class)
+	public void testInvalidKeyTypeStringToHash() {
+		j.set("test", "test");
+		j.hget("test", "test");
+	}
+
+	@Test(expected=JedisDataException.class)
+	public void testInvalidKeyTypeStringToList() {
+		j.set("test", "test");
+		j.lpop("test");
+	}
+
+	@Test(expected=JedisDataException.class)
+	public void testInvalidKeyTypeListToHash() {
+		j.lpush("test", "test");
+		j.hgetAll("test");
+	}
+
+	@Test(expected=JedisDataException.class)
+	public void testInvalidKeyTypeListToString() {
+		j.lpush("test", "test");
+		j.incr("test");
 	}
 
 	@Test
