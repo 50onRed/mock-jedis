@@ -2,7 +2,6 @@ package com.fiftyonred.mock_jedis;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.util.List;
 import java.util.Map;
@@ -29,9 +28,6 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public List<String> mget(final String... keys) {
-		if (keys.length <= 0) {
-			throw new JedisDataException("ERR wrong number of arguments for 'mget' command");
-		}
 		return pipeline.mget(keys).get();
 	}
 
@@ -47,7 +43,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long decr(String key) {
-		return decrBy(key, 1L);
+		return pipeline.decr(key).get();
 	}
 
 	@Override
@@ -87,7 +83,7 @@ public class MockJedis extends Jedis {
 
     @Override
 	public Long incr(String key) {
-		return incrBy(key, 1L);
+		return pipeline.incr(key).get();
 	}
 
 	@Override

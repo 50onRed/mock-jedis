@@ -118,6 +118,10 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<List<String>> mget(final String... keys) {
+		if (keys.length <= 0) {
+			throw new JedisDataException("ERR wrong number of arguments for 'mget' command");
+		}
+
 		Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
 
 		List<byte[]> result = new ArrayList<byte[]>();
@@ -437,7 +441,7 @@ public class MockPipeline extends Pipeline {
 		}
 	}
 
-	protected KeyInformation createOrUpdateKey(final String key, final KeyType type, final boolean resetTTL) {
+	protected void createOrUpdateKey(final String key, final KeyType type, final boolean resetTTL) {
 		KeyInformation info = keys.get(key);
 		if (info == null) {
 			info = new KeyInformation(type);
@@ -445,7 +449,6 @@ public class MockPipeline extends Pipeline {
 		} else if (resetTTL) {
 			info.setExpiration(-1L);
 		}
-		return info;
 	}
 
 	protected String getStringFromStorage(final String key, final boolean createIfNotExist) {
@@ -463,6 +466,7 @@ public class MockPipeline extends Pipeline {
 		}
 		if (info.isTTLSetAndKeyExpired()) {
 			storage.remove(key);
+			keys.remove(key);
 			return null;
 		}
 		return storage.get(key);
@@ -484,6 +488,7 @@ public class MockPipeline extends Pipeline {
 		}
 		if (info.isTTLSetAndKeyExpired()) {
 			hashStorage.remove(key);
+			keys.remove(key);
 			return null;
 		}
 		return hashStorage.get(key);
@@ -505,6 +510,7 @@ public class MockPipeline extends Pipeline {
 		}
 		if (info.isTTLSetAndKeyExpired()) {
 			listStorage.remove(key);
+			keys.remove(key);
 			return null;
 		}
 		return listStorage.get(key);

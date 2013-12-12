@@ -22,11 +22,7 @@ public class KeyInformation {
 	}
 
 	public boolean isTTLSetAndKeyExpired() {
-		if (expiration == -1L) {
-			return false;
-		}
-
-		return isExpired();
+		return expiration != -1L && isExpired();
 	}
 
 	private boolean isExpired() {
