@@ -37,8 +37,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public String flushAll() {
-		pipeline.clear();
-		return "OK";
+		return pipeline.flushAll().get();
 	}
 
 	@Override

@@ -39,7 +39,7 @@ public class MockJedisExpireTest {
         
         Thread.sleep(delay * 1000 + 1);
 
-        assertTrue(j.ttl("test") == -1);
+        assertEquals(-1L, j.ttl("test").longValue());
     }
 
     @Test
