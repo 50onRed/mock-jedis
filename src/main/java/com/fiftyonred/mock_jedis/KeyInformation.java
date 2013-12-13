@@ -1,7 +1,7 @@
 package com.fiftyonred.mock_jedis;
 
 public class KeyInformation {
-	private final KeyType type;
+	private KeyType type;
 	/**
 	 * value in milliseconds when this key expires
 	 * -1 if this key never expires
@@ -15,6 +15,10 @@ public class KeyInformation {
 
 	public KeyType getType() {
 		return type;
+	}
+
+	public void setType(final KeyType type) {
+		this.type = type;
 	}
 
 	public void setExpiration(final long expiration) {

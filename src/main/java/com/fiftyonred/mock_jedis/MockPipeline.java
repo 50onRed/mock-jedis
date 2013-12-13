@@ -24,6 +24,34 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<String> ping() {
+		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		response.set("PONG".getBytes());
+		return response;
+	}
+
+	@Override
+	public Response<String> echo(final String string) {
+		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		response.set(echo(string.getBytes()).get());
+		return response;
+	}
+
+	@Override
+	public Response<byte[]> echo(final byte[] string) {
+		Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
+		response.set(string);
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Long> dbSize() {
+		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		response.set((long) keys.size());
+		return response;
+	}
+
+	@Override
 	public synchronized Response<String> flushAll() {
 		Response<String> response = new Response<String>(BuilderFactory.STRING);
 		keys.clear();
@@ -35,7 +63,65 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<String> set(String key, String value) {
+	public Response<String> flushDB() {
+		return flushAll();
+	}
+
+	@Override
+	public synchronized Response<String> rename(final String oldkey, final String newkey) {
+		if (oldkey.equals(newkey)) {
+			throw new JedisDataException("ERR source and destination objects are the same");
+		}
+		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final KeyInformation info = keys.get(oldkey);
+		switch (info.getType()) {
+			case HASH:
+				hashStorage.put(newkey, hashStorage.get(oldkey));
+				hashStorage.remove(oldkey);
+				break;
+			case LIST:
+				listStorage.put(newkey, listStorage.get(oldkey));
+				listStorage.remove(oldkey);
+				break;
+			case STRING:
+			default:
+				storage.put(newkey, storage.get(oldkey));
+				storage.remove(oldkey);
+		}
+		keys.put(newkey, info);
+		keys.remove(oldkey);
+		response.set("OK".getBytes());
+		return response;
+	}
+
+	@Override
+	public Response<String> rename(final byte[] oldkey, final byte[] newkey) {
+		return rename(new String(oldkey), new String(newkey));
+	}
+
+	@Override
+	public synchronized Response<Long> renamenx(final String oldkey, final String newkey) {
+		if (oldkey.equals(newkey)) {
+			throw new JedisDataException("ERR source and destination objects are the same");
+		}
+		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final KeyInformation newInfo = keys.get(newkey);
+		if (newInfo == null) {
+			rename(oldkey, newkey);
+			response.set(1L);
+		} else {
+			response.set(0L);
+		}
+		return response;
+	}
+
+	@Override
+	public Response<Long> renamenx(final byte[] oldkey, final byte[] newkey) {
+		return renamenx(new String(oldkey), new String(newkey));
+	}
+
+	@Override
+	public synchronized Response<String> set(final String key, final String value) {
 		Response<String> response = new Response<String>(BuilderFactory.STRING);
 		createOrUpdateKey(key, KeyType.STRING, true);
 		storage.put(key, value);
@@ -44,16 +130,126 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public synchronized Response<String> set(final byte[] key, final byte[] value) {
+		return set(new String(key), new String(value));
+	}
+
+	@Override
 	public synchronized Response<String> get(String key) {
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
-		String val = getStringFromStorage(key, false);
-		response.set(val != null ? val.getBytes() : null);
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final String val = getStringFromStorage(key, false);
+		response.set(val == null ? null : val.getBytes());
 		return response;
 	}
 
 	@Override
-	public synchronized Response<String> setex(String key, int seconds, String value) {
+	public Response<byte[]> get(final byte[] key) {
+		final Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
+		final String result = get(new String(key)).get();
+		response.set(result == null ? null : result.getBytes());
+		return response;
+	}
+
+	@Override
+	public Response<byte[]> dump(byte[] key) {
+		return get(key);
+	}
+
+	@Override
+	public Response<byte[]> dump(String key) {
+		return get(key.getBytes());
+	}
+
+	@Override
+	public Response<String> restore(String key, int ttl, byte[] serializedValue) {
+		return setex(key.getBytes(), ttl, serializedValue);
+	}
+
+	@Override
+	public Response<String> restore(byte[] key, int ttl, byte[] serializedValue) {
+		return setex(key, ttl, serializedValue);
+	}
+
+	@Override
+	public synchronized Response<Boolean> exists(final String key) {
+		Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
+		response.set(keys.containsKey(key) ? 1L : 0L);
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Boolean> exists(final byte[] key) {
+		return exists(new String(key));
+	}
+
+	@Override
+	public synchronized Response<String> type(final String key) {
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final KeyInformation info = keys.get(key);
+		if (info != null && info.getType() == KeyType.STRING) {
+			response.set("string".getBytes());
+		} else if (info != null && info.getType() == KeyType.LIST) {
+			response.set("list".getBytes());
+		} else if (info != null && info.getType() == KeyType.SET) {
+			response.set("set".getBytes());
+		} else {
+			response.set("none".getBytes());
+		}
+		return response;
+	}
+
+	@Override
+	public synchronized Response<String> type(final byte[] key) {
+		return type(new String(key));
+	}
+
+	@Override
+	public Response<Long> move(final String key, final int dbIndex) {
+		return move(key.getBytes(), dbIndex);
+	}
+
+	@Override
+	public Response<Long> move(final byte[] key, final int dbIndex) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		response.set(1L); // TODO: implement multiple databases
+		return response;
+	}
+
+	@Override
+	public synchronized Response<String> randomKey() {
+		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		if (keys.size() == 0) {
+			response.set(null);
+		} else {
+			final String result = (String) keys.keySet().toArray()[(int) (Math.random() * keys.size())];
+			response.set(result.getBytes());
+		}
+		return response;
+	}
+
+	@Override
+	public Response<byte[]> randomKeyBinary() {
+		Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
+		final String result = randomKey().get();
+		response.set(result == null ? null : result.getBytes());
+		return response;
+	}
+
+	@Override
+	public Response<String> select(final int dbIndex) {
+		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		response.set("OK".getBytes()); // TODO: implement multiple databases
+		return response;
+	}
+
+	@Override
+	public Response<String> setex(String key, int seconds, String value) {
 		return psetex(key, seconds * 1000, value);
+	}
+
+	@Override
+	public Response<String> setex(byte[] key, int seconds, byte[] value) {
+		return setex(new String(key), seconds, new String(value));
 	}
 
 	@Override
@@ -64,8 +260,18 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<String> psetex(final byte[] key, final int milliseconds, final byte[] value) {
+		return psetex(new String(key), milliseconds, new String(value));
+	}
+
+	@Override
 	public Response<Long> expire(final String key, final int seconds) {
 		return expireAt(key, System.currentTimeMillis() / 1000 + seconds);
+	}
+
+	@Override
+	public Response<Long> expire(final byte[] key, final int seconds) {
+		return expire(new String(key), seconds);
 	}
 
 	@Override
@@ -74,8 +280,18 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<Long> expireAt(final byte[] key, final long seconds) {
+		return expireAt(new String(key), seconds);
+	}
+
+	@Override
 	public Response<Long> pexpire(final String key, final int milliseconds) {
 		return pexpireAt(key, System.currentTimeMillis() + milliseconds);
+	}
+
+	@Override
+	public Response<Long> pexpire(final byte[] key, final int milliseconds) {
+		return pexpire(new String(key), milliseconds);
 	}
 
 	@Override
@@ -93,7 +309,12 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> ttl(String key) {
+	public synchronized Response<Long> pexpireAt(final byte[] key, final long millisecondsTimestamp) {
+		return pexpireAt(new String(key), millisecondsTimestamp);
+	}
+
+	@Override
+	public Response<Long> ttl(String key) {
 		Long pttlInResponse = pttl(key).get();
 
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
@@ -109,11 +330,34 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<Long> ttl(byte[] key) {
+		return ttl(new String(key));
+	}
+
+	@Override
 	public synchronized Response<Long> pttl(final String key) {
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final KeyInformation info = keys.get(key);
-		response.set(info.getTTL());
+		response.set(info == null ? -1L : info.getTTL());
 		return response;
+	}
+
+	@Override
+	public synchronized Response<Long> persist(String key) {
+		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final KeyInformation info = keys.get(key);
+		if (response == null || info.getTTL() == -1) {
+			response.set(0L);
+		} else {
+			info.setExpiration(-1L);
+			response.set(1L);
+		}
+		return response;
+	}
+
+	@Override
+	public Response<Long> persist(byte[] key) {
+		return persist(new String(key));
 	}
 
 	@Override
@@ -138,23 +382,54 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Long> decr(String key) {
-		return decrBy(key, 1);
-	}
+	public synchronized Response<List<byte[]>> mget(final byte[]... keys) {
+		if (keys.length <= 0) {
+			throw new JedisDataException("ERR wrong number of arguments for 'mget' command");
+		}
 
-	@Override
-	public synchronized Response<Long> decrBy(String key, long integer) {
-		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-		final String val = getStringFromStorage(key, true);
-		final Long result = val == null ? 0L - integer : Long.valueOf(val) - integer;
-		storage.put(key, result.toString());
+		Response<List<byte[]>> response = new Response<List<byte[]>>(BuilderFactory.BYTE_ARRAY_LIST);
+
+		List<byte[]> result = new ArrayList<byte[]>();
+		for (final byte[] key : keys) {
+			final byte[] val = getStringFromStorage(new String(key), false).getBytes();
+			if (val != null) {
+				result.add(val);
+			} else {
+				result.add(null);
+			}
+		}
 		response.set(result);
 		return response;
 	}
 
 	@Override
+	public Response<Long> decr(String key) {
+		return decrBy(key, 1);
+	}
+
+	@Override
+	public Response<Long> decr(final byte[] key) {
+		return decr(new String(key));
+	}
+
+	@Override
+	public Response<Long> decrBy(String key, long integer) {
+		return incrBy(key, -integer);
+	}
+
+	@Override
+	public Response<Long> decrBy(final byte[] key, final long integer) {
+		return decrBy(new String(key), integer);
+	}
+
+	@Override
 	public Response<Long> incr(String key) {
 		return incrBy(key, 1);
+	}
+
+	@Override
+	public Response<Long> incr(final byte[] key) {
+		return incr(new String(key));
 	}
 
 	@Override
@@ -168,29 +443,60 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> del(String... keys) {
+	public Response<Long> incrBy(final byte[] key, long integer) {
+		return incrBy(new String(key), integer);
+	}
+
+	@Override
+	public Response<Long> del(final String... keys) {
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-		Long result = 0L;
+		long result = 0L;
 		for (String key : keys) {
-			final KeyInformation info = this.keys.remove(key);
-			if (info != null) {
-				switch (info.getType()) {
-					case HASH:
-						hashStorage.remove(key);
-						break;
-					case LIST:
-						listStorage.remove(key);
-						break;
-					default:
-						storage.remove(key);
-						break;
-				}
-				++result;
-			}
+			result += del(key).get();
 		}
 
 		response.set(result);
 		return response;
+	}
+
+	@Override
+	public Response<Long> del(final byte[]... keys) {
+		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		long result = 0L;
+		for (byte[] key : keys) {
+			result += del(key).get();
+		}
+
+		response.set(result);
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Long> del(final String key) {
+		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		long result = 0L;
+		final KeyInformation info = this.keys.remove(key);
+		if (info != null) {
+			switch (info.getType()) {
+				case HASH:
+					hashStorage.remove(key);
+					break;
+				case LIST:
+					listStorage.remove(key);
+					break;
+				case STRING:
+				default:
+					storage.remove(key);
+			}
+			++result;
+		}
+		response.set(result);
+		return response;
+	}
+
+	@Override
+	public Response<Long> del(final byte[] key) {
+		return del(new String(key));
 	}
 
 	@Override
@@ -446,8 +752,13 @@ public class MockPipeline extends Pipeline {
 		if (info == null) {
 			info = new KeyInformation(type);
 			keys.put(key, info);
-		} else if (resetTTL) {
-			info.setExpiration(-1L);
+		} else {
+			if (info.getType() != type) {
+				throw new JedisDataException("ERR Operation against a key holding the wrong kind of value");
+			}
+			if (resetTTL) {
+				info.setExpiration(-1L);
+			}
 		}
 	}
 
