@@ -9,7 +9,7 @@ import java.util.Set;
 
 public class MockJedis extends Jedis {
 
-	private MockPipeline pipeline = null;
+	private final MockPipeline pipeline;
 
 	public MockJedis(final String host) {
 		super(host);
@@ -18,7 +18,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long getDB() {
-		return 0L; // TODO: implement multiple databases
+		return (long) pipeline.getCurrentDB();
 	}
 
 	@Override

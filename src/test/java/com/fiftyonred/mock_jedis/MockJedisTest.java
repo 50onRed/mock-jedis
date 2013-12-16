@@ -138,4 +138,15 @@ public class MockJedisTest {
 		assertEquals(3, j.keys("*2*").size());
 		assertEquals(1, j.keys("C*C").size());
 	}
+
+	@Test
+	public void testMultipleDB() {
+		assertEquals(0L, j.dbSize().longValue());
+		j.set("test", "test");
+		assertEquals(1L, j.dbSize().longValue());
+		j.move("test", 5);
+		assertEquals(0L, j.dbSize().longValue());
+		j.select(5);
+		assertEquals(1L, j.dbSize().longValue());
+	}
 }

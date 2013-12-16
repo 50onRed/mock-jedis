@@ -11,16 +11,34 @@ import java.util.*;
 
 public class MockPipeline extends Pipeline {
 	private final WildcardMatcher wildcardMatcher = new WildcardMatcher();
-	private final Map<String, KeyInformation> keys;
-	private final Map<String, String> storage;
-	private final Map<String, Map<String, String>> hashStorage;
-	private final Map<String, List<String>> listStorage;
+	private final List<Map<String, KeyInformation>> allKeys;
+	private final List<Map<String, String>> allStorage;
+	private final List<Map<String, Map<String, String>>> allHashStorage;
+	private final List<Map<String, List<String>>> allListStorage;
+
+	private int currentDB;
+	private static final int NUM_DBS = 16;
+	private Map<String, KeyInformation> keys;
+	private Map<String, String> storage;
+	private Map<String, Map<String, String>> hashStorage;
+	private Map<String, List<String>> listStorage;
 
 	public MockPipeline() {
-		keys = new HashMap<String, KeyInformation>();
-		storage = new HashMap<String, String>();
-		hashStorage = new HashMap<String, Map<String, String>>();
-		listStorage = new HashMap<String, List<String>>();
+		allKeys = new ArrayList<Map<String, KeyInformation>>(NUM_DBS);
+		allStorage = new ArrayList<Map<String, String>>(NUM_DBS);
+		allHashStorage = new ArrayList<Map<String, Map<String, String>>>(NUM_DBS);
+		allListStorage = new ArrayList<Map<String, List<String>>>(NUM_DBS);
+		for (int i = 0; i < NUM_DBS; ++i) {
+			allKeys.add(new HashMap<String, KeyInformation>());
+			allStorage.add(new HashMap<String, String>());
+			allHashStorage.add(new HashMap<String, Map<String, String>>());
+			allListStorage.add(new HashMap<String, List<String>>());
+		}
+		select(0);
+	}
+
+	public int getCurrentDB() {
+		return currentDB;
 	}
 
 	@Override
@@ -205,14 +223,44 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public Response<Long> move(final String key, final int dbIndex) {
-		return move(key.getBytes(), dbIndex);
+		if (dbIndex < 0 || dbIndex > 15) {
+			throw new JedisDataException("ERR index out of range");
+		}
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final KeyInformation info = keys.get(key);
+		if (info == null) {
+			response.set(0L);
+		} else {
+			final KeyInformation infoNew = allKeys.get(dbIndex).get(key);
+			if (infoNew == null) {
+				allKeys.get(dbIndex).put(key, info);
+				switch (info.getType()) {
+					case HASH:
+						allHashStorage.get(dbIndex).put(key, hashStorage.get(key));
+						hashStorage.remove(key);
+						break;
+					case LIST:
+						allListStorage.get(dbIndex).put(key, listStorage.get(key));
+						listStorage.remove(key);
+						break;
+					default:
+					case STRING:
+						allStorage.get(dbIndex).put(key, storage.get(key));
+						storage.remove(key);
+				}
+				keys.remove(key);
+				response.set(1L);
+			} else {
+				response.set(0L);
+			}
+		}
+		return response;
+
 	}
 
 	@Override
-	public Response<Long> move(final byte[] key, final int dbIndex) {
-		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-		response.set(1L); // TODO: implement multiple databases
-		return response;
+	public synchronized Response<Long> move(final byte[] key, final int dbIndex) {
+		return move(new String(key), dbIndex);
 	}
 
 	@Override
@@ -237,8 +285,16 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public Response<String> select(final int dbIndex) {
+		if (dbIndex < 0 || dbIndex > 15) {
+			throw new JedisDataException("ERR invalid DB index");
+		}
 		Response<String> response = new Response<String>(BuilderFactory.STRING);
-		response.set("OK".getBytes()); // TODO: implement multiple databases
+		currentDB = dbIndex;
+		keys = allKeys.get(dbIndex);
+		storage = allStorage.get(dbIndex);
+		hashStorage = allHashStorage.get(dbIndex);
+		listStorage = allListStorage.get(dbIndex);
+		response.set("OK".getBytes());
 		return response;
 	}
 
