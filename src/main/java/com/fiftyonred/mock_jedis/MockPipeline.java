@@ -926,7 +926,7 @@ public class MockPipeline extends Pipeline {
     }
 
     @Override
-    public Response<Long> srem(String key, String... members) {
+    public synchronized Response<Long> srem(String key, String... members) {
         final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
         Set<String> set = getSetFromStorage(key, true);
         Long removed = 0L;
