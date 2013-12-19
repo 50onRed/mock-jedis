@@ -14,25 +14,29 @@ public class MockPipeline extends Pipeline {
 	private final List<Map<String, KeyInformation>> allKeys;
 	private final List<Map<String, String>> allStorage;
 	private final List<Map<String, Map<String, String>>> allHashStorage;
-	private final List<Map<String, List<String>>> allListStorage;
+    private final List<Map<String, List<String>>> allListStorage;
+    private final List<Map<String, Set<String>>> allSetStorage;
 
 	private int currentDB;
 	private static final int NUM_DBS = 16;
 	private Map<String, KeyInformation> keys;
 	private Map<String, String> storage;
 	private Map<String, Map<String, String>> hashStorage;
-	private Map<String, List<String>> listStorage;
+    private Map<String, List<String>> listStorage;
+    private Map<String, Set<String>> setStorage;
 
 	public MockPipeline() {
 		allKeys = new ArrayList<Map<String, KeyInformation>>(NUM_DBS);
 		allStorage = new ArrayList<Map<String, String>>(NUM_DBS);
 		allHashStorage = new ArrayList<Map<String, Map<String, String>>>(NUM_DBS);
 		allListStorage = new ArrayList<Map<String, List<String>>>(NUM_DBS);
+        allSetStorage = new ArrayList<Map<String, Set<String>>>(NUM_DBS);
 		for (int i = 0; i < NUM_DBS; ++i) {
 			allKeys.add(new HashMap<String, KeyInformation>());
 			allStorage.add(new HashMap<String, String>());
 			allHashStorage.add(new HashMap<String, Map<String, String>>());
-			allListStorage.add(new HashMap<String, List<String>>());
+            allListStorage.add(new HashMap<String, List<String>>());
+            allSetStorage.add(new HashMap<String, Set<String>>());
 		}
 		select(0);
 	}
@@ -294,6 +298,7 @@ public class MockPipeline extends Pipeline {
 		storage = allStorage.get(dbIndex);
 		hashStorage = allHashStorage.get(dbIndex);
 		listStorage = allListStorage.get(dbIndex);
+        setStorage = allSetStorage.get(dbIndex);
 		response.set("OK".getBytes());
 		return response;
 	}
@@ -882,4 +887,70 @@ public class MockPipeline extends Pipeline {
 		}
 		return listStorage.get(key);
 	}
+
+    protected Set<String> getSetFromStorage(final String key, boolean createIfNotExist) {
+        final KeyInformation info = keys.get(key);
+        if (info == null) {
+            if (createIfNotExist) {
+                createOrUpdateKey(key, KeyType.SET, false);
+                Set<String> result = new HashSet<String>();
+                setStorage.put(key, result);
+                return result;
+            }
+            return null; // no such key exists
+        }
+        if (info.getType() != KeyType.SET) {
+            throw new JedisDataException("ERR Operation against a key holding the wrong kind of value");
+        }
+        if (info.isTTLSetAndKeyExpired()) {
+            setStorage.remove(key);
+            keys.remove(key);
+            return null;
+        }
+        return setStorage.get(key);
+    }
+
+
+    @Override
+    public synchronized Response<Long> sadd(String key, String... members) {
+        final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+        Set<String> set = getSetFromStorage(key, true);
+
+        Long added = 0L;
+        for (String s: members) {
+            if (set.add(s)) added++;
+        }
+
+        response.set(added);
+        return response;
+    }
+
+    @Override
+    public Response<Long> srem(String key, String... members) {
+        final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+        Set<String> set = getSetFromStorage(key, true);
+        Long removed = 0L;
+        for (String s: members) {
+            if (set.remove(s)) removed++;
+        }
+        response.set(removed);
+        return response;
+    }
+
+    @Override
+    public synchronized Response<Set<String>> smembers(String key) {
+        final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
+        Set<String> set = getSetFromStorage(key, true);
+
+        // BuilderFactory.STRING_SET uses a List<byte[]> internally so we can't just send the Set
+        List<byte[]> builderData = new ArrayList<byte[]>(set.size());
+        for (String s : set) {
+            builderData.add(s.getBytes());
+        }
+
+        response.set(builderData);
+
+        return response;
+    }
 }
+
