@@ -57,7 +57,7 @@ public class MockJedisTest {
         assertEquals(1L, (long)j.sadd("test", "member 3"));
 
         // duplicate member 1. should drop
-        assertEquals(0L, (long)j.sadd("test", "member 1"));
+        assertEquals(0L, (long) j.sadd("test", "member 1"));
 
         assertEquals(3, j.smembers("test").size());
 
@@ -155,6 +155,9 @@ public class MockJedisTest {
 		assertEquals(3, j.keys("A*").size());
 		assertEquals(2, j.keys("*1").size());
 		assertEquals(3, j.keys("*2*").size());
+		assertEquals(1, j.keys("C*C").size());
+
+		j.set("testC2C", "value");
 		assertEquals(1, j.keys("C*C").size());
 	}
 
