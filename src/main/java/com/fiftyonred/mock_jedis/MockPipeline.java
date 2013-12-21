@@ -505,7 +505,12 @@ public class MockPipeline extends Pipeline {
 	public synchronized Response<Long> incrBy(String key, long integer) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final String val = getStringFromStorage(key, true);
-		Long result = val == null || "".equals(val) ? integer : Long.valueOf(val) + integer;
+		final Long result;
+		try {
+			result = val == null || "".equals(val) ? integer : Long.valueOf(val) + integer;
+		} catch (final NumberFormatException ignored) {
+			throw new JedisDataException("ERR value is not an integer or out of range");
+		}
 		storage.put(key, result.toString());
 		response.set(result);
 		return response;
@@ -695,7 +700,12 @@ public class MockPipeline extends Pipeline {
 		if (val == null) {
 			val = Long.valueOf(0L).toString();
 		}
-		final Long result = Long.valueOf(val) + value; // TODO: raise exception if value is not a long
+		final Long result;
+		try {
+			result = Long.valueOf(val) + value;
+		} catch (final NumberFormatException ignored) {
+			throw new JedisDataException("ERR value is not an integer or out of range");
+		}
 		m.put(field, result.toString());
 		response.set(result);
 		return response;
@@ -710,7 +720,12 @@ public class MockPipeline extends Pipeline {
 		if (val == null) {
 			val = Double.valueOf(0D).toString();
 		}
-		final Double result = Double.parseDouble(val) + value; // TODO: raise exception if value is not a double
+		final Double result;
+		try {
+			result = Double.parseDouble(val) + value;
+		} catch (final NumberFormatException ignored) {
+			throw new JedisDataException("ERR value is not a valid float");
+		}
 		m.put(field, result.toString());
 		response.set(result.toString().getBytes());
 		return response;
