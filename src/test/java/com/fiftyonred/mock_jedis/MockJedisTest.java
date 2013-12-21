@@ -5,9 +5,7 @@ import org.junit.Test;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.exceptions.JedisDataException;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -52,6 +50,27 @@ public class MockJedisTest {
 		assertEquals("value", j.hget("test", "name"));
 		assertEquals(1L, j.hdel("test", "name").longValue());
 	}
+
+    @Test
+    public void testSets() {
+        assertEquals(2L, (long)j.sadd("test", "member 1", "member 2"));
+        assertEquals(1L, (long)j.sadd("test", "member 3"));
+
+        // duplicate member 1. should drop
+        assertEquals(0L, (long)j.sadd("test", "member 1"));
+
+        assertEquals(3, j.smembers("test").size());
+
+        // should remove member 3
+        assertEquals(1L, (long)j.srem("test", "member 3"));
+
+        List<String> sortedMembers = new ArrayList<String>(2);
+        sortedMembers.addAll(j.smembers("test"));
+        Collections.sort(sortedMembers);
+
+        assertEquals("member 1", sortedMembers.get(0));
+        assertEquals("member 2", sortedMembers.get(1));
+    }
 
 	@Test
 	public void testHincrBy() {

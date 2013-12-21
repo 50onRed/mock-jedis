@@ -451,7 +451,22 @@ public class MockJedis extends Jedis {
 		return pipeline.lpush(key, strings).get();
 	}
 
-	@Override
+    @Override
+    public Long sadd(String key, String... members) {
+        return pipeline.sadd(key, members).get();
+    }
+
+    @Override
+    public Long srem(String key, String... members) {
+        return pipeline.srem(key, members).get();
+    }
+
+    @Override
+    public Set<String> smembers(String key) {
+        return pipeline.smembers(key).get();
+    }
+
+    @Override
 	public String lpop(final String key) {
 		return pipeline.lpop(key).get();
 	}
