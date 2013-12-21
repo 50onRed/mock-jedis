@@ -456,17 +456,142 @@ public class MockJedis extends Jedis {
         return pipeline.sadd(key, members).get();
     }
 
-    @Override
-    public Long srem(String key, String... members) {
-        return pipeline.srem(key, members).get();
-    }
+	@Override
+	public Long sadd(byte[] key, byte[]... members) {
+		return pipeline.sadd(key, members).get();
+	}
 
-    @Override
-    public Set<String> smembers(String key) {
-        return pipeline.smembers(key).get();
-    }
+	@Override
+	public Long scard(String key) {
+		return pipeline.scard(key).get();
+	}
 
-    @Override
+	@Override
+	public Long scard(byte[] key) {
+		return pipeline.scard(key).get();
+	}
+
+	@Override
+	public Set<String> sdiff(String... keys) {
+		return pipeline.sdiff(keys).get();
+	}
+
+	@Override
+	public Set<byte[]> sdiff(byte[]... keys) {
+		return pipeline.sdiff(keys).get();
+	}
+
+	@Override
+	public Long sdiffstore(String dstKey, String... keys) {
+		return pipeline.sdiffstore(dstKey, keys).get();
+	}
+
+	@Override
+	public Long sdiffstore(byte[] dstKey, byte[]... keys) {
+		return pipeline.sdiffstore(dstKey, keys).get();
+	}
+
+	@Override
+	public Set<String> sinter(String... keys) {
+		return pipeline.sinter(keys).get();
+	}
+
+	@Override
+	public Set<byte[]> sinter(byte[]... keys) {
+		return pipeline.sinter(keys).get();
+	}
+
+	@Override
+	public Long sinterstore(String dstKey, String... keys) {
+		return pipeline.sinterstore(dstKey, keys).get();
+	}
+
+	@Override
+	public Long sinterstore(byte[] dstKey, byte[]... keys) {
+		return pipeline.sinterstore(dstKey, keys).get();
+	}
+
+	@Override
+	public Boolean sismember(String key, String member) {
+		return pipeline.sismember(key, member).get();
+	}
+
+	@Override
+	public Boolean sismember(byte[] key, byte[] member) {
+		return pipeline.sismember(key, member).get();
+	}
+
+	@Override
+	public Set<String> smembers(String key) {
+		return pipeline.smembers(key).get();
+	}
+
+	@Override
+	public Set<byte[]> smembers(byte[] key) {
+		return pipeline.smembers(key).get();
+	}
+
+	@Override
+	public Long smove(String srcKey, String dstKey, String member) {
+		return pipeline.smove(srcKey, dstKey, member).get();
+	}
+
+	@Override
+	public Long smove(byte[] srcKey, byte[] dstKey, byte[] member) {
+		return pipeline.smove(srcKey, dstKey, member).get();
+	}
+
+	@Override
+	public String spop(String key) {
+		return pipeline.spop(key).get();
+	}
+
+	@Override
+	public byte[] spop(byte[] key) {
+		return pipeline.spop(key).get();
+	}
+
+	@Override
+	public String srandmember(String key) {
+		return pipeline.srandmember(key).get();
+	}
+
+	@Override
+	public byte[] srandmember(byte[] key) {
+		return pipeline.srandmember(key).get();
+	}
+
+	@Override
+	public Long srem(String key, String... members) {
+		return pipeline.srem(key, members).get();
+	}
+
+	@Override
+	public Long srem(byte[] key, byte[]... members) {
+		return pipeline.srem(key, members).get();
+	}
+
+	@Override
+	public Set<String> sunion(String... keys) {
+		return pipeline.sunion(keys).get();
+	}
+
+	@Override
+	public Set<byte[]> sunion(byte[]... keys) {
+		return pipeline.sunion(keys).get();
+	}
+
+	@Override
+	public Long sunionstore(String dstKey, String... keys) {
+		return pipeline.sunionstore(dstKey, keys).get();
+	}
+
+	@Override
+	public Long sunionstore(byte[] dstKey, byte[]... keys) {
+		return pipeline.sunionstore(dstKey, keys).get();
+	}
+
+	@Override
 	public String lpop(final String key) {
 		return pipeline.lpop(key).get();
 	}

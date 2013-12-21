@@ -45,6 +45,10 @@ public class MockPipeline extends Pipeline {
 		return currentDB;
 	}
 
+	protected static <T> T getRandomElementFromSet(final Set<T> set) {
+		return (T) set.toArray()[(int) (Math.random() * set.size())];
+	}
+
 	@Override
 	public Response<String> ping() {
 		Response<String> response = new Response<String>(BuilderFactory.STRING);
@@ -281,7 +285,7 @@ public class MockPipeline extends Pipeline {
 		if (keys.size() == 0) {
 			response.set(null);
 		} else {
-			final String result = (String) keys.keySet().toArray()[(int) (Math.random() * keys.size())];
+			final String result = getRandomElementFromSet(keys.keySet());
 			response.set(result.getBytes());
 		}
 		return response;
@@ -945,6 +949,13 @@ public class MockPipeline extends Pipeline {
         return setStorage.get(key);
     }
 
+	protected static String[] convertToStrings(final byte[][] b) {
+		final String[] result = new String[b.length];
+		for (int i = 0; i < b.length; ++i) {
+			result[i] = new String(b[i]);
+		}
+		return result;
+	}
 
     @Override
     public synchronized Response<Long> sadd(String key, String... members) {
@@ -960,6 +971,11 @@ public class MockPipeline extends Pipeline {
         return response;
     }
 
+	@Override
+	public Response<Long> sadd(byte[] key, byte[]... members) {
+		return sadd(new String(key), convertToStrings(members));
+	}
+
     @Override
     public synchronized Response<Long> srem(String key, String... members) {
         final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
@@ -972,20 +988,289 @@ public class MockPipeline extends Pipeline {
         return response;
     }
 
-    @Override
-    public synchronized Response<Set<String>> smembers(String key) {
-        final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
-        Set<String> set = getSetFromStorage(key, true);
+	@Override
+	public Response<Long> srem(byte[] key, byte[]... members) {
+		return srem(new String(key), convertToStrings(members));
+	}
 
-        // BuilderFactory.STRING_SET uses a List<byte[]> internally so we can't just send the Set
-        List<byte[]> builderData = new ArrayList<byte[]>(set.size());
-        for (String s : set) {
-            builderData.add(s.getBytes());
-        }
+	@Override
+	public synchronized Response<Long> scard(String key) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Set<String> set = getSetFromStorage(key, true);
+		response.set((long) set.size());
 
-        response.set(builderData);
+		return response;
+	}
 
-        return response;
-    }
+	@Override
+	public Response<Long> scard(byte[] key) {
+		return scard(new String(key));
+	}
+
+	@Override
+	public synchronized Response<Set<String>> sdiff(final String... keys) {
+		if (keys.length <= 0) {
+			throw new JedisDataException("ERR wrong number of arguments for 'sdiff' command");
+		}
+		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
+		final Set<String> firstSet = new HashSet<String>(getSetFromStorage(keys[0], true));
+		for (int i = 1; i < keys.length; ++i) {
+			final Set<String> set = getSetFromStorage(keys[i], true);
+			firstSet.removeAll(set);
+		}
+
+		final List<byte[]> builderData = new ArrayList<byte[]>(firstSet.size());
+		for (final String value : firstSet) {
+			builderData.add(value.getBytes());
+		}
+		response.set(builderData);
+
+		return response;
+	}
+
+	@Override
+	public Response<Set<byte[]>> sdiff(final byte[]... keys) {
+		final Response<Set<byte[]>> response = new Response<Set<byte[]>>(BuilderFactory.BYTE_ARRAY_ZSET);
+		final Set<String> members = sdiff(convertToStrings(keys)).get();
+		final List<byte[]> result = new ArrayList<byte[]>(members.size());
+		for (final String member : members) {
+			result.add(member.getBytes());
+		}
+		response.set(result);
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Long> sdiffstore(final String dstKey, final String... keys) {
+		if (keys.length <= 0) {
+			throw new JedisDataException("ERR wrong number of arguments for 'sdiff' command");
+		}
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Set<String> diff = sdiff(keys).get();
+		final Set<String> dst = getSetFromStorage(dstKey, true);
+		if (dst.size() > 0) {
+			dst.clear();
+		}
+		dst.addAll(diff);
+		response.set((long) diff.size());
+
+		return response;
+	}
+
+	@Override
+	public Response<Long> sdiffstore(final byte[] dstKey, final byte[]... keys) {
+		return sdiffstore(new String(dstKey), convertToStrings(keys));
+	}
+
+	@Override
+	public synchronized Response<Set<String>> sinter(final String... keys) {
+		if (keys.length <= 0) {
+			throw new JedisDataException("ERR wrong number of arguments for 'sinter' command");
+		}
+		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
+		final Set<String> firstSet = new HashSet<String>(getSetFromStorage(keys[0], true));
+		for (int i = 1; i < keys.length; ++i) {
+			final Set<String> set = getSetFromStorage(keys[i], true);
+			firstSet.retainAll(set);
+		}
+
+		final List<byte[]> builderData = new ArrayList<byte[]>(firstSet.size());
+		for (final String value : firstSet) {
+			builderData.add(value.getBytes());
+		}
+		response.set(builderData);
+
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Set<byte[]>> sinter(final byte[]... keys) {
+		final Response<Set<byte[]>> response = new Response<Set<byte[]>>(BuilderFactory.BYTE_ARRAY_ZSET);
+		final Set<String> members = sinter(convertToStrings(keys)).get();
+		final List<byte[]> result = new ArrayList<byte[]>(members.size());
+		for (final String member : members) {
+			result.add(member.getBytes());
+		}
+		response.set(result);
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Long> sinterstore(final String dstKey, final String... keys) {
+		if (keys.length <= 0) {
+			throw new JedisDataException("ERR wrong number of arguments for 'sinterstore' command");
+		}
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Set<String> inter = sinter(keys).get();
+		final Set<String> dst = getSetFromStorage(dstKey, true);
+		if (dst.size() > 0) {
+			dst.clear();
+		}
+		dst.addAll(inter);
+		response.set((long) inter.size());
+
+		return response;
+	}
+
+	@Override
+	public Response<Long> sinterstore(final byte[] dstKey, final byte[]... keys) {
+		return sinterstore(new String(dstKey), convertToStrings(keys));
+	}
+
+	@Override
+	public synchronized Response<Boolean> sismember(final String key, final String member) {
+		final Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
+		final Set<String> set = getSetFromStorage(key, false);
+		response.set(set.contains(member) ? 1L : 0L);
+		return response;
+	}
+
+	@Override
+	public Response<Boolean> sismember(final byte[] key, final byte[] member) {
+		return sismember(new String(key), new String(member));
+	}
+
+	@Override
+	public synchronized Response<Long> smove(final String srckey, final String dstkey, final String member) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Set<String> src = getSetFromStorage(srckey, false);
+		final Set<String> dst = getSetFromStorage(dstkey, true);
+		if (src.remove(member)) {
+			dst.add(member);
+			response.set(1L);
+		} else {
+			response.set(0L);
+		}
+
+		return response;
+	}
+
+	@Override
+	public Response<Long> smove(final byte[] srckey, final byte[] dstkey, final byte[] member) {
+		return smove(new String(srckey), new String(dstkey), new String(member));
+	}
+
+	@Override
+	public synchronized Response<String> spop(final String key) {
+		final Response<String> response = srandmember(key);
+		if (response.get() != null) {
+			final Set<String> src = getSetFromStorage(key, false);
+			src.remove(response.get());
+		}
+		return response;
+	}
+
+	@Override
+	public Response<byte[]> spop(final byte[] key) {
+		final Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
+		final String result = spop(new String(key)).get();
+		response.set(result == null ? null : result.getBytes());
+		return response;
+	}
+
+	@Override
+	public synchronized Response<String> srandmember(final String key) {
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final Set<String> src = getSetFromStorage(key, false);
+		if (src == null) {
+			response.set(null);
+		} else {
+			final String result = getRandomElementFromSet(src);
+			response.set(result.getBytes());
+		}
+		return response;
+	}
+
+	@Override
+	public Response<byte[]> srandmember(final byte[] key) {
+		final Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
+		final String result = srandmember(new String(key)).get();
+		response.set(result == null ? null : result.getBytes());
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Set<String>> smembers(String key) {
+		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
+		Set<String> set = getSetFromStorage(key, true);
+
+		// BuilderFactory.STRING_SET uses a List<byte[]> internally so we can't just send the Set
+		List<byte[]> builderData = new ArrayList<byte[]>(set.size());
+		for (String s : set) {
+			builderData.add(s.getBytes());
+		}
+
+		response.set(builderData);
+
+		return response;
+	}
+
+	@Override
+	public Response<Set<byte[]>> smembers(byte[] key) {
+		final Response<Set<byte[]>> response = new Response<Set<byte[]>>(BuilderFactory.BYTE_ARRAY_ZSET);
+		final Set<String> members = smembers(new String(key)).get();
+		final List<byte[]> result = new ArrayList<byte[]>(members.size());
+		for (final String member : members) {
+			result.add(member.getBytes());
+		}
+		response.set(result);
+
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Set<String>> sunion(final String... keys) {
+		if (keys.length <= 0) {
+			throw new JedisDataException("ERR wrong number of arguments for 'sunion' command");
+		}
+		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
+		final Set<String> firstSet = new HashSet<String>(getSetFromStorage(keys[0], true));
+		for (int i = 1; i < keys.length; ++i) {
+			final Set<String> set = getSetFromStorage(keys[i], true);
+			firstSet.addAll(set);
+		}
+
+		final List<byte[]> builderData = new ArrayList<byte[]>(firstSet.size());
+		for (final String value : firstSet) {
+			builderData.add(value.getBytes());
+		}
+		response.set(builderData);
+
+		return response;
+	}
+
+	@Override
+	public Response<Set<byte[]>> sunion(final byte[]... keys) {
+		final Response<Set<byte[]>> response = new Response<Set<byte[]>>(BuilderFactory.BYTE_ARRAY_ZSET);
+		final Set<String> members = sunion(convertToStrings(keys)).get();
+		final List<byte[]> result = new ArrayList<byte[]>(members.size());
+		for (final String member : members) {
+			result.add(member.getBytes());
+		}
+		response.set(result);
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Long> sunionstore(final String dstKey, final String... keys) {
+		if (keys.length <= 0) {
+			throw new JedisDataException("ERR wrong number of arguments for 'sunionstore' command");
+		}
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Set<String> inter = sunion(keys).get();
+		final Set<String> dst = getSetFromStorage(dstKey, true);
+		if (dst.size() > 0) {
+			dst.clear();
+		}
+		dst.addAll(inter);
+		response.set((long) inter.size());
+
+		return response;
+	}
+
+	@Override
+	public Response<Long> sunionstore(final byte[] dstKey, final byte[]... keys) {
+		return sunionstore(new String(dstKey), convertToStrings(keys));
+	}
 }
 
