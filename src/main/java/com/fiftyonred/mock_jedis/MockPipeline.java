@@ -808,6 +808,18 @@ public class MockPipeline extends Pipeline {
 		return response;
 	}
 
+	@Override
+	public Response<Set<byte[]>> keys(final byte[] pattern) {
+		final Response<Set<byte[]>> response = new Response<Set<byte[]>>(BuilderFactory.BYTE_ARRAY_ZSET);
+		final List<byte[]> result = new ArrayList<byte[]>();
+		for (final String key : keys(new String(pattern)).get()) {
+			result.add(key.getBytes());
+		}
+
+		response.set(result);
+		return response;
+	}
+
 	public void filterKeys(final String pattern, final Collection<String> collection, final List<byte[]> result) {
 		for (String key : collection) {
 			if (wildcardMatcher.match(key, pattern)) {
