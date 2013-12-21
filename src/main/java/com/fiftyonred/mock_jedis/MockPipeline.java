@@ -76,17 +76,25 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public synchronized Response<String> flushAll() {
 		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		for (int dbNum = 0; dbNum < NUM_DBS; ++dbNum) {
+			allKeys.get(dbNum).clear();
+			allStorage.get(dbNum).clear();
+			allHashStorage.get(dbNum).clear();
+			allListStorage.get(dbNum).clear();
+		}
+		response.set("OK".getBytes());
+		return response;
+	}
+
+	@Override
+	public synchronized Response<String> flushDB() {
+		Response<String> response = new Response<String>(BuilderFactory.STRING);
 		keys.clear();
 		storage.clear();
 		hashStorage.clear();
 		listStorage.clear();
 		response.set("OK".getBytes());
 		return response;
-	}
-
-	@Override
-	public Response<String> flushDB() {
-		return flushAll();
 	}
 
 	@Override
