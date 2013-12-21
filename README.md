@@ -25,9 +25,6 @@ buildscript {
     repositories {
         mavenCentral()
     }
-    dependencies {
-        classpath 'org.batcha.gradle.plugins:git-dependencies:0.1'
-    }
 }
 
 apply plugin: 'java'
