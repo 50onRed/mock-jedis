@@ -569,7 +569,7 @@ public class MockPipeline extends Pipeline {
 		final String val = getStringFromStorage(key, true);
 		final Long result;
 		try {
-			result = val == null || "".equals(val) ? integer : Long.valueOf(val) + integer;
+			result = val == null || "".equals(val) ? integer : Long.parseLong(val) + integer;
 		} catch (final NumberFormatException ignored) {
 			throw new JedisDataException("ERR value is not an integer or out of range");
 		}
@@ -581,6 +581,26 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public Response<Long> incrBy(final byte[] key, long integer) {
 		return incrBy(new String(key), integer);
+	}
+
+	@Override
+	public synchronized Response<Double> incrByFloat(final String key, final double integer) {
+		final Response<Double> response = new Response<Double>(BuilderFactory.DOUBLE);
+		final String val = getStringFromStorage(key, true);
+		final Double result;
+		try {
+			result = val == null || "".equals(val) ? integer : Double.parseDouble(val) + integer;
+		} catch (final NumberFormatException ignored) {
+			throw new JedisDataException("ERR value is not a valid float");
+		}
+		storage.put(key, result.toString());
+		response.set(result.toString().getBytes());
+		return response;
+	}
+
+	@Override
+	public Response<Double> incrByFloat(final byte[] key, final double integer) {
+		return incrByFloat(new String(key), integer);
 	}
 
 	@Override

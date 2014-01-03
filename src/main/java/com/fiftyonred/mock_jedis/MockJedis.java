@@ -152,6 +152,16 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
+	public Double incrByFloat(final String key, final double integer) {
+		return pipeline.incrByFloat(key, integer).get();
+	}
+
+	@Override
+	public Double incrByFloat(final byte[] key, final double integer) {
+		return pipeline.incrByFloat(key, integer).get();
+	}
+
+	@Override
 	public Long incr(byte[] key) {
 		return pipeline.incr(key).get();
 	}
