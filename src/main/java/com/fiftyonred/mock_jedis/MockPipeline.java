@@ -567,13 +567,21 @@ public class MockPipeline extends Pipeline {
 	public synchronized Response<Long> incrBy(String key, long integer) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final String val = getStringFromStorage(key, true);
-		final Long result;
+
+		final long oldValue;
 		try {
-			result = val == null || "".equals(val) ? integer : Long.parseLong(val) + integer;
+			oldValue = val == null || "".equals(val) ? 0L : Long.parseLong(val);
 		} catch (final NumberFormatException ignored) {
 			throw new JedisDataException("ERR value is not an integer or out of range");
 		}
-		storage.put(key, result.toString());
+
+		// check for overflow
+		if (oldValue > 0 ? integer > Long.MAX_VALUE - oldValue : integer < Long.MIN_VALUE - oldValue) {
+			throw new JedisDataException("ERR value is not an integer or out of range");
+		}
+
+		final long result = oldValue + integer;
+		storage.put(key, Long.toString(result));
 		response.set(result);
 		return response;
 	}
