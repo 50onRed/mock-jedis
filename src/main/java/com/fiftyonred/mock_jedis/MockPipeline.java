@@ -604,6 +604,19 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<Long> strlen(final String key) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final String val = getStringFromStorage(key, false);
+		response.set(val == null ? 0L : (long) val.length());
+		return response;
+	}
+
+	@Override
+	public Response<Long> strlen(final byte[] key) {
+		return strlen(new String(key));
+	}
+
+	@Override
 	public Response<Long> del(final String... keys) {
 		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		long result = 0L;

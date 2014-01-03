@@ -162,6 +162,16 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
+	public Long strlen(final String key) {
+		return pipeline.strlen(key).get();
+	}
+
+	@Override
+	public Long strlen(final byte[] key) {
+		return pipeline.strlen(key).get();
+	}
+
+	@Override
 	public Long incr(byte[] key) {
 		return pipeline.incr(key).get();
 	}
