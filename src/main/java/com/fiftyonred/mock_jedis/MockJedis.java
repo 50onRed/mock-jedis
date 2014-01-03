@@ -137,7 +137,12 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
-	public String mset(byte[]... keysvalues) {
+	public String mset(final String... keysvalues) {
+		return pipeline.mset(keysvalues).get();
+	}
+
+	@Override
+	public String mset(final byte[]... keysvalues) {
 		return pipeline.mset(keysvalues).get();
 	}
 

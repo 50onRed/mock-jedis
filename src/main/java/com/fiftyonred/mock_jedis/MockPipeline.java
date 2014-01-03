@@ -488,9 +488,9 @@ public class MockPipeline extends Pipeline {
 			throw new JedisDataException("ERR wrong number of arguments for 'mget' command");
 		}
 
-		Response<List<byte[]>> response = new Response<List<byte[]>>(BuilderFactory.BYTE_ARRAY_LIST);
+		final Response<List<byte[]>> response = new Response<List<byte[]>>(BuilderFactory.BYTE_ARRAY_LIST);
 
-		List<byte[]> result = new ArrayList<byte[]>();
+		final List<byte[]> result = new ArrayList<byte[]>();
 		for (final byte[] key : keys) {
 			final byte[] val = getStringFromStorage(new String(key), false).getBytes();
 			if (val != null) {
@@ -500,6 +500,36 @@ public class MockPipeline extends Pipeline {
 			}
 		}
 		response.set(result);
+		return response;
+	}
+
+	@Override
+	public synchronized Response<String> mset(final String... keys) {
+		if (keys.length <= 0 || keys.length % 2 != 0) {
+			throw new JedisDataException("ERR wrong number of arguments for 'mset' command");
+		}
+
+		for (int i = 0; i < keys.length; i += 2) {
+			set(keys[i], keys[i + 1]);
+		}
+
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
+		response.set("OK".getBytes());
+		return response;
+	}
+
+	@Override
+	public synchronized Response<String> mset(final byte[]... keys) {
+		if (keys.length <= 0 || keys.length % 2 != 0) {
+			throw new JedisDataException("ERR wrong number of arguments for 'mset' command");
+		}
+
+		for (int i = 0; i < keys.length; i += 2) {
+			set(keys[i], keys[i + 1]);
+		}
+
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
+		response.set("OK".getBytes());
 		return response;
 	}
 
