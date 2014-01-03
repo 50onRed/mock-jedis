@@ -467,16 +467,12 @@ public class MockPipeline extends Pipeline {
 			throw new JedisDataException("ERR wrong number of arguments for 'mget' command");
 		}
 
-		Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
+		final Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
 
-		List<byte[]> result = new ArrayList<byte[]>();
-		for (String key : keys) {
+		final List<byte[]> result = new ArrayList<byte[]>();
+		for (final String key : keys) {
 			final String val = getStringFromStorage(key, false);
-			if (val != null) {
-				result.add(val.getBytes());
-			} else {
-				result.add(null);
-			}
+			result.add(val == null ? null : val.getBytes());
 		}
 		response.set(result);
 		return response;
@@ -492,12 +488,8 @@ public class MockPipeline extends Pipeline {
 
 		final List<byte[]> result = new ArrayList<byte[]>();
 		for (final byte[] key : keys) {
-			final byte[] val = getStringFromStorage(new String(key), false).getBytes();
-			if (val != null) {
-				result.add(val);
-			} else {
-				result.add(null);
-			}
+			final String val = getStringFromStorage(new String(key), false);
+			result.add(val == null ? null : val.getBytes());
 		}
 		response.set(result);
 		return response;
