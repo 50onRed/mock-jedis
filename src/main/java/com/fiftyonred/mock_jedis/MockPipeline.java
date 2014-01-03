@@ -185,6 +185,20 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public synchronized Response<String> getSet(final String key, final String value) {
+		final Response<String> response = get(key);
+		set(key, value);
+		return response;
+	}
+
+	@Override
+	public synchronized Response<byte[]> getSet(final byte[] key, final byte[] value) {
+		final Response<byte[]> response = get(key);
+		set(key, value);
+		return response;
+	}
+
+	@Override
 	public Response<byte[]> dump(byte[] key) {
 		return get(key);
 	}
@@ -400,6 +414,20 @@ public class MockPipeline extends Pipeline {
 			response.set(pttlInResponse);
 		}
 		return response;
+	}
+
+	@Override
+	public synchronized Response<Long> append(final String key, final String value) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final String newVal = getStringFromStorage(key, true) + value;
+		set(key, newVal);
+		response.set((long) newVal.length());
+		return response;
+	}
+
+	@Override
+	public Response<Long> append(final byte[] key, final byte[] value) {
+		return append(new String(key), new String(value));
 	}
 
 	@Override

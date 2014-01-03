@@ -22,6 +22,26 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
+	public Long append(final String key, final String value) {
+		return pipeline.append(key, value).get();
+	}
+
+	@Override
+	public Long append(final byte[] key, final byte[] value) {
+		return pipeline.append(key, value).get();
+	}
+
+	@Override
+	public String getSet(final String key, final String value) {
+		return pipeline.getSet(key, value).get();
+	}
+
+	@Override
+	public byte[] getSet(final byte[] key, final byte[] value) {
+		return pipeline.getSet(key, value).get();
+	}
+
+	@Override
 	public String echo(final String string) {
 		return pipeline.echo(string).get();
 	}
