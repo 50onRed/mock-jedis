@@ -147,6 +147,16 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
+	public Long msetnx(final String... keysvalues) {
+		return pipeline.msetnx(keysvalues).get();
+	}
+
+	@Override
+	public Long msetnx(final byte[]... keysvalues) {
+		return pipeline.msetnx(keysvalues).get();
+	}
+
+	@Override
 	public Long incrBy(byte[] key, long integer) {
 		return pipeline.incrBy(key, integer).get();
 	}
@@ -284,6 +294,16 @@ public class MockJedis extends Jedis {
 	@Override
 	public String set(final byte[] key, final byte[] value) {
 		return pipeline.set(key, value).get();
+	}
+
+	@Override
+	public Long setnx(final String key, final String value) {
+		return pipeline.setnx(key, value).get();
+	}
+
+	@Override
+	public Long setnx(final byte[] key, final byte[] value) {
+		return pipeline.setnx(key, value).get();
 	}
 
 	@Override

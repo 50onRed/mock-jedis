@@ -169,6 +169,25 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public synchronized Response<Long> setnx(final String key, final String value) {
+		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final String result = getStringFromStorage(key, false);
+		if (result == null) {
+			set(key, value);
+			response.set(1L);
+		} else {
+			response.set(0L);
+		}
+
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Long> setnx(final byte[] key, final byte[] value) {
+		return setnx(new String(key), new String(value));
+	}
+
+	@Override
 	public synchronized Response<String> get(String key) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final String val = getStringFromStorage(key, false);
@@ -511,18 +530,31 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<String> mset(final byte[]... keys) {
+	public Response<String> mset(final byte[]... keys) {
+		return mset(convertToStrings(keys));
+	}
+
+	@Override
+	public synchronized Response<Long> msetnx(final String... keys) {
 		if (keys.length <= 0 || keys.length % 2 != 0) {
-			throw new JedisDataException("ERR wrong number of arguments for 'mset' command");
+			throw new JedisDataException("ERR wrong number of arguments for 'msetnx' command");
 		}
 
+		long result = 1L;
 		for (int i = 0; i < keys.length; i += 2) {
-			set(keys[i], keys[i + 1]);
+			if (setnx(keys[i], keys[i + 1]).get() == 0L) {
+                result = 0L;
+			}
 		}
 
-		final Response<String> response = new Response<String>(BuilderFactory.STRING);
-		response.set("OK".getBytes());
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		response.set(result);
 		return response;
+	}
+
+	@Override
+	public Response<Long> msetnx(final byte[]... keys) {
+		return msetnx(convertToStrings(keys));
 	}
 
 	@Override
@@ -938,11 +970,12 @@ public class MockPipeline extends Pipeline {
 		}
 	}
 
-	protected void createOrUpdateKey(final String key, final KeyType type, final boolean resetTTL) {
+	protected boolean createOrUpdateKey(final String key, final KeyType type, final boolean resetTTL) {
 		KeyInformation info = keys.get(key);
 		if (info == null) {
 			info = new KeyInformation(type);
 			keys.put(key, info);
+			return true;
 		} else {
 			if (info.getType() != type) {
 				throw new JedisDataException("ERR Operation against a key holding the wrong kind of value");
@@ -950,6 +983,7 @@ public class MockPipeline extends Pipeline {
 			if (resetTTL) {
 				info.setExpiration(-1L);
 			}
+			return false;
 		}
 	}
 
