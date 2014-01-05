@@ -512,7 +512,12 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
-	public Long lpush(final String key, String... strings) {
+	public Long lpush(final String key, final String... strings) {
+		return pipeline.lpush(key, strings).get();
+	}
+
+	@Override
+	public Long lpush(final byte[] key, final byte[]... strings) {
 		return pipeline.lpush(key, strings).get();
 	}
 
@@ -662,7 +667,17 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
+	public byte[] lpop(final byte[] key) {
+		return pipeline.lpop(key).get();
+	}
+
+	@Override
 	public Long llen(final String key) {
+		return pipeline.llen(key).get();
+	}
+
+	@Override
+	public Long llen(final byte[] key) {
 		return pipeline.llen(key).get();
 	}
 

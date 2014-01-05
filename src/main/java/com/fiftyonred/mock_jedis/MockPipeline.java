@@ -898,7 +898,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> lpush(String key, String... string) {
+	public synchronized Response<Long> lpush(final String key, final String... string) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		List<String> list = getListFromStorage(key, true);
 		if (list == null) {
@@ -906,14 +906,31 @@ public class MockPipeline extends Pipeline {
 			listStorage.put(key, list);
 		}
 		Collections.addAll(list, string);
-		response.set((long) string.length);
+		response.set((long) list.size());
 		return response;
+	}
+
+	@Override
+	public Response<Long> lpush(final byte[] key, final byte[]... string) {
+		return lpush(new String(key), convertToStrings(string));
 	}
 
 	@Override
 	public synchronized Response<String> lpop(String key) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final List<String> list = getListFromStorage(key, true);
+		if (list == null || list.isEmpty()) {
+			response.set(null);
+		} else {
+			response.set(list.remove(list.size() - 1).getBytes());
+		}
+		return response;
+	}
+
+	@Override
+	public synchronized Response<byte[]> lpop(final byte[] key) {
+		final Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
+		final List<String> list = getListFromStorage(new String(key), true);
 		if (list == null || list.isEmpty()) {
 			response.set(null);
 		} else {
@@ -932,6 +949,11 @@ public class MockPipeline extends Pipeline {
 			response.set((long) list.size());
 		}
 		return response;
+	}
+
+	@Override
+	public Response<Long> llen(final byte[] key) {
+		return llen(new String(key));
 	}
 
 	@Override
