@@ -957,6 +957,46 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<List<String>> lrange(String key, long start, long end) {
+		final Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
+		final List<String> full = getListFromStorage(key, false);
+
+		final List<byte[]> selected = new ArrayList<byte[]>();
+		response.set(selected);
+
+		if(start < 0) { start = Math.max(full.size() + start, 0); }
+		if(end < 0)   { end = full.size() + end; }
+		if(start > full.size() || start > end) return response;
+
+		end = Math.min(full.size() - 1, end);
+
+		for(int i = (int) start; i <= end; i++) {
+			selected.add(full.get(i).getBytes());
+		}
+		return response;
+	}
+
+	@Override
+	public Response<List<byte[]>> lrange(byte[] key, long start, long end) {
+		final Response<List<byte[]>> response = new Response<List<byte[]>>(BuilderFactory.BYTE_ARRAY_LIST);
+		final List<String> full = getListFromStorage(new String(key), false);
+
+		final List<byte[]> selected = new ArrayList<byte[]>();
+		response.set(selected);
+
+		if(start < 0) { start = Math.max(full.size() + start, 0); }
+		if(end < 0)   { end = full.size() + end; }
+		if(start > full.size() || start > end) return response;
+
+		end = Math.min(full.size() - 1, end);
+
+		for(int i = (int) start; i <= end; i++) {
+			selected.add(full.get(i).getBytes());
+		}
+		return response;
+	}
+
+	@Override
 	public void sync() {
 		// do nothing
 	}

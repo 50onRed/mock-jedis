@@ -682,6 +682,16 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
+	public List<String> lrange(String key, long start, long end) {
+		return pipeline.lrange(key, start, end).get();
+	}
+
+	@Override
+	public List<byte[]> lrange(byte[] key, long start, long end) {
+		return pipeline.lrange(key, start, end).get();
+	}
+
+	@Override
 	public Pipeline pipelined() {
 		return pipeline;
 	}
