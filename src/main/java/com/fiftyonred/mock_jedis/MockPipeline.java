@@ -3,7 +3,9 @@ package com.fiftyonred.mock_jedis;
 import com.fiftyonred.utils.WildcardMatcher;
 import redis.clients.jedis.BuilderFactory;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Protocol;
 import redis.clients.jedis.Response;
+import redis.clients.jedis.SortingParams;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.util.SafeEncoder;
 
@@ -636,6 +638,117 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<List<String>> sort(String key) {
+		return sort(key, new SortingParams());
+	}
+
+	@Override
+	public Response<Long> sort(String key, String dstkey) {
+		return sort(key, new SortingParams(), dstkey);
+	}
+
+	private Comparator<String> makeComparator(Collection<String> params) {
+		Comparator<String> comparator;
+		final int direction = params.contains(Protocol.Keyword.DESC.name().toLowerCase()) ? -1 : 1;
+		if (params.contains(Protocol.Keyword.ALPHA.name().toLowerCase())) {
+			comparator = new Comparator<String>() {
+				public int compare(String o1, String o2) {
+					return o1.compareTo(o2) * direction;
+				}
+			};
+		} else {
+			comparator = new Comparator<String>() {
+				public int compare(String o1, String o2) {
+					Long i1, i2;
+					try {
+						i1 = Long.parseLong(o1);
+						i2 = Long.parseLong(o2);
+					} catch (NumberFormatException e) {
+						throw new JedisDataException("ERR One or more scores can't be converted into double");
+					}
+					return i1.compareTo(i2) * direction;
+				}
+			};
+		}
+		return comparator;
+	}
+
+	@Override
+	public Response<List<String>> sort(String key, SortingParams sortingParameters) {
+		List<String> result = new LinkedList<String>();
+		KeyInformation info = keys.get(key);
+		if(info != null) {
+			switch (info.getType()) {
+				case LIST:
+					result.addAll(listStorage.get(key));
+					break;
+				case SET:
+					result.addAll(setStorage.get(key));
+					break;
+				case SORTED_SET:
+					throw new RuntimeException("Not implemented");
+				default:
+					throw new JedisDataException("WRONGTYPE Operation against a key holding the wrong kind of value");
+			}
+		}
+
+		List<String> params = convertToStrings(sortingParameters.getParams());
+
+		Collections.sort(result, makeComparator(params));
+
+		ArrayList<byte[]> byteResult = new ArrayList<byte[]>(result.size());
+		int limitpos = params.indexOf(Protocol.Keyword.LIMIT.name().toLowerCase());
+		if(limitpos >=0) {
+			int start = Math.max(Integer.parseInt(params.get(limitpos + 1)), 0);
+			int end = Math.min(Integer.parseInt(params.get(limitpos + 2)) + start, result.size());
+			for(String entry : result.subList(start, end)) {
+				byteResult.add(entry.getBytes());
+			}
+		} else {
+			for(String entry : result) {
+				byteResult.add(entry.getBytes());
+			}
+		}
+
+		Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
+		response.set(byteResult);
+		return response;
+	}
+
+	@Override
+	public Response<Long> sort(String key, SortingParams sortingParameters, String dstkey) {
+		List<String> sorted = sort(key, sortingParameters).get();
+
+		del(dstkey);
+		keys.put(dstkey, new KeyInformation(KeyType.LIST));
+		listStorage.put(dstkey, sorted);
+
+		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		response.set((long) sorted.size());
+		return response;
+	}
+
+	@Override
+	public Response<List<byte[]>> sort(byte[] key) {
+		return sort(key, new SortingParams());
+	}
+
+	@Override
+	public Response<Long> sort(byte[] key, byte[] dstkey) {
+		return null;
+	}
+
+	@Override
+	public Response<List<byte[]>> sort(byte[] key, SortingParams sortingParameters) {
+		return null;
+	}
+
+	@Override
+	public Response<Long> sort(byte[] key, SortingParams sortingParameters, byte[] dstkey) {
+		return null;
+	}
+
+	@Override
 	public Response<Long> strlen(final String key) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final String val = getStringFromStorage(key, false);
@@ -957,6 +1070,46 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<List<String>> lrange(String key, long start, long end) {
+		final Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
+		final List<String> full = getListFromStorage(key, false);
+
+		final List<byte[]> selected = new ArrayList<byte[]>();
+		response.set(selected);
+
+		if(start < 0) { start = Math.max(full.size() + start, 0); }
+		if(end < 0)   { end = full.size() + end; }
+		if(start > full.size() || start > end) return response;
+
+		end = Math.min(full.size() - 1, end);
+
+		for(int i = (int) start; i <= end; i++) {
+			selected.add(full.get(i).getBytes());
+		}
+		return response;
+	}
+
+	@Override
+	public Response<List<byte[]>> lrange(byte[] key, long start, long end) {
+		final Response<List<byte[]>> response = new Response<List<byte[]>>(BuilderFactory.BYTE_ARRAY_LIST);
+		final List<String> full = getListFromStorage(new String(key), false);
+
+		final List<byte[]> selected = new ArrayList<byte[]>();
+		response.set(selected);
+
+		if(start < 0) { start = Math.max(full.size() + start, 0); }
+		if(end < 0)   { end = full.size() + end; }
+		if(start > full.size() || start > end) return response;
+
+		end = Math.min(full.size() - 1, end);
+
+		for(int i = (int) start; i <= end; i++) {
+			selected.add(full.get(i).getBytes());
+		}
+		return response;
+	}
+
+	@Override
 	public void sync() {
 		// do nothing
 	}
@@ -1100,6 +1253,14 @@ public class MockPipeline extends Pipeline {
 		final String[] result = new String[b.length];
 		for (int i = 0; i < b.length; ++i) {
 			result[i] = new String(b[i]);
+		}
+		return result;
+	}
+
+	protected static List<String> convertToStrings(final Collection<byte[]> collection) {
+		final List<String> result = new LinkedList<String>();
+		for(byte[] entry : collection) {
+			result.add(new String(entry));
 		}
 		return result;
 	}

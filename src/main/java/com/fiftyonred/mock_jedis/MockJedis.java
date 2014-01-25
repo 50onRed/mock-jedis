@@ -2,6 +2,7 @@ package com.fiftyonred.mock_jedis;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.SortingParams;
 
 import java.util.List;
 import java.util.Map;
@@ -194,6 +195,46 @@ public class MockJedis extends Jedis {
 	@Override
 	public Long decrBy(byte[] key, long integer) {
 		return pipeline.decrBy(key, integer).get();
+	}
+
+	@Override
+	public List<String> sort(String key) {
+		return pipeline.sort(key).get();
+	}
+
+	@Override
+	public List<byte[]> sort(byte[] key) {
+		return pipeline.sort(key).get();
+	}
+
+	@Override
+	public Long sort(String key, String dstkey) {
+		return pipeline.sort(key, dstkey).get();
+	}
+
+	@Override
+	public Long sort(byte[] key, byte[] dstkey) {
+		return pipeline.sort(key, dstkey).get();
+	}
+
+	@Override
+	public List<String> sort(String key, SortingParams sortingParameters) {
+		return pipeline.sort(key, sortingParameters).get();
+	}
+
+	@Override
+	public List<byte[]> sort(byte[] key, SortingParams sortingParameters) {
+		return pipeline.sort(key, sortingParameters).get();
+	}
+
+	@Override
+	public Long sort(String key, SortingParams sortingParameters, String dstkey) {
+		return pipeline.sort(key, sortingParameters, dstkey).get();
+	}
+
+	@Override
+	public Long sort(byte[] key, SortingParams sortingParameters, byte[] dstkey) {
+		return pipeline.sort(key, sortingParameters, dstkey).get();
 	}
 
 	@Override
@@ -679,6 +720,16 @@ public class MockJedis extends Jedis {
 	@Override
 	public Long llen(final byte[] key) {
 		return pipeline.llen(key).get();
+	}
+
+	@Override
+	public List<String> lrange(String key, long start, long end) {
+		return pipeline.lrange(key, start, end).get();
+	}
+
+	@Override
+	public List<byte[]> lrange(byte[] key, long start, long end) {
+		return pipeline.lrange(key, start, end).get();
 	}
 
 	@Override
