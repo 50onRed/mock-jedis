@@ -1,6 +1,6 @@
 package com.fiftyonred.mock_jedis;
 
-import org.apache.commons.pool.impl.GenericObjectPool.Config;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -8,7 +8,7 @@ import redis.clients.jedis.JedisPool;
 public class MockJedisPool extends JedisPool {
 	private MockJedis client = null;
 
-	public MockJedisPool(Config poolConfig, String host) {
+	public MockJedisPool(GenericObjectPoolConfig poolConfig, String host) {
 		super(poolConfig, host);
 	}
 

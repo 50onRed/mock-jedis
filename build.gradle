@@ -11,12 +11,12 @@ repositories {
 }
 
 dependencies {
-    compile 'redis.clients:jedis:2.2.1'
+    compile 'redis.clients:jedis:2.4.1'
     testCompile 'junit:junit:4.11'
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.8'
+    gradleVersion = '1.11'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
