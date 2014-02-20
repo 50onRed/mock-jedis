@@ -12,6 +12,7 @@ public class MockJedisPool extends JedisPool {
 		super(poolConfig, host);
 	}
 
+	@Override
 	public Jedis getResource() {
 		if (client == null) {
 			client = new MockJedis("localhost");
@@ -19,4 +20,13 @@ public class MockJedisPool extends JedisPool {
 		return client;
 	}
 
+	@Override
+	public void returnResource(final Jedis resource) {
+
+	}
+
+	@Override
+	public void returnBrokenResource(final Jedis resource) {
+
+	}
 }
