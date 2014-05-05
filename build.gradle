@@ -6,6 +6,9 @@ apply plugin: 'eclipse'
 group = 'com.fiftyonred'
 version = '0.2.2'
 
+sourceCompatibility = 6
+targetCompatibility = 6
+
 repositories {
     mavenCentral()
 }
