@@ -1,9 +1,13 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
+apply plugin: 'eclipse'
 
 group = 'com.fiftyonred'
-version = '0.1.2'
+version = '0.2.2'
+
+sourceCompatibility = 6
+targetCompatibility = 6
 
 sourceCompatibility = 7
 targetCompatibility = 7
@@ -13,17 +17,17 @@ repositories {
 }
 
 dependencies {
-    compile 'redis.clients:jedis:2.2.1'
+    compile 'redis.clients:jedis:2.4.1'
     testCompile 'junit:junit:4.11'
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.8'
+    gradleVersion = '1.11'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
+    from project.tasks.javadoc.destinationDir
     classifier = 'javadoc'
-    from 'build/docs/javadoc'
 }
 
 task sourcesJar(type: Jar) {

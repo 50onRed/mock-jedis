@@ -17,24 +17,20 @@ buildr package
 
 ## Adding mock-jedis to your project
 
-Compile the JAR with gradle/build/maven, install locally, and add it as a dependency to your project.
+Add it as a dependency to your project.
 
-Here's a sample gradle script that will pull mock-jedis 0.1.2 from github and compile
+Here's a sample gradle script that will pull mock-jedis 0.1.2 from maven-central
 ```gradle
 buildscript {
     repositories {
         mavenCentral()
     }
-    dependencies {
-        classpath 'org.batcha.gradle.plugins:git-dependencies:0.1'
-    }
 }
 
 apply plugin: 'java'
-apply plugin: 'git-dependencies'
 
 dependencies {
-  testCompile('com.fiftyonred:mock-jedis:0.1.2').ext.git = 'git://github.com/50onRed/mock-jedis.git'
+  testCompile 'com.fiftyonred:mock-jedis:0.1.2'
 }
 ```
 
@@ -55,3 +51,17 @@ Jedis j = new MockJedis("test");
 j.set("test", "123");
 assertEquals("123", j.get("test"));
 ```
+
+## Supported Commands
+Currently the following commands are supported by mock-jedis
+ - KEYS: DEL DUMP EXISTS EXPIRE EXPIREAT KEYS PERSIST PEXPIRE PEXPIREAT PTTL RANDOMKEY RENAME RENAMENX RESTORE TTL TYPE
+ - STRINGS: APPEND DECR DECRBY GET GETSET INCR INCRBY INCRBYFLOAT MGET MSET MSETNX PSETEX SET SETEX SETNX STRLEN
+ - HASHES: HDEL HEXISTS HGET HGETALL HINCRBY HINCRBYFLOAT HKEYS HLEN HMGET HMSET HSET HSETNX HVALS
+ - LISTS: LLEN LPOP LPUSH
+ - SETS: SADD SCARD SDIFF SDIFFSTORE SINTER SINTERSTORE SISMEMBER SMEMBERS SMOVE SPOP SRANDMEMBER SREM SUNION SUNIONSTORE
+ - CONNECTIONS: ECHO PING SELECT QUIT
+ - SERVER: DBSIZE FLUSHALL FLUSHDB
+ - PIPELINES
+
+## Unsupported Things
+ - All commands not listed above
