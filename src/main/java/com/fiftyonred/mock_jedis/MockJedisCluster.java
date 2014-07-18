@@ -30,6 +30,11 @@ public class MockJedisCluster extends JedisCluster {
 	}
 
 	@Override
+	public String set(String key, String value, String nxxx, String expx, long time) {
+		return client.set(key, value, nxxx, expx, time);
+	}
+
+	@Override
 	public String get(String key) {
 		return client.get(key);
 	}
@@ -62,6 +67,21 @@ public class MockJedisCluster extends JedisCluster {
 	@Override
 	public Long ttl(String key) {
 		return client.ttl(key);
+	}
+
+	@Override
+	public Boolean setbit(String key, long offset, boolean value) {
+		return client.setbit(key, offset, value);
+	}
+
+	@Override
+	public Boolean setbit(String key, long offset, String value) {
+		return client.setbit(key, offset, value);
+	}
+
+	@Override
+	public Boolean getbit(String key, long offset) {
+		return client.getbit(key, offset);
 	}
 
 	@Override
@@ -565,8 +585,58 @@ public class MockJedisCluster extends JedisCluster {
 	}
 
 	@Override
+	public String slaveof(String host, int port) {
+		return client.slaveof(host, port);
+	}
+
+	@Override
+	public String slaveofNoOne() {
+		return client.slaveofNoOne();
+	}
+
+	@Override
 	public Long getDB() {
 		return client.getDB();
+	}
+
+	@Override
+	public String debug(DebugParams params) {
+		return client.debug(params);
+	}
+
+	@Override
+	public String configResetStat() {
+		return client.configResetStat();
+	}
+
+	@Override
+	public Long waitReplicas(int replicas, long timeout) {
+		return client.waitReplicas(replicas, timeout);
+	}
+
+	@Override
+	public ScanResult<Map.Entry<String, String>> hscan(String key, String cursor) {
+		return client.hscan(key, cursor);
+	}
+
+	@Override
+	public ScanResult<String> sscan(String key, String cursor) {
+		return client.sscan(key, cursor);
+	}
+
+	@Override
+	public ScanResult<Tuple> zscan(String key, String cursor) {
+		return client.zscan(key, cursor);
+	}
+
+	@Override
+	public Long pfadd(String key, String... elements) {
+		return client.pfadd(key, elements);
+	}
+
+	@Override
+	public long pfcount(String key) {
+		return client.pfcount(key);
 	}
 
 	public void setClient(final MockJedis client) {
