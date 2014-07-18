@@ -19,7 +19,7 @@ dependencies {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.11'
+    gradleVersion = '2.0'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
