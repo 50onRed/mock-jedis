@@ -403,6 +403,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<Long> pexpire(String key, long milliseconds) {
+		return pexpireAt(key, System.currentTimeMillis() + milliseconds);
+	}
+
+	@Override
+	public Response<Long> pexpire(byte[] key, long milliseconds) {
+		return pexpire(new String(key), milliseconds);
+	}
+
+	@Override
 	public synchronized Response<Long> pexpireAt(final String key, final long millisecondsTimestamp) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final KeyInformation info = keys.get(key);

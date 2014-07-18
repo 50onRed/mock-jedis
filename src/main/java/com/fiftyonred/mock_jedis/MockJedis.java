@@ -1,8 +1,6 @@
 package com.fiftyonred.mock_jedis;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.SortingParams;
+import redis.clients.jedis.*;
 
 import java.util.List;
 import java.util.Map;
@@ -398,6 +396,21 @@ public class MockJedis extends Jedis {
     }
 
 	@Override
+	public String set(String key, String value, String nxxx) {
+		return pipeline.set(key, value, nxxx).get();
+	}
+
+	@Override
+	public String set(String key, String value, String nxxx, String expx, int time) {
+		return pipeline.set(key, value, nxxx, expx, time).get();
+	}
+
+	@Override
+	public String migrate(String host, int port, String key, int destinationDb, int timeout) {
+		return pipeline.migrate(host, port, key, destinationDb, timeout).get();
+	}
+
+	@Override
 	public String psetex(byte[] key, int milliseconds, byte[] value) {
 		return pipeline.psetex(key, milliseconds, value).get();
 	}
@@ -426,6 +439,11 @@ public class MockJedis extends Jedis {
     public Long pexpire(String key, int milliseconds) {
         return pipeline.pexpire(key, milliseconds).get();
     }
+
+	@Override
+	public Long pexpire(String key, long milliseconds) {
+		return pipeline.pexpire(key, milliseconds).get();
+	}
 
 	@Override
 	public Long pexpire(byte[] key, int milliseconds) {
