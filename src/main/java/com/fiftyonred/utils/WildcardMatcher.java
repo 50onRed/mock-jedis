@@ -4,7 +4,6 @@ public class WildcardMatcher {
 	/**
 	 * Performs a wildcard matching for the text and pattern
 	 * provided.
-	 * <p/>
 	 * Source: http://www.adarshr.com/papers/wildcard
 	 *
 	 * @param text    the text to be tested for matches.

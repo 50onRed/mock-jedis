@@ -29,4 +29,8 @@ public class MockJedisPool extends JedisPool {
 	public void returnBrokenResource(final Jedis resource) {
 
 	}
+
+	public void setClient(final MockJedis client) {
+		this.client = client;
+	}
 }
