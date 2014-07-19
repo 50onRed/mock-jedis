@@ -10,10 +10,6 @@ with gradle (preferred method):
 ```shell
 gradle build
 ```
-with buildr:
-```shell
-buildr package
-```
 
 ## Adding mock-jedis to your project
 
