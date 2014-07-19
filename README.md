@@ -15,7 +15,7 @@ gradle build
 
 Add it as a dependency to your project.
 
-Here's a sample gradle script that will pull mock-jedis 0.1.2 from maven-central
+Here's a sample gradle script that will pull mock-jedis 0.3.0 from maven-central
 ```gradle
 buildscript {
     repositories {
@@ -26,7 +26,7 @@ buildscript {
 apply plugin: 'java'
 
 dependencies {
-  testCompile 'com.fiftyonred:mock-jedis:0.1.2'
+  testCompile 'com.fiftyonred:mock-jedis:0.3.0'
 }
 ```
 
@@ -35,7 +35,7 @@ Sample maven dependency definition:
 <dependency>
     <groupId>com.fiftyonred</groupId>
     <artifactId>mock-jedis</artifactId>
-    <version>0.1.2</version>
+    <version>0.3.0</version>
     <type>jar</type>
     <scope>test</scope>
 </dependency>
