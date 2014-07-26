@@ -54,6 +54,8 @@ public class MockJedisTest {
 
     @Test
     public void testSets() {
+        assertFalse(j.sismember("test", "member 1"));
+
         assertEquals(2L, (long)j.sadd("test", "member 1", "member 2"));
         assertEquals(1L, (long)j.sadd("test", "member 3"));
 

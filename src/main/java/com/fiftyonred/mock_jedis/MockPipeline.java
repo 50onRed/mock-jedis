@@ -1439,7 +1439,7 @@ public class MockPipeline extends Pipeline {
 	public synchronized Response<Boolean> sismember(final String key, final String member) {
 		final Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
 		final Set<String> set = getSetFromStorage(key, false);
-		response.set(set.contains(member) ? 1L : 0L);
+		response.set(set != null && set.contains(member) ? 1L : 0L);
 		return response;
 	}
 
