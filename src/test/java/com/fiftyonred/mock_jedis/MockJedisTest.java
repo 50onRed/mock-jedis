@@ -67,7 +67,7 @@ public class MockJedisTest {
         // should remove member 3
         assertEquals(1L, (long)j.srem("test", "member 3"));
 
-        List<String> sortedMembers = new ArrayList<String>(2);
+        List<String> sortedMembers = new ArrayList<>(2);
         sortedMembers.addAll(j.smembers("test"));
         Collections.sort(sortedMembers);
 
