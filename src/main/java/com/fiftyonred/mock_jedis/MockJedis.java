@@ -1,6 +1,8 @@
 package com.fiftyonred.mock_jedis;
 
-import redis.clients.jedis.*;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.SortingParams;
 
 import java.util.List;
 import java.util.Map;
@@ -56,22 +58,22 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
-	public String rename(String oldkey, String newkey) {
+	public String rename(final String oldkey, final String newkey) {
 		return pipeline.rename(oldkey, newkey).get();
 	}
 
 	@Override
-	public String rename(byte[] oldkey, byte[] newkey) {
+	public String rename(final byte[] oldkey, final byte[] newkey) {
 		return pipeline.rename(oldkey, newkey).get();
 	}
 
 	@Override
-	public Long renamenx(String oldkey, String newkey) {
+	public Long renamenx(final String oldkey, final String newkey) {
 		return pipeline.renamenx(oldkey, newkey).get();
 	}
 
 	@Override
-	public Long renamenx(byte[] oldkey, byte[] newkey) {
+	public Long renamenx(final byte[] oldkey, final byte[] newkey) {
 		return pipeline.renamenx(oldkey, newkey).get();
 	}
 
@@ -96,7 +98,7 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
-	public byte[] dump(byte[] key) {
+	public byte[] dump(final byte[] key) {
 		return pipeline.dump(key).get();
 	}
 
@@ -106,12 +108,12 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
-	public String restore(byte[] key, int ttl, byte[] serializedValue) {
+	public String restore(final byte[] key, final int ttl, final byte[] serializedValue) {
 		return pipeline.restore(key, ttl, serializedValue).get();
 	}
 
 	@Override
-	public String restore(String key, int ttl, byte[] serializedValue) {
+	public String restore(final String key, final int ttl, final byte[] serializedValue) {
 		return pipeline.restore(key, ttl, serializedValue).get();
 	}
 
@@ -156,7 +158,7 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
-	public Long incrBy(byte[] key, long integer) {
+	public Long incrBy(final byte[] key, final long integer) {
 		return pipeline.incrBy(key, integer).get();
 	}
 
@@ -181,112 +183,112 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
-	public Long incr(byte[] key) {
+	public Long incr(final byte[] key) {
 		return pipeline.incr(key).get();
 	}
 
 	@Override
-	public Long decr(byte[] key) {
+	public Long decr(final byte[] key) {
 		return pipeline.decr(key).get();
 	}
 
 	@Override
-	public Long decrBy(byte[] key, long integer) {
+	public Long decrBy(final byte[] key, final long integer) {
 		return pipeline.decrBy(key, integer).get();
 	}
 
 	@Override
-	public List<String> sort(String key) {
+	public List<String> sort(final String key) {
 		return pipeline.sort(key).get();
 	}
 
 	@Override
-	public List<byte[]> sort(byte[] key) {
+	public List<byte[]> sort(final byte[] key) {
 		return pipeline.sort(key).get();
 	}
 
 	@Override
-	public Long sort(String key, String dstkey) {
+	public Long sort(final String key, final String dstkey) {
 		return pipeline.sort(key, dstkey).get();
 	}
 
 	@Override
-	public Long sort(byte[] key, byte[] dstkey) {
+	public Long sort(final byte[] key, final byte[] dstkey) {
 		return pipeline.sort(key, dstkey).get();
 	}
 
 	@Override
-	public List<String> sort(String key, SortingParams sortingParameters) {
+	public List<String> sort(final String key, final SortingParams sortingParameters) {
 		return pipeline.sort(key, sortingParameters).get();
 	}
 
 	@Override
-	public List<byte[]> sort(byte[] key, SortingParams sortingParameters) {
+	public List<byte[]> sort(final byte[] key, final SortingParams sortingParameters) {
 		return pipeline.sort(key, sortingParameters).get();
 	}
 
 	@Override
-	public Long sort(String key, SortingParams sortingParameters, String dstkey) {
+	public Long sort(final String key, final SortingParams sortingParameters, final String dstkey) {
 		return pipeline.sort(key, sortingParameters, dstkey).get();
 	}
 
 	@Override
-	public Long sort(byte[] key, SortingParams sortingParameters, byte[] dstkey) {
+	public Long sort(final byte[] key, final SortingParams sortingParameters, final byte[] dstkey) {
 		return pipeline.sort(key, sortingParameters, dstkey).get();
 	}
 
 	@Override
-	public Long hset(byte[] key, byte[] field, byte[] value) {
+	public Long hset(final byte[] key, final byte[] field, final byte[] value) {
 		return pipeline.hset(key, field, value).get();
 	}
 
 	@Override
-	public byte[] hget(byte[] key, byte[] field) {
+	public byte[] hget(final byte[] key, final byte[] field) {
 		return pipeline.hget(key, field).get();
 	}
 
 	@Override
-	public String hmset(byte[] key, Map<byte[], byte[]> hash) {
+	public String hmset(final byte[] key, final Map<byte[], byte[]> hash) {
 		return pipeline.hmset(key, hash).get();
 	}
 
 	@Override
-	public List<byte[]> hmget(byte[] key, byte[]... fields) {
+	public List<byte[]> hmget(final byte[] key, final byte[]... fields) {
 		return pipeline.hmget(key, fields).get();
 	}
 
 	@Override
-	public Long hincrBy(byte[] key, byte[] field, long value) {
+	public Long hincrBy(final byte[] key, final byte[] field, final long value) {
 		return pipeline.hincrBy(key, field, value).get();
 	}
 
 	@Override
-	public Boolean hexists(byte[] key, byte[] field) {
+	public Boolean hexists(final byte[] key, final byte[] field) {
 		return pipeline.hexists(key, field).get();
 	}
 
 	@Override
-	public Long hdel(byte[] key, byte[]... fields) {
+	public Long hdel(final byte[] key, final byte[]... fields) {
 		return pipeline.hdel(key, fields).get();
 	}
 
 	@Override
-	public Long hlen(byte[] key) {
+	public Long hlen(final byte[] key) {
 		return pipeline.hlen(key).get();
 	}
 
 	@Override
-	public Set<byte[]> hkeys(byte[] key) {
+	public Set<byte[]> hkeys(final byte[] key) {
 		return pipeline.hkeys(key).get();
 	}
 
 	@Override
-	public List<byte[]> hvals(byte[] key) {
+	public List<byte[]> hvals(final byte[] key) {
 		return pipeline.hvals(key).get();
 	}
 
 	@Override
-	public Map<byte[], byte[]> hgetAll(byte[] key) {
+	public Map<byte[], byte[]> hgetAll(final byte[] key) {
 		return pipeline.hgetAll(key).get();
 	}
 
@@ -361,147 +363,147 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
-	public Long decrBy(String key, long integer) {
+	public Long decrBy(final String key, final long integer) {
 		return pipeline.decrBy(key, integer).get();
 	}
 
 	@Override
-	public Long decr(String key) {
+	public Long decr(final String key) {
 		return pipeline.decr(key).get();
 	}
 
 	@Override
-	public Long expire(String key, int seconds) {
+	public Long expire(final String key, final int seconds) {
 		return pipeline.expire(key, seconds).get();
 	}
 
 	@Override
-	public Long expire(byte[] key, int seconds) {
+	public Long expire(final byte[] key, final int seconds) {
 		return pipeline.expire(key, seconds).get();
 	}
 
-    @Override
-    public Long expireAt(String key, long unixTime) {
-        return pipeline.expireAt(key, unixTime).get();
-    }
-
 	@Override
-	public Long expireAt(byte[] key, long unixTime) {
+	public Long expireAt(final String key, final long unixTime) {
 		return pipeline.expireAt(key, unixTime).get();
 	}
 
-    @Override
-    public String psetex(String key, int milliseconds, String value) {
-        return pipeline.psetex(key, milliseconds, value).get();
-    }
+	@Override
+	public Long expireAt(final byte[] key, final long unixTime) {
+		return pipeline.expireAt(key, unixTime).get();
+	}
 
 	@Override
-	public String set(String key, String value, String nxxx) {
+	public String psetex(final String key, final int milliseconds, final String value) {
+		return pipeline.psetex(key, milliseconds, value).get();
+	}
+
+	@Override
+	public String set(final String key, final String value, final String nxxx) {
 		return pipeline.set(key, value, nxxx).get();
 	}
 
 	@Override
-	public String set(String key, String value, String nxxx, String expx, int time) {
+	public String set(final String key, final String value, final String nxxx, final String expx, final int time) {
 		return pipeline.set(key, value, nxxx, expx, time).get();
 	}
 
 	@Override
-	public String migrate(String host, int port, String key, int destinationDb, int timeout) {
+	public String migrate(final String host, final int port, final String key, final int destinationDb, final int timeout) {
 		return pipeline.migrate(host, port, key, destinationDb, timeout).get();
 	}
 
 	@Override
-	public String psetex(byte[] key, int milliseconds, byte[] value) {
+	public String psetex(final byte[] key, final int milliseconds, final byte[] value) {
 		return pipeline.psetex(key, milliseconds, value).get();
 	}
 
-    @Override
-    public Long ttl(String key) {
-        return pipeline.ttl(key).get();
-    }
-
 	@Override
-	public Long ttl(byte[] key) {
+	public Long ttl(final String key) {
 		return pipeline.ttl(key).get();
 	}
 
-    @Override
-    public Long pttl(String key) {
-        return pipeline.pttl(key).get();
-    }
+	@Override
+	public Long ttl(final byte[] key) {
+		return pipeline.ttl(key).get();
+	}
 
 	@Override
-	public Long pttl(byte[] key) {
+	public Long pttl(final String key) {
 		return pipeline.pttl(key).get();
 	}
 
-    @Override
-    public Long pexpire(String key, int milliseconds) {
-        return pipeline.pexpire(key, milliseconds).get();
-    }
+	@Override
+	public Long pttl(final byte[] key) {
+		return pipeline.pttl(key).get();
+	}
 
 	@Override
-	public Long pexpire(String key, long milliseconds) {
+	public Long pexpire(final String key, final int milliseconds) {
 		return pipeline.pexpire(key, milliseconds).get();
 	}
 
 	@Override
-	public Long pexpire(byte[] key, int milliseconds) {
+	public Long pexpire(final String key, final long milliseconds) {
 		return pipeline.pexpire(key, milliseconds).get();
 	}
 
-    @Override
-    public Long pexpireAt(String key, long millisecondsTimestamp) {
-        return pipeline.pexpireAt(key, millisecondsTimestamp).get();
-    }
+	@Override
+	public Long pexpire(final byte[] key, final int milliseconds) {
+		return pipeline.pexpire(key, milliseconds).get();
+	}
 
 	@Override
-	public Long pexpireAt(byte[] key, long millisecondsTimestamp) {
+	public Long pexpireAt(final String key, final long millisecondsTimestamp) {
 		return pipeline.pexpireAt(key, millisecondsTimestamp).get();
 	}
 
 	@Override
-	public Boolean exists(String key) {
+	public Long pexpireAt(final byte[] key, final long millisecondsTimestamp) {
+		return pipeline.pexpireAt(key, millisecondsTimestamp).get();
+	}
+
+	@Override
+	public Boolean exists(final String key) {
 		return pipeline.exists(key).get();
 	}
 
 	@Override
-	public Boolean exists(byte[] key) {
+	public Boolean exists(final byte[] key) {
 		return pipeline.exists(key).get();
 	}
 
-    @Override
-	public Long incr(String key) {
+	@Override
+	public Long incr(final String key) {
 		return pipeline.incr(key).get();
 	}
 
 	@Override
-	public Long incrBy(String key, long integer) {
+	public Long incrBy(final String key, final long integer) {
 		return pipeline.incrBy(key, integer).get();
 	}
 
-    @Override
-    public String setex(String key, int seconds, String value) {
-        return pipeline.setex(key, seconds, value).get();
-    }
-
 	@Override
-	public String setex(byte[] key, int seconds, byte[] value) {
+	public String setex(final String key, final int seconds, final String value) {
 		return pipeline.setex(key, seconds, value).get();
 	}
 
 	@Override
-	public Long del(String... keys) {
+	public String setex(final byte[] key, final int seconds, final byte[] value) {
+		return pipeline.setex(key, seconds, value).get();
+	}
+
+	@Override
+	public Long del(final String... keys) {
 		return pipeline.del(keys).get();
 	}
 
 	@Override
-	public Long del(String key) {
+	public Long del(final String key) {
 		return pipeline.del(key).get();
 	}
 
 	@Override
-	public Long del(byte[] key) {
+	public Long del(final byte[] key) {
 		return pipeline.del(key).get();
 	}
 
@@ -546,12 +548,12 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
-	public Long hincrBy(String key, String field, long value) {
+	public Long hincrBy(final String key, final String field, final long value) {
 		return pipeline.hincrBy(key, field, value).get();
 	}
 
 	@Override
-	public Double hincrByFloat(String key, String field, double value) {
+	public Double hincrByFloat(final String key, final String field, final double value) {
 		return pipeline.hincrByFloat(key, field, value).get();
 	}
 
@@ -580,143 +582,143 @@ public class MockJedis extends Jedis {
 		return pipeline.lpush(key, strings).get();
 	}
 
-    @Override
-    public Long sadd(String key, String... members) {
-        return pipeline.sadd(key, members).get();
-    }
-
 	@Override
-	public Long sadd(byte[] key, byte[]... members) {
+	public Long sadd(final String key, final String... members) {
 		return pipeline.sadd(key, members).get();
 	}
 
 	@Override
-	public Long scard(String key) {
+	public Long sadd(final byte[] key, final byte[]... members) {
+		return pipeline.sadd(key, members).get();
+	}
+
+	@Override
+	public Long scard(final String key) {
 		return pipeline.scard(key).get();
 	}
 
 	@Override
-	public Long scard(byte[] key) {
+	public Long scard(final byte[] key) {
 		return pipeline.scard(key).get();
 	}
 
 	@Override
-	public Set<String> sdiff(String... keys) {
+	public Set<String> sdiff(final String... keys) {
 		return pipeline.sdiff(keys).get();
 	}
 
 	@Override
-	public Set<byte[]> sdiff(byte[]... keys) {
+	public Set<byte[]> sdiff(final byte[]... keys) {
 		return pipeline.sdiff(keys).get();
 	}
 
 	@Override
-	public Long sdiffstore(String dstKey, String... keys) {
+	public Long sdiffstore(final String dstKey, final String... keys) {
 		return pipeline.sdiffstore(dstKey, keys).get();
 	}
 
 	@Override
-	public Long sdiffstore(byte[] dstKey, byte[]... keys) {
+	public Long sdiffstore(final byte[] dstKey, final byte[]... keys) {
 		return pipeline.sdiffstore(dstKey, keys).get();
 	}
 
 	@Override
-	public Set<String> sinter(String... keys) {
+	public Set<String> sinter(final String... keys) {
 		return pipeline.sinter(keys).get();
 	}
 
 	@Override
-	public Set<byte[]> sinter(byte[]... keys) {
+	public Set<byte[]> sinter(final byte[]... keys) {
 		return pipeline.sinter(keys).get();
 	}
 
 	@Override
-	public Long sinterstore(String dstKey, String... keys) {
+	public Long sinterstore(final String dstKey, final String... keys) {
 		return pipeline.sinterstore(dstKey, keys).get();
 	}
 
 	@Override
-	public Long sinterstore(byte[] dstKey, byte[]... keys) {
+	public Long sinterstore(final byte[] dstKey, final byte[]... keys) {
 		return pipeline.sinterstore(dstKey, keys).get();
 	}
 
 	@Override
-	public Boolean sismember(String key, String member) {
+	public Boolean sismember(final String key, final String member) {
 		return pipeline.sismember(key, member).get();
 	}
 
 	@Override
-	public Boolean sismember(byte[] key, byte[] member) {
+	public Boolean sismember(final byte[] key, final byte[] member) {
 		return pipeline.sismember(key, member).get();
 	}
 
 	@Override
-	public Set<String> smembers(String key) {
+	public Set<String> smembers(final String key) {
 		return pipeline.smembers(key).get();
 	}
 
 	@Override
-	public Set<byte[]> smembers(byte[] key) {
+	public Set<byte[]> smembers(final byte[] key) {
 		return pipeline.smembers(key).get();
 	}
 
 	@Override
-	public Long smove(String srcKey, String dstKey, String member) {
+	public Long smove(final String srcKey, final String dstKey, final String member) {
 		return pipeline.smove(srcKey, dstKey, member).get();
 	}
 
 	@Override
-	public Long smove(byte[] srcKey, byte[] dstKey, byte[] member) {
+	public Long smove(final byte[] srcKey, final byte[] dstKey, final byte[] member) {
 		return pipeline.smove(srcKey, dstKey, member).get();
 	}
 
 	@Override
-	public String spop(String key) {
+	public String spop(final String key) {
 		return pipeline.spop(key).get();
 	}
 
 	@Override
-	public byte[] spop(byte[] key) {
+	public byte[] spop(final byte[] key) {
 		return pipeline.spop(key).get();
 	}
 
 	@Override
-	public String srandmember(String key) {
+	public String srandmember(final String key) {
 		return pipeline.srandmember(key).get();
 	}
 
 	@Override
-	public byte[] srandmember(byte[] key) {
+	public byte[] srandmember(final byte[] key) {
 		return pipeline.srandmember(key).get();
 	}
 
 	@Override
-	public Long srem(String key, String... members) {
+	public Long srem(final String key, final String... members) {
 		return pipeline.srem(key, members).get();
 	}
 
 	@Override
-	public Long srem(byte[] key, byte[]... members) {
+	public Long srem(final byte[] key, final byte[]... members) {
 		return pipeline.srem(key, members).get();
 	}
 
 	@Override
-	public Set<String> sunion(String... keys) {
+	public Set<String> sunion(final String... keys) {
 		return pipeline.sunion(keys).get();
 	}
 
 	@Override
-	public Set<byte[]> sunion(byte[]... keys) {
+	public Set<byte[]> sunion(final byte[]... keys) {
 		return pipeline.sunion(keys).get();
 	}
 
 	@Override
-	public Long sunionstore(String dstKey, String... keys) {
+	public Long sunionstore(final String dstKey, final String... keys) {
 		return pipeline.sunionstore(dstKey, keys).get();
 	}
 
 	@Override
-	public Long sunionstore(byte[] dstKey, byte[]... keys) {
+	public Long sunionstore(final byte[] dstKey, final byte[]... keys) {
 		return pipeline.sunionstore(dstKey, keys).get();
 	}
 
@@ -741,12 +743,12 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
-	public List<String> lrange(String key, long start, long end) {
+	public List<String> lrange(final String key, final long start, final long end) {
 		return pipeline.lrange(key, start, end).get();
 	}
 
 	@Override
-	public List<byte[]> lrange(byte[] key, long start, long end) {
+	public List<byte[]> lrange(final byte[] key, final long start, final long end) {
 		return pipeline.lrange(key, start, end).get();
 	}
 

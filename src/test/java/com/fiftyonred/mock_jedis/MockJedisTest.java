@@ -52,28 +52,28 @@ public class MockJedisTest {
 		assertEquals(1L, j.hdel("test", "name").longValue());
 	}
 
-    @Test
-    public void testSets() {
-        assertFalse(j.sismember("test", "member 1"));
+	@Test
+	public void testSets() {
+		assertFalse(j.sismember("test", "member 1"));
 
-        assertEquals(2L, (long)j.sadd("test", "member 1", "member 2"));
-        assertEquals(1L, (long)j.sadd("test", "member 3"));
+		assertEquals(2L, (long) j.sadd("test", "member 1", "member 2"));
+		assertEquals(1L, (long) j.sadd("test", "member 3"));
 
-        // duplicate member 1. should drop
-        assertEquals(0L, (long) j.sadd("test", "member 1"));
+		// duplicate member 1. should drop
+		assertEquals(0L, (long) j.sadd("test", "member 1"));
 
-        assertEquals(3, j.smembers("test").size());
+		assertEquals(3, j.smembers("test").size());
 
-        // should remove member 3
-        assertEquals(1L, (long)j.srem("test", "member 3"));
+		// should remove member 3
+		assertEquals(1L, (long) j.srem("test", "member 3"));
 
-        List<String> sortedMembers = new ArrayList<String>(2);
-        sortedMembers.addAll(j.smembers("test"));
-        Collections.sort(sortedMembers);
+		List<String> sortedMembers = new ArrayList<String>(2);
+		sortedMembers.addAll(j.smembers("test"));
+		Collections.sort(sortedMembers);
 
-        assertEquals("member 1", sortedMembers.get(0));
-        assertEquals("member 2", sortedMembers.get(1));
-    }
+		assertEquals("member 1", sortedMembers.get(0));
+		assertEquals("member 2", sortedMembers.get(1));
+	}
 
 	@Test
 	public void testHincrBy() {
@@ -133,7 +133,8 @@ public class MockJedisTest {
 		try {
 			j.sort("test");
 			fail("Sorting numbers is default");
-		} catch (JedisDataException e) {}
+		} catch (JedisDataException e) {
+		}
 
 		assertEquals(Arrays.asList("a", "b", "c", "d"), j.sort("test", new SortingParams().alpha()));
 		assertEquals(Arrays.asList("d", "c", "b", "a"), j.sort("test", new SortingParams().desc().alpha()));
@@ -149,37 +150,37 @@ public class MockJedisTest {
 		assertEquals(Arrays.asList("4", "3", "2"), j.sort("settest", new SortingParams().limit(2, 3).desc()));
 	}
 
-	@Test(expected=JedisDataException.class)
+	@Test(expected = JedisDataException.class)
 	public void testInvalidKeyTypeHashToString() {
 		j.hset("test", "test", "1");
 		j.get("test");
 	}
 
-	@Test(expected=JedisDataException.class)
+	@Test(expected = JedisDataException.class)
 	public void testInvalidKeyTypeHashToList() {
 		j.hset("test", "test", "1");
 		j.llen("test");
 	}
 
-	@Test(expected=JedisDataException.class)
+	@Test(expected = JedisDataException.class)
 	public void testInvalidKeyTypeStringToHash() {
 		j.set("test", "test");
 		j.hget("test", "test");
 	}
 
-	@Test(expected=JedisDataException.class)
+	@Test(expected = JedisDataException.class)
 	public void testInvalidKeyTypeStringToList() {
 		j.set("test", "test");
 		j.lpop("test");
 	}
 
-	@Test(expected=JedisDataException.class)
+	@Test(expected = JedisDataException.class)
 	public void testInvalidKeyTypeListToHash() {
 		j.lpush("test", "test");
 		j.hgetAll("test");
 	}
 
-	@Test(expected=JedisDataException.class)
+	@Test(expected = JedisDataException.class)
 	public void testInvalidKeyTypeListToString() {
 		j.lpush("test", "test");
 		j.incr("test");

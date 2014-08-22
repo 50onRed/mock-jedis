@@ -1,11 +1,7 @@
 package com.fiftyonred.mock_jedis;
 
 import com.fiftyonred.utils.WildcardMatcher;
-import redis.clients.jedis.BuilderFactory;
-import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.Protocol;
-import redis.clients.jedis.Response;
-import redis.clients.jedis.SortingParams;
+import redis.clients.jedis.*;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.util.SafeEncoder;
 
@@ -16,29 +12,29 @@ public class MockPipeline extends Pipeline {
 	private final List<Map<String, KeyInformation>> allKeys;
 	private final List<Map<String, String>> allStorage;
 	private final List<Map<String, Map<String, String>>> allHashStorage;
-    private final List<Map<String, List<String>>> allListStorage;
-    private final List<Map<String, Set<String>>> allSetStorage;
+	private final List<Map<String, List<String>>> allListStorage;
+	private final List<Map<String, Set<String>>> allSetStorage;
 
 	private int currentDB;
 	private static final int NUM_DBS = 16;
 	private Map<String, KeyInformation> keys;
 	private Map<String, String> storage;
 	private Map<String, Map<String, String>> hashStorage;
-    private Map<String, List<String>> listStorage;
-    private Map<String, Set<String>> setStorage;
+	private Map<String, List<String>> listStorage;
+	private Map<String, Set<String>> setStorage;
 
 	public MockPipeline() {
 		allKeys = new ArrayList<Map<String, KeyInformation>>(NUM_DBS);
 		allStorage = new ArrayList<Map<String, String>>(NUM_DBS);
 		allHashStorage = new ArrayList<Map<String, Map<String, String>>>(NUM_DBS);
 		allListStorage = new ArrayList<Map<String, List<String>>>(NUM_DBS);
-        allSetStorage = new ArrayList<Map<String, Set<String>>>(NUM_DBS);
+		allSetStorage = new ArrayList<Map<String, Set<String>>>(NUM_DBS);
 		for (int i = 0; i < NUM_DBS; ++i) {
 			allKeys.add(new HashMap<String, KeyInformation>());
 			allStorage.add(new HashMap<String, String>());
 			allHashStorage.add(new HashMap<String, Map<String, String>>());
-            allListStorage.add(new HashMap<String, List<String>>());
-            allSetStorage.add(new HashMap<String, Set<String>>());
+			allListStorage.add(new HashMap<String, List<String>>());
+			allSetStorage.add(new HashMap<String, Set<String>>());
 		}
 		select(0);
 	}
@@ -53,35 +49,35 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public Response<String> ping() {
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		response.set("PONG".getBytes());
 		return response;
 	}
 
 	@Override
 	public Response<String> echo(final String string) {
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		response.set(echo(string.getBytes()).get());
 		return response;
 	}
 
 	@Override
 	public Response<byte[]> echo(final byte[] string) {
-		Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
+		final Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
 		response.set(string);
 		return response;
 	}
 
 	@Override
 	public synchronized Response<Long> dbSize() {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		response.set((long) keys.size());
 		return response;
 	}
 
 	@Override
 	public synchronized Response<String> flushAll() {
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		for (int dbNum = 0; dbNum < NUM_DBS; ++dbNum) {
 			allKeys.get(dbNum).clear();
 			allStorage.get(dbNum).clear();
@@ -94,7 +90,7 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<String> flushDB() {
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		keys.clear();
 		storage.clear();
 		hashStorage.clear();
@@ -108,7 +104,7 @@ public class MockPipeline extends Pipeline {
 		if (oldkey.equals(newkey)) {
 			throw new JedisDataException("ERR source and destination objects are the same");
 		}
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final KeyInformation info = keys.get(oldkey);
 		switch (info.getType()) {
 			case HASH:
@@ -140,7 +136,7 @@ public class MockPipeline extends Pipeline {
 		if (oldkey.equals(newkey)) {
 			throw new JedisDataException("ERR source and destination objects are the same");
 		}
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final KeyInformation newInfo = keys.get(newkey);
 		if (newInfo == null) {
 			rename(oldkey, newkey);
@@ -158,7 +154,7 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<String> set(final String key, final String value) {
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		createOrUpdateKey(key, KeyType.STRING, true);
 		storage.put(key, value);
 		response.set("OK".getBytes());
@@ -172,7 +168,7 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<Long> setnx(final String key, final String value) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final String result = getStringFromStorage(key, false);
 		if (result == null) {
 			set(key, value);
@@ -190,7 +186,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<String> get(String key) {
+	public synchronized Response<String> get(final String key) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final String val = getStringFromStorage(key, false);
 		response.set(val == null ? null : val.getBytes());
@@ -220,28 +216,28 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<byte[]> dump(byte[] key) {
+	public Response<byte[]> dump(final byte[] key) {
 		return get(key);
 	}
 
 	@Override
-	public Response<byte[]> dump(String key) {
+	public Response<byte[]> dump(final String key) {
 		return get(key.getBytes());
 	}
 
 	@Override
-	public Response<String> restore(String key, int ttl, byte[] serializedValue) {
+	public Response<String> restore(final String key, final int ttl, final byte[] serializedValue) {
 		return setex(key.getBytes(), ttl, serializedValue);
 	}
 
 	@Override
-	public Response<String> restore(byte[] key, int ttl, byte[] serializedValue) {
+	public Response<String> restore(final byte[] key, final int ttl, final byte[] serializedValue) {
 		return setex(key, ttl, serializedValue);
 	}
 
 	@Override
 	public synchronized Response<Boolean> exists(final String key) {
-		Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
+		final Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
 		response.set(keys.containsKey(key) ? 1L : 0L);
 		return response;
 	}
@@ -274,7 +270,7 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public Response<Long> move(final String key, final int dbIndex) {
-		if (dbIndex < 0 || dbIndex > 15) {
+		if (dbIndex < 0 || dbIndex >= NUM_DBS) {
 			throw new JedisDataException("ERR index out of range");
 		}
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
@@ -294,8 +290,8 @@ public class MockPipeline extends Pipeline {
 						allListStorage.get(dbIndex).put(key, listStorage.get(key));
 						listStorage.remove(key);
 						break;
-					default:
 					case STRING:
+					default:
 						allStorage.get(dbIndex).put(key, storage.get(key));
 						storage.remove(key);
 				}
@@ -316,8 +312,8 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<String> randomKey() {
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
-		if (keys.size() == 0) {
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
+		if (keys.isEmpty()) {
 			response.set(null);
 		} else {
 			final String result = getRandomElementFromSet(keys.keySet());
@@ -328,7 +324,7 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public Response<byte[]> randomKeyBinary() {
-		Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
+		final Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
 		final String result = randomKey().get();
 		response.set(result == null ? null : result.getBytes());
 		return response;
@@ -336,27 +332,27 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public Response<String> select(final int dbIndex) {
-		if (dbIndex < 0 || dbIndex > 15) {
+		if (dbIndex < 0 || dbIndex >= NUM_DBS) {
 			throw new JedisDataException("ERR invalid DB index");
 		}
-		Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		currentDB = dbIndex;
 		keys = allKeys.get(dbIndex);
 		storage = allStorage.get(dbIndex);
 		hashStorage = allHashStorage.get(dbIndex);
 		listStorage = allListStorage.get(dbIndex);
-        setStorage = allSetStorage.get(dbIndex);
+		setStorage = allSetStorage.get(dbIndex);
 		response.set("OK".getBytes());
 		return response;
 	}
 
 	@Override
-	public Response<String> setex(String key, int seconds, String value) {
+	public Response<String> setex(final String key, final int seconds, final String value) {
 		return psetex(key, seconds * 1000, value);
 	}
 
 	@Override
-	public Response<String> setex(byte[] key, int seconds, byte[] value) {
+	public Response<String> setex(final byte[] key, final int seconds, final byte[] value) {
 		return setex(new String(key), seconds, new String(value));
 	}
 
@@ -384,7 +380,7 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public Response<Long> expireAt(final String key, final long seconds) {
-		return pexpireAt(key, seconds * 1000);
+		return pexpireAt(key, seconds * 1000L);
 	}
 
 	@Override
@@ -403,12 +399,12 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Long> pexpire(String key, long milliseconds) {
+	public Response<Long> pexpire(final String key, final long milliseconds) {
 		return pexpireAt(key, System.currentTimeMillis() + milliseconds);
 	}
 
 	@Override
-	public Response<Long> pexpire(byte[] key, long milliseconds) {
+	public Response<Long> pexpire(final byte[] key, final long milliseconds) {
 		return pexpire(new String(key), milliseconds);
 	}
 
@@ -432,10 +428,10 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Long> ttl(String key) {
+	public Response<Long> ttl(final String key) {
 		Long pttlInResponse = pttl(key).get();
 
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		if (pttlInResponse != -1L) {
 			if (pttlInResponse > 0L && pttlInResponse < 1000L) {
 				pttlInResponse = 1000L;
@@ -462,23 +458,23 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Long> ttl(byte[] key) {
+	public Response<Long> ttl(final byte[] key) {
 		return ttl(new String(key));
 	}
 
 	@Override
 	public synchronized Response<Long> pttl(final String key) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final KeyInformation info = keys.get(key);
 		response.set(info == null ? -1L : info.getTTL());
 		return response;
 	}
 
 	@Override
-	public synchronized Response<Long> persist(String key) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+	public synchronized Response<Long> persist(final String key) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final KeyInformation info = keys.get(key);
-		if (response == null || info.getTTL() == -1) {
+		if (info.getTTL() == -1) {
 			response.set(0L);
 		} else {
 			info.setExpiration(-1L);
@@ -488,7 +484,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Long> persist(byte[] key) {
+	public Response<Long> persist(final byte[] key) {
 		return persist(new String(key));
 	}
 
@@ -528,11 +524,12 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<String> mset(final String... keys) {
-		if (keys.length <= 0 || keys.length % 2 != 0) {
+		final int l = keys.length;
+		if (l <= 0 || l % 2 != 0) {
 			throw new JedisDataException("ERR wrong number of arguments for 'mset' command");
 		}
 
-		for (int i = 0; i < keys.length; i += 2) {
+		for (int i = 0; i < l; i += 2) {
 			set(keys[i], keys[i + 1]);
 		}
 
@@ -548,14 +545,15 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<Long> msetnx(final String... keys) {
-		if (keys.length <= 0 || keys.length % 2 != 0) {
+		final int l = keys.length;
+		if (l <= 0 || l % 2 != 0) {
 			throw new JedisDataException("ERR wrong number of arguments for 'msetnx' command");
 		}
 
 		long result = 1L;
-		for (int i = 0; i < keys.length; i += 2) {
+		for (int i = 0; i < l; i += 2) {
 			if (setnx(keys[i], keys[i + 1]).get() == 0L) {
-                result = 0L;
+				result = 0L;
 			}
 		}
 
@@ -570,8 +568,8 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Long> decr(String key) {
-		return decrBy(key, 1);
+	public Response<Long> decr(final String key) {
+		return decrBy(key, 1L);
 	}
 
 	@Override
@@ -580,7 +578,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Long> decrBy(String key, long integer) {
+	public Response<Long> decrBy(final String key, final long integer) {
 		return incrBy(key, -integer);
 	}
 
@@ -590,8 +588,8 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Long> incr(String key) {
-		return incrBy(key, 1);
+	public Response<Long> incr(final String key) {
+		return incrBy(key, 1L);
 	}
 
 	@Override
@@ -600,19 +598,19 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> incrBy(String key, long integer) {
+	public synchronized Response<Long> incrBy(final String key, final long integer) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final String val = getStringFromStorage(key, true);
 
 		final long oldValue;
 		try {
-			oldValue = val == null || "".equals(val) ? 0L : Long.parseLong(val);
+			oldValue = val == null || val.isEmpty() ? 0L : Long.parseLong(val);
 		} catch (final NumberFormatException ignored) {
 			throw new JedisDataException("ERR value is not an integer or out of range");
 		}
 
 		// check for overflow
-		if (oldValue > 0 ? integer > Long.MAX_VALUE - oldValue : integer < Long.MIN_VALUE - oldValue) {
+		if (oldValue > 0L ? integer > Long.MAX_VALUE - oldValue : integer < Long.MIN_VALUE - oldValue) {
 			throw new JedisDataException("ERR value is not an integer or out of range");
 		}
 
@@ -623,7 +621,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Long> incrBy(final byte[] key, long integer) {
+	public Response<Long> incrBy(final byte[] key, final long integer) {
 		return incrBy(new String(key), integer);
 	}
 
@@ -633,7 +631,7 @@ public class MockPipeline extends Pipeline {
 		final String val = getStringFromStorage(key, true);
 		final Double result;
 		try {
-			result = val == null || "".equals(val) ? integer : Double.parseDouble(val) + integer;
+			result = val == null || val.isEmpty() ? integer : Double.parseDouble(val) + integer;
 		} catch (final NumberFormatException ignored) {
 			throw new JedisDataException("ERR value is not a valid float");
 		}
@@ -643,37 +641,39 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Double> incrByFloat(final byte[] key, final double integer) {
-		return incrByFloat(new String(key), integer);
+	public Response<Double> incrByFloat(final byte[] key, final double increment) {
+		return incrByFloat(new String(key), increment);
 	}
 
 	@Override
-	public Response<List<String>> sort(String key) {
+	public Response<List<String>> sort(final String key) {
 		return sort(key, new SortingParams());
 	}
 
 	@Override
-	public Response<Long> sort(String key, String dstkey) {
+	public Response<Long> sort(final String key, final String dstkey) {
 		return sort(key, new SortingParams(), dstkey);
 	}
 
-	private Comparator<String> makeComparator(Collection<String> params) {
-		Comparator<String> comparator;
+	private static Comparator<String> makeComparator(final Collection<String> params) {
+		final Comparator<String> comparator;
 		final int direction = params.contains(Protocol.Keyword.DESC.name().toLowerCase()) ? -1 : 1;
 		if (params.contains(Protocol.Keyword.ALPHA.name().toLowerCase())) {
 			comparator = new Comparator<String>() {
-				public int compare(String o1, String o2) {
+				@Override
+				public int compare(final String o1, final String o2) {
 					return o1.compareTo(o2) * direction;
 				}
 			};
 		} else {
 			comparator = new Comparator<String>() {
-				public int compare(String o1, String o2) {
-					Long i1, i2;
+				@Override
+				public int compare(final String o1, final String o2) {
+					final Long i1, i2;
 					try {
 						i1 = Long.parseLong(o1);
 						i2 = Long.parseLong(o2);
-					} catch (NumberFormatException e) {
+					} catch (final NumberFormatException e) {
 						throw new JedisDataException("ERR One or more scores can't be converted into double");
 					}
 					return i1.compareTo(i2) * direction;
@@ -684,10 +684,10 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<List<String>> sort(String key, SortingParams sortingParameters) {
-		List<String> result = new LinkedList<String>();
-		KeyInformation info = keys.get(key);
-		if(info != null) {
+	public Response<List<String>> sort(final String key, final SortingParams sortingParameters) {
+		final List<String> result = new LinkedList<String>();
+		final KeyInformation info = keys.get(key);
+		if (info != null) {
 			switch (info.getType()) {
 				case LIST:
 					result.addAll(listStorage.get(key));
@@ -702,59 +702,59 @@ public class MockPipeline extends Pipeline {
 			}
 		}
 
-		List<String> params = convertToStrings(sortingParameters.getParams());
+		final List<String> params = convertToStrings(sortingParameters.getParams());
 
 		Collections.sort(result, makeComparator(params));
 
-		ArrayList<byte[]> byteResult = new ArrayList<byte[]>(result.size());
-		int limitpos = params.indexOf(Protocol.Keyword.LIMIT.name().toLowerCase());
-		if(limitpos >=0) {
-			int start = Math.max(Integer.parseInt(params.get(limitpos + 1)), 0);
-			int end = Math.min(Integer.parseInt(params.get(limitpos + 2)) + start, result.size());
-			for(String entry : result.subList(start, end)) {
+		final List<byte[]> byteResult = new ArrayList<byte[]>(result.size());
+		final int limitpos = params.indexOf(Protocol.Keyword.LIMIT.name().toLowerCase());
+		if (limitpos >= 0) {
+			final int start = Math.max(Integer.parseInt(params.get(limitpos + 1)), 0);
+			final int end = Math.min(Integer.parseInt(params.get(limitpos + 2)) + start, result.size());
+			for (final String entry : result.subList(start, end)) {
 				byteResult.add(entry.getBytes());
 			}
 		} else {
-			for(String entry : result) {
+			for (final String entry : result) {
 				byteResult.add(entry.getBytes());
 			}
 		}
 
-		Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
+		final Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
 		response.set(byteResult);
 		return response;
 	}
 
 	@Override
-	public Response<Long> sort(String key, SortingParams sortingParameters, String dstkey) {
-		List<String> sorted = sort(key, sortingParameters).get();
+	public Response<Long> sort(final String key, final SortingParams sortingParameters, final String dstkey) {
+		final List<String> sorted = sort(key, sortingParameters).get();
 
 		del(dstkey);
 		keys.put(dstkey, new KeyInformation(KeyType.LIST));
 		listStorage.put(dstkey, sorted);
 
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		response.set((long) sorted.size());
 		return response;
 	}
 
 	@Override
-	public Response<List<byte[]>> sort(byte[] key) {
+	public Response<List<byte[]>> sort(final byte[] key) {
 		return sort(key, new SortingParams());
 	}
 
 	@Override
-	public Response<Long> sort(byte[] key, byte[] dstkey) {
+	public Response<Long> sort(final byte[] key, final byte[] dstkey) {
 		return null;
 	}
 
 	@Override
-	public Response<List<byte[]>> sort(byte[] key, SortingParams sortingParameters) {
+	public Response<List<byte[]>> sort(final byte[] key, final SortingParams sortingParameters) {
 		return null;
 	}
 
 	@Override
-	public Response<Long> sort(byte[] key, SortingParams sortingParameters, byte[] dstkey) {
+	public Response<Long> sort(final byte[] key, final SortingParams sortingParameters, final byte[] dstkey) {
 		return null;
 	}
 
@@ -762,7 +762,7 @@ public class MockPipeline extends Pipeline {
 	public Response<Long> strlen(final String key) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final String val = getStringFromStorage(key, false);
-		response.set(val == null ? 0L : (long) val.length());
+		response.set(val == null ? 0L : val.length());
 		return response;
 	}
 
@@ -773,9 +773,9 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public Response<Long> del(final String... keys) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		long result = 0L;
-		for (String key : keys) {
+		for (final String key : keys) {
 			result += del(key).get();
 		}
 
@@ -785,9 +785,9 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public Response<Long> del(final byte[]... keys) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		long result = 0L;
-		for (byte[] key : keys) {
+		for (final byte[] key : keys) {
 			result += del(key).get();
 		}
 
@@ -797,7 +797,7 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<Long> del(final String key) {
-		Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		long result = 0L;
 		final KeyInformation info = this.keys.remove(key);
 		if (info != null) {
@@ -840,7 +840,7 @@ public class MockPipeline extends Pipeline {
 
 		if (result != null) {
 			final List<byte[]> encodedResult = new ArrayList<byte[]>();
-			for (Map.Entry<String, String> e : result.entrySet()) {
+			for (final Map.Entry<String, String> e : result.entrySet()) {
 				encodedResult.add(SafeEncoder.encode(e.getKey()));
 				encodedResult.add(SafeEncoder.encode(e.getValue()));
 			}
@@ -858,7 +858,7 @@ public class MockPipeline extends Pipeline {
 
 		if (result != null) {
 			final List<byte[]> encodedResult = new ArrayList<byte[]>();
-			for (String k : result.keySet()) {
+			for (final String k : result.keySet()) {
 				encodedResult.add(SafeEncoder.encode(k));
 			}
 			response.set(encodedResult);
@@ -875,7 +875,7 @@ public class MockPipeline extends Pipeline {
 
 		if (result != null) {
 			final List<byte[]> encodedResult = new ArrayList<byte[]>();
-			for (String v : result.values()) {
+			for (final String v : result.values()) {
 				encodedResult.add(SafeEncoder.encode(v));
 			}
 			response.set(encodedResult);
@@ -915,14 +915,14 @@ public class MockPipeline extends Pipeline {
 		final List<byte[]> result = new ArrayList<byte[]>();
 		final Map<String, String> hash = getHashFromStorage(key, false);
 		if (hash == null) {
-			for (String field : fields) {
+			for (final String field : fields) {
 				result.add(null);
 			}
 			response.set(result);
 			return response;
 		}
 
-		for (String field : fields) {
+		for (final String field : fields) {
 			final String v = getHashFromStorage(key, false).get(field);
 			result.add(v != null ? v.getBytes() : null);
 		}
@@ -931,10 +931,10 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<String> hmset(final String key, Map<String, String> hash) {
+	public synchronized Response<String> hmset(final String key, final Map<String, String> hash) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final Map<String, String> m = getHashFromStorage(key, true);
-		for (Map.Entry<String, String> e : hash.entrySet()) {
+		for (final Map.Entry<String, String> e : hash.entrySet()) {
 			m.put(e.getKey(), e.getValue());
 		}
 		response.set("OK".getBytes());
@@ -968,7 +968,7 @@ public class MockPipeline extends Pipeline {
 
 		String val = m.get(field);
 		if (val == null) {
-			val = Double.valueOf(0D).toString();
+			val = Double.valueOf(0.0D).toString();
 		}
 		final Double result;
 		try {
@@ -985,8 +985,8 @@ public class MockPipeline extends Pipeline {
 	public synchronized Response<Long> hdel(final String key, final String... fields) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Map<String, String> m = getHashFromStorage(key, true);
-		long result = 0;
-		for (String field : fields) {
+		long result = 0L;
+		for (final String field : fields) {
 			if (m.remove(field) != null) {
 				++result;
 			}
@@ -1039,7 +1039,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<String> lpop(String key) {
+	public synchronized Response<String> lpop(final String key) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final List<String> list = getListFromStorage(key, true);
 		if (list == null || list.isEmpty()) {
@@ -1063,7 +1063,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> llen(String key) {
+	public synchronized Response<Long> llen(final String key) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final List<String> list = getListFromStorage(key, false);
 		if (list == null) {
@@ -1080,40 +1080,52 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<List<String>> lrange(String key, long start, long end) {
+	public Response<List<String>> lrange(final String key, long start, long end) {
 		final Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
 		final List<String> full = getListFromStorage(key, false);
 
 		final List<byte[]> selected = new ArrayList<byte[]>();
 		response.set(selected);
 
-		if(start < 0) { start = Math.max(full.size() + start, 0); }
-		if(end < 0)   { end = full.size() + end; }
-		if(start > full.size() || start > end) return response;
+		if (start < 0L) {
+			start = Math.max(full.size() + start, 0L);
+		}
+		if (end < 0L) {
+			end = full.size() + end;
+		}
+		if (start > full.size() || start > end) {
+			return response;
+		}
 
 		end = Math.min(full.size() - 1, end);
 
-		for(int i = (int) start; i <= end; i++) {
+		for (int i = (int) start; i <= end; i++) {
 			selected.add(full.get(i).getBytes());
 		}
 		return response;
 	}
 
 	@Override
-	public Response<List<byte[]>> lrange(byte[] key, long start, long end) {
+	public Response<List<byte[]>> lrange(final byte[] key, long start, long end) {
 		final Response<List<byte[]>> response = new Response<List<byte[]>>(BuilderFactory.BYTE_ARRAY_LIST);
 		final List<String> full = getListFromStorage(new String(key), false);
 
 		final List<byte[]> selected = new ArrayList<byte[]>();
 		response.set(selected);
 
-		if(start < 0) { start = Math.max(full.size() + start, 0); }
-		if(end < 0)   { end = full.size() + end; }
-		if(start > full.size() || start > end) return response;
+		if (start < 0L) {
+			start = Math.max(full.size() + start, 0L);
+		}
+		if (end < 0L) {
+			end = full.size() + end;
+		}
+		if (start > full.size() || start > end) {
+			return response;
+		}
 
 		end = Math.min(full.size() - 1, end);
 
-		for(int i = (int) start; i <= end; i++) {
+		for (int i = (int) start; i <= end; i++) {
 			selected.add(full.get(i).getBytes());
 		}
 		return response;
@@ -1126,9 +1138,9 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<Set<String>> keys(final String pattern) {
-		Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
+		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
 
-		List<byte[]> result = new ArrayList<byte[]>();
+		final List<byte[]> result = new ArrayList<byte[]>();
 		filterKeys(pattern, keys.keySet(), result);
 
 		response.set(result);
@@ -1148,7 +1160,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	public void filterKeys(final String pattern, final Collection<String> collection, final List<byte[]> result) {
-		for (String key : collection) {
+		for (final String key : collection) {
 			if (wildcardMatcher.match(key, pattern)) {
 				result.add(key.getBytes());
 			}
@@ -1198,7 +1210,7 @@ public class MockPipeline extends Pipeline {
 		if (info == null) {
 			if (createIfNotExist) {
 				createOrUpdateKey(key, KeyType.HASH, false);
-				Map<String, String> result = new HashMap<String, String>();
+				final Map<String, String> result = new HashMap<String, String>();
 				hashStorage.put(key, result);
 				return result;
 			}
@@ -1220,7 +1232,7 @@ public class MockPipeline extends Pipeline {
 		if (info == null) {
 			if (createIfNotExist) {
 				createOrUpdateKey(key, KeyType.LIST, false);
-				List<String> result = new ArrayList<String>();
+				final List<String> result = new ArrayList<String>();
 				listStorage.put(key, result);
 				return result;
 			}
@@ -1237,31 +1249,32 @@ public class MockPipeline extends Pipeline {
 		return listStorage.get(key);
 	}
 
-    protected Set<String> getSetFromStorage(final String key, boolean createIfNotExist) {
-        final KeyInformation info = keys.get(key);
-        if (info == null) {
-            if (createIfNotExist) {
-                createOrUpdateKey(key, KeyType.SET, false);
-                Set<String> result = new HashSet<String>();
-                setStorage.put(key, result);
-                return result;
-            }
-            return null; // no such key exists
-        }
-        if (info.getType() != KeyType.SET) {
-            throw new JedisDataException("ERR Operation against a key holding the wrong kind of value");
-        }
-        if (info.isTTLSetAndKeyExpired()) {
-            setStorage.remove(key);
-            keys.remove(key);
-            return null;
-        }
-        return setStorage.get(key);
-    }
+	protected Set<String> getSetFromStorage(final String key, final boolean createIfNotExist) {
+		final KeyInformation info = keys.get(key);
+		if (info == null) {
+			if (createIfNotExist) {
+				createOrUpdateKey(key, KeyType.SET, false);
+				final Set<String> result = new HashSet<String>();
+				setStorage.put(key, result);
+				return result;
+			}
+			return null; // no such key exists
+		}
+		if (info.getType() != KeyType.SET) {
+			throw new JedisDataException("ERR Operation against a key holding the wrong kind of value");
+		}
+		if (info.isTTLSetAndKeyExpired()) {
+			setStorage.remove(key);
+			keys.remove(key);
+			return null;
+		}
+		return setStorage.get(key);
+	}
 
 	protected static String[] convertToStrings(final byte[][] b) {
-		final String[] result = new String[b.length];
-		for (int i = 0; i < b.length; ++i) {
+		final int l = b.length;
+		final String[] result = new String[l];
+		for (int i = 0; i < l; ++i) {
 			result[i] = new String(b[i]);
 		}
 		return result;
@@ -1269,50 +1282,54 @@ public class MockPipeline extends Pipeline {
 
 	protected static List<String> convertToStrings(final Collection<byte[]> collection) {
 		final List<String> result = new LinkedList<String>();
-		for(byte[] entry : collection) {
+		for (final byte[] entry : collection) {
 			result.add(new String(entry));
 		}
 		return result;
 	}
 
-    @Override
-    public synchronized Response<Long> sadd(String key, String... members) {
-        final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-        Set<String> set = getSetFromStorage(key, true);
+	@Override
+	public synchronized Response<Long> sadd(final String key, final String... members) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Set<String> set = getSetFromStorage(key, true);
 
-        Long added = 0L;
-        for (String s: members) {
-            if (set.add(s)) added++;
-        }
+		Long added = 0L;
+		for (final String s : members) {
+			if (set.add(s)) {
+				added++;
+			}
+		}
 
-        response.set(added);
-        return response;
-    }
+		response.set(added);
+		return response;
+	}
 
 	@Override
-	public Response<Long> sadd(byte[] key, byte[]... members) {
+	public Response<Long> sadd(final byte[] key, final byte[]... members) {
 		return sadd(new String(key), convertToStrings(members));
 	}
 
-    @Override
-    public synchronized Response<Long> srem(String key, String... members) {
-        final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-        Set<String> set = getSetFromStorage(key, true);
-        Long removed = 0L;
-        for (String s: members) {
-            if (set.remove(s)) removed++;
-        }
-        response.set(removed);
-        return response;
-    }
+	@Override
+	public synchronized Response<Long> srem(final String key, final String... members) {
+		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+		final Set<String> set = getSetFromStorage(key, true);
+		Long removed = 0L;
+		for (final String s : members) {
+			if (set.remove(s)) {
+				removed++;
+			}
+		}
+		response.set(removed);
+		return response;
+	}
 
 	@Override
-	public Response<Long> srem(byte[] key, byte[]... members) {
+	public Response<Long> srem(final byte[] key, final byte[]... members) {
 		return srem(new String(key), convertToStrings(members));
 	}
 
 	@Override
-	public synchronized Response<Long> scard(String key) {
+	public synchronized Response<Long> scard(final String key) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Set<String> set = getSetFromStorage(key, true);
 		response.set((long) set.size());
@@ -1321,18 +1338,19 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Long> scard(byte[] key) {
+	public Response<Long> scard(final byte[] key) {
 		return scard(new String(key));
 	}
 
 	@Override
 	public synchronized Response<Set<String>> sdiff(final String... keys) {
-		if (keys.length <= 0) {
+		final int l = keys.length;
+		if (l <= 0) {
 			throw new JedisDataException("ERR wrong number of arguments for 'sdiff' command");
 		}
 		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
 		final Set<String> firstSet = new HashSet<String>(getSetFromStorage(keys[0], true));
-		for (int i = 1; i < keys.length; ++i) {
+		for (int i = 1; i < l; ++i) {
 			final Set<String> set = getSetFromStorage(keys[i], true);
 			firstSet.removeAll(set);
 		}
@@ -1366,7 +1384,7 @@ public class MockPipeline extends Pipeline {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Set<String> diff = sdiff(keys).get();
 		final Set<String> dst = getSetFromStorage(dstKey, true);
-		if (dst.size() > 0) {
+		if (!dst.isEmpty()) {
 			dst.clear();
 		}
 		dst.addAll(diff);
@@ -1382,12 +1400,13 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<Set<String>> sinter(final String... keys) {
-		if (keys.length <= 0) {
+		final int l = keys.length;
+		if (l <= 0) {
 			throw new JedisDataException("ERR wrong number of arguments for 'sinter' command");
 		}
 		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
 		final Set<String> firstSet = new HashSet<String>(getSetFromStorage(keys[0], true));
-		for (int i = 1; i < keys.length; ++i) {
+		for (int i = 1; i < l; ++i) {
 			final Set<String> set = getSetFromStorage(keys[i], true);
 			firstSet.retainAll(set);
 		}
@@ -1421,7 +1440,7 @@ public class MockPipeline extends Pipeline {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Set<String> inter = sinter(keys).get();
 		final Set<String> dst = getSetFromStorage(dstKey, true);
-		if (dst.size() > 0) {
+		if (!dst.isEmpty()) {
 			dst.clear();
 		}
 		dst.addAll(inter);
@@ -1508,13 +1527,13 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Set<String>> smembers(String key) {
+	public synchronized Response<Set<String>> smembers(final String key) {
 		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
-		Set<String> set = getSetFromStorage(key, true);
+		final Set<String> set = getSetFromStorage(key, true);
 
 		// BuilderFactory.STRING_SET uses a List<byte[]> internally so we can't just send the Set
-		List<byte[]> builderData = new ArrayList<byte[]>(set.size());
-		for (String s : set) {
+		final List<byte[]> builderData = new ArrayList<byte[]>(set.size());
+		for (final String s : set) {
 			builderData.add(s.getBytes());
 		}
 
@@ -1524,7 +1543,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<Set<byte[]>> smembers(byte[] key) {
+	public Response<Set<byte[]>> smembers(final byte[] key) {
 		final Response<Set<byte[]>> response = new Response<Set<byte[]>>(BuilderFactory.BYTE_ARRAY_ZSET);
 		final Set<String> members = smembers(new String(key)).get();
 		final List<byte[]> result = new ArrayList<byte[]>(members.size());
@@ -1538,12 +1557,13 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public synchronized Response<Set<String>> sunion(final String... keys) {
-		if (keys.length <= 0) {
+		final int l = keys.length;
+		if (l <= 0) {
 			throw new JedisDataException("ERR wrong number of arguments for 'sunion' command");
 		}
 		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
 		final Set<String> firstSet = new HashSet<String>(getSetFromStorage(keys[0], true));
-		for (int i = 1; i < keys.length; ++i) {
+		for (int i = 1; i < l; ++i) {
 			final Set<String> set = getSetFromStorage(keys[i], true);
 			firstSet.addAll(set);
 		}
@@ -1577,7 +1597,7 @@ public class MockPipeline extends Pipeline {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Set<String> inter = sunion(keys).get();
 		final Set<String> dst = getSetFromStorage(dstKey, true);
-		if (dst.size() > 0) {
+		if (!dst.isEmpty()) {
 			dst.clear();
 		}
 		dst.addAll(inter);

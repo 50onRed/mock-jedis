@@ -7,123 +7,123 @@ import redis.clients.jedis.Jedis;
 import static org.junit.Assert.*;
 
 public class MockJedisExpireTest {
-    private Jedis j = null;
+	private Jedis j = null;
 
-    @Before
-    public void setUp() {
-        j = new MockJedis("test");
-    }
+	@Before
+	public void setUp() {
+		j = new MockJedis("test");
+	}
 
-    @Test
-    public void testPsetexAndPttl() throws InterruptedException {
-        int delay = 200;
-        
-        j.psetex("test", delay, "value");
-        assertEquals("value", j.get("test"));
+	@Test
+	public void testPsetexAndPttl() throws InterruptedException {
+		int delay = 200;
 
-        assertTrue(j.pttl("test") > 0);
-        
-        Thread.sleep(delay + 1);
-        
-        assertTrue(j.pttl("test") == -1);
-    }
-    
-    @Test
-    public void testSetexAndTtl() throws InterruptedException {
-        int delay = 1;
-        
-        j.setex("test", delay, "value");
-        assertEquals("value", j.get("test"));
+		j.psetex("test", delay, "value");
+		assertEquals("value", j.get("test"));
 
-        assertTrue(j.ttl("test") > 0);
-        
-        Thread.sleep(delay * 1000 + 1);
+		assertTrue(j.pttl("test") > 0);
 
-        assertEquals(-1L, j.ttl("test").longValue());
-    }
+		Thread.sleep(delay + 1);
 
-    @Test
-    public void testExpire() throws InterruptedException {
-        int delay = 1;
+		assertTrue(j.pttl("test") == -1);
+	}
 
-        j.set("test", "123");
-        j.expire("test", delay);
+	@Test
+	public void testSetexAndTtl() throws InterruptedException {
+		int delay = 1;
 
-        assertTrue(j.ttl("test") > 0);
+		j.setex("test", delay, "value");
+		assertEquals("value", j.get("test"));
 
-        Thread.sleep(delay * 1000 + 1);
+		assertTrue(j.ttl("test") > 0);
 
-        assertNull(j.get("test"));
-        assertEquals(-1L, j.ttl("test").longValue());
-    }
+		Thread.sleep(delay * 1000 + 1);
 
-    @Test
-    public void testPExpire() throws InterruptedException {
-        int delay = 200;
+		assertEquals(-1L, j.ttl("test").longValue());
+	}
 
-        j.set("test", "123");
-        j.pexpire("test", delay);
+	@Test
+	public void testExpire() throws InterruptedException {
+		int delay = 1;
 
-        assertTrue(j.ttl("test") > 0);
+		j.set("test", "123");
+		j.expire("test", delay);
 
-        Thread.sleep(delay + 1);
+		assertTrue(j.ttl("test") > 0);
 
-        assertNull(j.get("test"));
-        assertEquals(-1L, j.ttl("test").longValue());
-    }
+		Thread.sleep(delay * 1000 + 1);
 
-    @Test
-    public void testExpireAt() throws InterruptedException {
-        int delay = 1;
+		assertNull(j.get("test"));
+		assertEquals(-1L, j.ttl("test").longValue());
+	}
 
-        j.set("test", "123");
-        long startTimeInSec = System.currentTimeMillis() / 1000;
-        j.expireAt("test", startTimeInSec + delay);
+	@Test
+	public void testPExpire() throws InterruptedException {
+		int delay = 200;
 
-        assertTrue(j.ttl("test") > 0);
+		j.set("test", "123");
+		j.pexpire("test", delay);
 
-        Thread.sleep(delay * 1000 + 1);
+		assertTrue(j.ttl("test") > 0);
 
-        assertNull(j.get("test"));
-        assertTrue(j.ttl("test") == -1);
-    }
+		Thread.sleep(delay + 1);
 
-    @Test
-    public void testPexpireAt() throws InterruptedException {
-        int delay = 200;
+		assertNull(j.get("test"));
+		assertEquals(-1L, j.ttl("test").longValue());
+	}
 
-        j.set("test", "123");
-        long startTimeInMillisec = System.currentTimeMillis();
-        j.pexpireAt("test", startTimeInMillisec + delay);
+	@Test
+	public void testExpireAt() throws InterruptedException {
+		int delay = 1;
 
-        assertTrue(j.ttl("test") > 0);
+		j.set("test", "123");
+		long startTimeInSec = System.currentTimeMillis() / 1000;
+		j.expireAt("test", startTimeInSec + delay);
 
-        Thread.sleep(delay + 1);
+		assertTrue(j.ttl("test") > 0);
 
-        assertNull(j.get("test"));
-        assertTrue(j.ttl("test") == -1);
-    }
-    
-    @Test
-    public void testRenew() throws InterruptedException {
-        int delay = 200;
+		Thread.sleep(delay * 1000 + 1);
 
-        j.psetex("test", delay, "value");
+		assertNull(j.get("test"));
+		assertTrue(j.ttl("test") == -1);
+	}
 
-        assertEquals("value", j.get("test"));
-        assertTrue(j.pttl("test") > 0);
+	@Test
+	public void testPexpireAt() throws InterruptedException {
+		int delay = 200;
 
-        Thread.sleep(delay / 2 + 1);
+		j.set("test", "123");
+		long startTimeInMillisec = System.currentTimeMillis();
+		j.pexpireAt("test", startTimeInMillisec + delay);
 
-        j.psetex("test", delay, "value");
+		assertTrue(j.ttl("test") > 0);
 
-        assertEquals("value", j.get("test"));
-        assertTrue(j.pttl("test") > 0);
+		Thread.sleep(delay + 1);
 
-        Thread.sleep(delay + 1);
+		assertNull(j.get("test"));
+		assertTrue(j.ttl("test") == -1);
+	}
 
-        assertNull(j.get("test"));
-        assertTrue(j.pttl("test") == -1);
-        
-    }
+	@Test
+	public void testRenew() throws InterruptedException {
+		int delay = 200;
+
+		j.psetex("test", delay, "value");
+
+		assertEquals("value", j.get("test"));
+		assertTrue(j.pttl("test") > 0);
+
+		Thread.sleep(delay / 2 + 1);
+
+		j.psetex("test", delay, "value");
+
+		assertEquals("value", j.get("test"));
+		assertTrue(j.pttl("test") > 0);
+
+		Thread.sleep(delay + 1);
+
+		assertNull(j.get("test"));
+		assertTrue(j.pttl("test") == -1);
+
+	}
 }
