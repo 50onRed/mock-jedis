@@ -831,9 +831,25 @@ public class MockPipeline extends Pipeline {
 	public synchronized Response<String> hget(final String key, final String field) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final Map<String, String> result = getHashFromStorage(key, false);
-		if (result != null) {
-			response.set(result.containsKey(field) ? result.get(field).getBytes(CHARSET) : null);
+		if (result == null) {
+			response.set(null);
+			return response;
 		}
+		final String fieldValue = result.get(field);
+		response.set(fieldValue == null ? null : fieldValue.getBytes(CHARSET));
+		return response;
+	}
+
+	@Override
+	public synchronized Response<byte[]> hget(final byte[] key, final byte[] field) {
+		final Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
+		final Map<String, String> result = getHashFromStorage(new String(key, CHARSET), false);
+		if (result == null) {
+			response.set(null);
+			return response;
+		}
+		final String fieldValue = result.get(new String(field, CHARSET));
+		response.set(fieldValue == null ? null : fieldValue.getBytes(CHARSET));
 		return response;
 	}
 
@@ -843,10 +859,45 @@ public class MockPipeline extends Pipeline {
 		final Map<String, String> result = getHashFromStorage(key, false);
 
 		if (result != null) {
-			final List<byte[]> encodedResult = new ArrayList<byte[]>();
+			final List<byte[]> encodedResult = new ArrayList<byte[]>(result.size());
 			for (final Map.Entry<String, String> e : result.entrySet()) {
 				encodedResult.add(SafeEncoder.encode(e.getKey()));
 				encodedResult.add(SafeEncoder.encode(e.getValue()));
+			}
+			response.set(encodedResult);
+		} else {
+			response.set(new ArrayList<byte[]>(0));
+		}
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Map<byte[], byte[]>> hgetAll(final byte[] key) {
+		final Response<Map<byte[], byte[]>> response = new Response<Map<byte[], byte[]>>(BuilderFactory.BYTE_ARRAY_MAP);
+		final Map<String, String> result = getHashFromStorage(new String(key, CHARSET), false);
+
+		if (result != null) {
+			final List<byte[]> encodedResult = new ArrayList<byte[]>(result.size());
+			for (final Map.Entry<String, String> e : result.entrySet()) {
+				encodedResult.add(SafeEncoder.encode(e.getKey()));
+				encodedResult.add(SafeEncoder.encode(e.getValue()));
+			}
+			response.set(encodedResult);
+		} else {
+			response.set(new ArrayList<byte[]>(0));
+		}
+		return response;
+	}
+
+	@Override
+	public synchronized Response<Set<String>> hkeys(final String key) {
+		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
+		final Map<String, String> result = getHashFromStorage(key, false);
+
+		if (result != null) {
+			final List<byte[]> encodedResult = new ArrayList<byte[]>();
+			for (final String k : result.keySet()) {
+				encodedResult.add(SafeEncoder.encode(k));
 			}
 			response.set(encodedResult);
 		} else {
@@ -856,9 +907,9 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Set<String>> hkeys(final String key) {
-		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
-		final Map<String, String> result = getHashFromStorage(key, false);
+	public synchronized Response<Set<byte[]>> hkeys(final byte[] key) {
+		final Response<Set<byte[]>> response = new Response<Set<byte[]>>(BuilderFactory.BYTE_ARRAY_ZSET);
+		final Map<String, String> result = getHashFromStorage(new String(key, CHARSET), false);
 
 		if (result != null) {
 			final List<byte[]> encodedResult = new ArrayList<byte[]>();
@@ -890,6 +941,23 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public synchronized Response<List<byte[]>> hvals(final byte[] key) {
+		final Response<List<byte[]>> response = new Response<List<byte[]>>(BuilderFactory.BYTE_ARRAY_LIST);
+		final Map<String, String> result = getHashFromStorage(new String(key, CHARSET), false);
+
+		if (result != null) {
+			final List<byte[]> encodedResult = new ArrayList<byte[]>();
+			for (final String v : result.values()) {
+				encodedResult.add(SafeEncoder.encode(v));
+			}
+			response.set(encodedResult);
+		} else {
+			response.set(new ArrayList<byte[]>());
+		}
+		return response;
+	}
+
+	@Override
 	public synchronized Response<Long> hset(final String key, final String field, final String value) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Map<String, String> m = getHashFromStorage(key, true);
@@ -897,6 +965,11 @@ public class MockPipeline extends Pipeline {
 		m.put(field, value);
 
 		return response;
+	}
+
+	@Override
+	public Response<Long> hset(final byte[] key, final byte[] field, final byte[] value) {
+		return hset(new String(key, CHARSET), new String(field, CHARSET), new String(value, CHARSET));
 	}
 
 	@Override
@@ -911,6 +984,11 @@ public class MockPipeline extends Pipeline {
 		response.set(result);
 
 		return response;
+	}
+
+	@Override
+	public Response<Long> hsetnx(final byte[] key, final byte[] field, final byte[] value) {
+		return hsetnx(new String(key, CHARSET), new String(field, CHARSET), new String(value, CHARSET));
 	}
 
 	@Override
@@ -935,11 +1013,44 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public synchronized Response<List<byte[]>> hmget(final byte[] key, final byte[]... fields) {
+		final Response<List<byte[]>> response = new Response<List<byte[]>>(BuilderFactory.BYTE_ARRAY_LIST);
+		final List<byte[]> result = new ArrayList<byte[]>();
+		final String keyString = new String(key, CHARSET);
+		final Map<String, String> hash = getHashFromStorage(keyString, false);
+		if (hash == null) {
+			for (final byte[] ignored : fields) {
+				result.add(null);
+			}
+			response.set(result);
+			return response;
+		}
+
+		for (final byte[] field : fields) {
+			final String v = hash.get(new String(field, CHARSET));
+			result.add(v != null ? v.getBytes(CHARSET) : null);
+		}
+		response.set(result);
+		return response;
+	}
+
+	@Override
 	public synchronized Response<String> hmset(final String key, final Map<String, String> hash) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final Map<String, String> m = getHashFromStorage(key, true);
 		for (final Map.Entry<String, String> e : hash.entrySet()) {
 			m.put(e.getKey(), e.getValue());
+		}
+		response.set(OK_RESPONSE);
+		return response;
+	}
+
+	@Override
+	public synchronized Response<String> hmset(final byte[] key, final Map<byte[], byte[]> hash) {
+		final Response<String> response = new Response<String>(BuilderFactory.STRING);
+		final Map<String, String> m = getHashFromStorage(new String(key, CHARSET), true);
+		for (final Map.Entry<byte[], byte[]> e : hash.entrySet()) {
+			m.put(new String(e.getKey(), CHARSET), new String(e.getValue(), CHARSET));
 		}
 		response.set(OK_RESPONSE);
 		return response;
@@ -966,6 +1077,11 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<Long> hincrBy(final byte[] key, final byte[] field, final long value) {
+		return hincrBy(new String(key, CHARSET), new String(field, CHARSET), value);
+	}
+
+	@Override
 	public synchronized Response<Double> hincrByFloat(final String key, final String field, final double increment) {
 		final Response<Double> response = new Response<Double>(BuilderFactory.DOUBLE);
 		final Map<String, String> m = getHashFromStorage(key, true);
@@ -986,6 +1102,11 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<Double> hincrByFloat(final byte[] key, final byte[] field, final double increment) {
+		return hincrByFloat(new String(key, CHARSET), new String(field, CHARSET), increment);
+	}
+
+	@Override
 	public synchronized Response<Long> hdel(final String key, final String... field) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Map<String, String> m = getHashFromStorage(key, true);
@@ -1001,14 +1122,22 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
+	public Response<Long> hdel(final byte[] key, final byte[]... field) {
+		return hdel(new String(key, CHARSET), convertToStrings(field));
+	}
+
+	@Override
 	public synchronized Response<Boolean> hexists(final String key, final String field) {
 		final Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
 		final Map<String, String> hash = getHashFromStorage(key, false);
-		if (hash != null) {
-			response.set(hash.containsKey(field) ? 1L : 0L);
-		}
+		response.set(hash != null && hash.containsKey(field) ? 1L : 0L);
 
 		return response;
+	}
+
+	@Override
+	public Response<Boolean> hexists(final byte[] key, final byte[] field) {
+		return hexists(new String(key, CHARSET), new String(field, CHARSET));
 	}
 
 	@Override
@@ -1022,6 +1151,11 @@ public class MockPipeline extends Pipeline {
 		}
 
 		return response;
+	}
+
+	@Override
+	public Response<Long> hlen(final byte[] key) {
+		return hlen(new String(key, CHARSET));
 	}
 
 	@Override

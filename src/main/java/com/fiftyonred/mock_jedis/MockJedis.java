@@ -518,6 +518,11 @@ public class MockJedis extends Jedis {
 	}
 
 	@Override
+	public Long hsetnx(final byte[] key, final byte[] field, final byte[] value) {
+		return pipeline.hsetnx(key, field, value).get();
+	}
+
+	@Override
 	public String hget(final String key, final String field) {
 		return pipeline.hget(key, field).get();
 	}
