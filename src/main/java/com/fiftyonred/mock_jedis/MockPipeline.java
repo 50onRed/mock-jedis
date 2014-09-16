@@ -3,22 +3,27 @@ package com.fiftyonred.mock_jedis;
 import com.fiftyonred.utils.WildcardMatcher;
 import redis.clients.jedis.*;
 import redis.clients.jedis.exceptions.JedisDataException;
-import redis.clients.util.SafeEncoder;
 
-import java.nio.charset.Charset;
 import java.util.*;
 
+import static com.fiftyonred.mock_jedis.DataContainer.CHARSET;
+
 public class MockPipeline extends Pipeline {
+
+	private static final int NUM_DBS = 16;
+	private static final byte[] STRING_TYPE = "string".getBytes(CHARSET);
+	private static final byte[] LIST_TYPE = "list".getBytes(CHARSET);
+	private static final byte[] SET_TYPE = "set".getBytes(CHARSET);
+	private static final byte[] NONE_TYPE = "none".getBytes(CHARSET);
+	private static final byte[] OK_RESPONSE  = "OK".getBytes(CHARSET);
+	private static final byte[] PONG_RESPONSE = "PONG".getBytes(CHARSET);
+
 	private final WildcardMatcher wildcardMatcher = new WildcardMatcher();
 	private final List<Map<DataContainer, KeyInformation>> allKeys;
 	private final List<Map<DataContainer, DataContainer>> allStorage;
 	private final List<Map<DataContainer, Map<DataContainer, DataContainer>>> allHashStorage;
 	private final List<Map<DataContainer, List<DataContainer>>> allListStorage;
 	private final List<Map<DataContainer, Set<DataContainer>>> allSetStorage;
-
-	private static final int NUM_DBS = 16;
-	private static final Charset CHARSET = Charset.forName("UTF-8");
-	private static final byte[] OK_RESPONSE  = "OK".getBytes(CHARSET);
 
 	private int currentDB;
 	private Map<DataContainer, KeyInformation> keys;
@@ -54,7 +59,7 @@ public class MockPipeline extends Pipeline {
 	@Override
 	public Response<String> ping() {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
-		response.set("PONG".getBytes(CHARSET));
+		response.set(PONG_RESPONSE);
 		return response;
 	}
 
@@ -285,13 +290,13 @@ public class MockPipeline extends Pipeline {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final KeyInformation info = keys.get(key);
 		if (info != null && info.getType() == KeyType.STRING) {
-			response.set("string".getBytes(CHARSET));
+			response.set(STRING_TYPE);
 		} else if (info != null && info.getType() == KeyType.LIST) {
-			response.set("list".getBytes(CHARSET));
+			response.set(LIST_TYPE);
 		} else if (info != null && info.getType() == KeyType.SET) {
-			response.set("set".getBytes(CHARSET));
+			response.set(SET_TYPE);
 		} else {
-			response.set("none".getBytes(CHARSET));
+			response.set(NONE_TYPE);
 		}
 		return response;
 	}
