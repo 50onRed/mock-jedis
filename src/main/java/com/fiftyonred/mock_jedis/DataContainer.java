@@ -1,6 +1,7 @@
 package com.fiftyonred.mock_jedis;
 
-import javax.xml.crypto.Data;
+import redis.clients.jedis.Protocol;
+
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -11,27 +12,19 @@ import java.util.*;
  */
 public class DataContainer implements Comparable<DataContainer> {
 
+	// Redis protocol charset (Jedis uses UTF-8 as a constant)
+	public static final Charset CHARSET = Charset.forName(Protocol.CHARSET);
+
 	private final byte[] bytes;
 	private final String string;
 	private final Source source;
 	private final int hash;
 
-	public DataContainer(byte[] bytes, String string, Source source) {
+	private DataContainer(byte[] bytes, String string, Source source) {
 		this.bytes = bytes;
 		this.string = string;
 		this.source = source;
 		this.hash = calculateHash(bytes, string, source);
-	}
-
-	private int calculateHash(byte[] bytes, String string, Source source) {
-		switch (source) {
-			case BYTES:
-				return Arrays.hashCode(bytes);
-			case STRING:
-				return string.hashCode();
-			default:
-				return 0;
-		}
 	}
 
 	public static DataContainer from(byte[] bytes) {
@@ -47,7 +40,7 @@ public class DataContainer implements Comparable<DataContainer> {
 		if (str == null) {
 			return null;
 		}
-		byte[] bytes = str.getBytes();
+		byte[] bytes = str.getBytes(CHARSET);
 		return new DataContainer(bytes, str, Source.STRING);
 	}
 
@@ -72,7 +65,7 @@ public class DataContainer implements Comparable<DataContainer> {
 		}
 		return result;
 	}
-	
+
 	public static String toString(DataContainer container) {
 		if (container == null) {
 			return null;
@@ -152,6 +145,17 @@ public class DataContainer implements Comparable<DataContainer> {
 		return hash;
 	}
 
+	private int calculateHash(byte[] bytes, String string, Source source) {
+		switch (source) {
+			case BYTES:
+				return Arrays.hashCode(bytes);
+			case STRING:
+				return string.hashCode();
+			default:
+				return 0;
+		}
+	}
+
 	@Override
 	public String toString() {
 		return string;
@@ -159,6 +163,7 @@ public class DataContainer implements Comparable<DataContainer> {
 
 	@Override
 	public int compareTo(DataContainer o) {
+		// compare string representation of data (in the same way as redis does)
 		return string.compareTo(o.getString());
 	}
 
