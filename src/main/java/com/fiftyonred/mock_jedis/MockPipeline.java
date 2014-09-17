@@ -247,7 +247,7 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public Response<byte[]> dump(final String key) {
-		return get(key.getBytes());
+		return get(key.getBytes(CHARSET));
 	}
 
 	@Override
