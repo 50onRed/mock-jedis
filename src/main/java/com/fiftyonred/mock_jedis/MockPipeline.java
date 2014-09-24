@@ -848,7 +848,7 @@ public class MockPipeline extends Pipeline {
 
 	@Override
 	public Response<Long> strlen(final byte[] key) {
-		return strlen(new String(key));
+		return strlen(new String(key, CHARSET));
 	}
 
 	@Override
@@ -1585,7 +1585,7 @@ public class MockPipeline extends Pipeline {
 	public synchronized Response<Set<String>> sdiff(final String... keys) {
 		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
 		DataContainer[] keyContainers = DataContainer.from(keys);
-		Collection<DataContainer> collection = sinter(keyContainers);
+		Collection<DataContainer> collection = sdiff(keyContainers);
 		List<byte[]> data = DataContainer.toBytes(collection);
 		response.set(data);
 		return response;
@@ -1595,7 +1595,7 @@ public class MockPipeline extends Pipeline {
 	public synchronized Response<Set<byte[]>> sdiff(final byte[]... keys) {
 		final Response<Set<byte[]>> response = new Response<Set<byte[]>>(BuilderFactory.BYTE_ARRAY_ZSET);
 		DataContainer[] keyContainers = DataContainer.from(keys);
-		Collection<DataContainer> collection = sinter(keyContainers);
+		Collection<DataContainer> collection = sdiff(keyContainers);
 		List<byte[]> data = DataContainer.toBytes(collection);
 		response.set(data);
 		return response;
