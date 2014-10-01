@@ -109,7 +109,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<String> rename(final String oldkey, final String newkey) {
+	public Response<String> rename(final String oldkey, final String newkey) {
 		return rename(DataContainer.from(oldkey), DataContainer.from(newkey));
 	}
 
@@ -118,7 +118,7 @@ public class MockPipeline extends Pipeline {
 		return rename(DataContainer.from(oldkey), DataContainer.from(newkey));
 	}
 
-	private Response<String> rename(final DataContainer oldkey, final DataContainer newkey) {
+	private synchronized Response<String> rename(final DataContainer oldkey, final DataContainer newkey) {
 		if (oldkey.equals(newkey)) {
 			throw new JedisDataException("ERR source and destination objects are the same");
 		}
@@ -145,7 +145,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> renamenx(final String oldkey, final String newkey) {
+	public Response<Long> renamenx(final String oldkey, final String newkey) {
 		return renamenx(DataContainer.from(oldkey), DataContainer.from(newkey));
 	}
 
@@ -154,7 +154,7 @@ public class MockPipeline extends Pipeline {
 		return renamenx(DataContainer.from(oldkey), DataContainer.from(newkey));
 	}
 
-	private Response<Long> renamenx(final DataContainer oldkey, final DataContainer newkey) {
+	private synchronized Response<Long> renamenx(final DataContainer oldkey, final DataContainer newkey) {
 		if (oldkey.equals(newkey)) {
 			throw new JedisDataException("ERR source and destination objects are the same");
 		}
@@ -170,16 +170,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<String> set(final String key, final String value) {
+	public Response<String> set(final String key, final String value) {
 		return set(DataContainer.from(key), DataContainer.from(value));
 	}
 
 	@Override
-	public synchronized Response<String> set(final byte[] key, final byte[] value) {
+	public Response<String> set(final byte[] key, final byte[] value) {
 		return set(DataContainer.from(key), DataContainer.from(value));
 	}
 
-	private Response<String> set(final DataContainer key, final DataContainer value) {
+	private synchronized Response<String> set(final DataContainer key, final DataContainer value) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		createOrUpdateKey(key, KeyType.STRING, true);
 		storage.put(key, value);
@@ -188,16 +188,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> setnx(final String key, final String value) {
+	public Response<Long> setnx(final String key, final String value) {
 		return setnx(DataContainer.from(key), DataContainer.from(value));
 	}
 
 	@Override
-	public synchronized Response<Long> setnx(final byte[] key, final byte[] value) {
+	public Response<Long> setnx(final byte[] key, final byte[] value) {
 		return setnx(DataContainer.from(key), DataContainer.from(value));
 	}
 
-	private Response<Long> setnx(final DataContainer key, final DataContainer value) {
+	private synchronized Response<Long> setnx(final DataContainer key, final DataContainer value) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final DataContainer result = getContainerFromStorage(key, false);
 		if (result == null) {
@@ -261,32 +261,32 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Boolean> exists(final String key) {
+	public Response<Boolean> exists(final String key) {
 		return exists(DataContainer.from(key));
 	}
 
 	@Override
-	public synchronized Response<Boolean> exists(final byte[] key) {
+	public Response<Boolean> exists(final byte[] key) {
 		return exists(DataContainer.from(key));
 	}
 
-	private Response<Boolean> exists(final DataContainer key) {
+	private synchronized Response<Boolean> exists(final DataContainer key) {
 		final Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
 		response.set(keys.containsKey(key) ? 1L : 0L);
 		return response;
 	}
 
 	@Override
-	public synchronized Response<String> type(final String key) {
+	public Response<String> type(final String key) {
 		return type(DataContainer.from(key));
 	}
 
 	@Override
-	public synchronized Response<String> type(final byte[] key) {
+	public Response<String> type(final byte[] key) {
 		return type(DataContainer.from(key));
 	}
 
-	private Response<String> type(final DataContainer key) {
+	private synchronized Response<String> type(final DataContainer key) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final KeyInformation info = keys.get(key);
 		if (info != null && info.getType() == KeyType.STRING) {
@@ -302,16 +302,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> move(final String key, final int dbIndex) {
+	public Response<Long> move(final String key, final int dbIndex) {
 		return move(DataContainer.from(key), dbIndex);
 	}
 
 	@Override
-	public synchronized Response<Long> move(final byte[] key, final int dbIndex) {
+	public Response<Long> move(final byte[] key, final int dbIndex) {
 		return move(DataContainer.from(key), dbIndex);
 	}
 
-	private Response<Long> move(final DataContainer key, final int dbIndex) {
+	private synchronized Response<Long> move(final DataContainer key, final int dbIndex) {
 		if (dbIndex < 0 || dbIndex >= NUM_DBS) {
 			throw new JedisDataException("ERR index out of range");
 		}
@@ -401,7 +401,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public Response<String> psetex(final byte[] key, final int milliseconds, final byte[] value) {
+	public synchronized Response<String> psetex(final byte[] key, final int milliseconds, final byte[] value) {
 		final Response<String> response = set(key, value);
 		pexpire(key, milliseconds);
 		return response;
@@ -448,14 +448,14 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> pexpireAt(final String key, final long millisecondsTimestamp) {
+	public Response<Long> pexpireAt(final String key, final long millisecondsTimestamp) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		response.set(pexpireAt(DataContainer.from(key), millisecondsTimestamp));
 		return response;
 	}
 
 	@Override
-	public synchronized Response<Long> pexpireAt(final byte[] key, final long millisecondsTimestamp) {
+	public Response<Long> pexpireAt(final byte[] key, final long millisecondsTimestamp) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		response.set(pexpireAt(DataContainer.from(key), millisecondsTimestamp));
 		return response;
@@ -497,16 +497,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> append(final String key, final String value) {
+	public Response<Long> append(final String key, final String value) {
 		return append(DataContainer.from(key), DataContainer.from(value));
 	}
 
 	@Override
-	public synchronized Response<Long> append(final byte[] key, final byte[] value) {
+	public Response<Long> append(final byte[] key, final byte[] value) {
 		return append(DataContainer.from(key), DataContainer.from(value));
 	}
 
-	private Response<Long> append(final DataContainer key, final DataContainer value) {
+	private synchronized Response<Long> append(final DataContainer key, final DataContainer value) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		DataContainer container = getContainerFromStorage(key, true);
 		final DataContainer newVal = container.append(value);
@@ -516,11 +516,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> pttl(final String key) {
+	public Response<Long> pttl(final String key) {
 		return pttl(DataContainer.from(key));
 	}
 
-	private Response<Long> pttl(final DataContainer key) {
+	@Override
+	public Response<Long> pttl(final byte[] key) {
+		return pttl(DataContainer.from(key));
+	}
+
+	private synchronized Response<Long> pttl(final DataContainer key) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final KeyInformation info = keys.get(key);
 		response.set(info == null ? -1L : info.getTTL());
@@ -528,16 +533,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> persist(final String key) {
+	public Response<Long> persist(final String key) {
 		return persist(DataContainer.from(key));
 	}
 
 	@Override
-	public synchronized Response<Long> persist(final byte[] key) {
+	public Response<Long> persist(final byte[] key) {
 		return persist(DataContainer.from(key));
 	}
 
-	private Response<Long> persist(final DataContainer key) {
+	private synchronized Response<Long> persist(final DataContainer key) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final KeyInformation info = keys.get(key);
 		if (info.getTTL() == -1) {
@@ -659,7 +664,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> incrBy(final String key, final long integer) {
+	public Response<Long> incrBy(final String key, final long integer) {
 		return incrBy(DataContainer.from(key), integer);
 	}
 
@@ -668,7 +673,7 @@ public class MockPipeline extends Pipeline {
 		return incrBy(DataContainer.from(key), integer);
 	}
 
-	private Response<Long> incrBy(final DataContainer key, final long integer) {
+	private synchronized Response<Long> incrBy(final DataContainer key, final long integer) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final DataContainer val = getContainerFromStorage(key, true);
 
@@ -691,7 +696,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Double> incrByFloat(final String key, final double increment) {
+	public Response<Double> incrByFloat(final String key, final double increment) {
 		return incrByFloat(DataContainer.from(key), increment);
 	}
 
@@ -812,7 +817,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> sort(final String key, final SortingParams sortingParameters, final String dstkey) {
+	public Response<Long> sort(final String key, final SortingParams sortingParameters, final String dstkey) {
 		return sort(DataContainer.from(key), sortingParameters, DataContainer.from(dstkey));
 	}
 
@@ -876,16 +881,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> del(final String key) {
+	public Response<Long> del(final String key) {
 		return del(DataContainer.from(key));
 	}
 
 	@Override
-	public synchronized Response<Long> del(final byte[] key) {
+	public Response<Long> del(final byte[] key) {
 		return del(DataContainer.from(key));
 	}
 
-	private Response<Long> del(final DataContainer key) {
+	private synchronized Response<Long> del(final DataContainer key) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		long result = 0L;
 		final KeyInformation info = this.keys.remove(key);
@@ -908,7 +913,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<String> hget(final String key, final String field) {
+	public Response<String> hget(final String key, final String field) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final Map<DataContainer, DataContainer> result = getHashFromStorage(DataContainer.from(key), false);
 		if (result == null) {
@@ -921,7 +926,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<byte[]> hget(final byte[] key, final byte[] field) {
+	public Response<byte[]> hget(final byte[] key, final byte[] field) {
 		final Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
 		final Map<DataContainer, DataContainer> result = getHashFromStorage(DataContainer.from(key), false);
 		if (result == null) {
@@ -1024,17 +1029,17 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> hset(final String key, final String field, final String value) {
+	public Response<Long> hset(final String key, final String field, final String value) {
 		return hset(DataContainer.from(key), DataContainer.from(field), DataContainer.from(value));
 
 	}
 
 	@Override
-	public synchronized Response<Long> hset(final byte[] key, final byte[] field, final byte[] value) {
+	public Response<Long> hset(final byte[] key, final byte[] field, final byte[] value) {
 		return hset(DataContainer.from(key), DataContainer.from(field), DataContainer.from(value));
 	}
 
-	private Response<Long> hset(final DataContainer key, final DataContainer field, final DataContainer value) {
+	private synchronized Response<Long> hset(final DataContainer key, final DataContainer field, final DataContainer value) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Map<DataContainer, DataContainer> m = getHashFromStorage(key, true);
 		response.set(m.containsKey(field) ? 0L : 1L);
@@ -1044,16 +1049,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> hsetnx(final String key, final String field, final String value) {
+	public Response<Long> hsetnx(final String key, final String field, final String value) {
 		return hsetnx(DataContainer.from(key), DataContainer.from(field), DataContainer.from(value));
 	}
 
 	@Override
-	public synchronized Response<Long> hsetnx(final byte[] key, final byte[] field, final byte[] value) {
+	public Response<Long> hsetnx(final byte[] key, final byte[] field, final byte[] value) {
 		return hsetnx(DataContainer.from(key), DataContainer.from(field), DataContainer.from(value));
 	}
 
-	private Response<Long> hsetnx(final DataContainer key, final DataContainer field, final DataContainer value) {
+	private synchronized Response<Long> hsetnx(final DataContainer key, final DataContainer field, final DataContainer value) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Map<DataContainer, DataContainer> m = getHashFromStorage(key, true);
 		long result = 0L;
@@ -1131,16 +1136,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> hincrBy(final String key, final String field, final long value) {
+	public Response<Long> hincrBy(final String key, final String field, final long value) {
 		return hincrBy(DataContainer.from(key), DataContainer.from(field), value);
 	}
 
 	@Override
-	public synchronized Response<Long> hincrBy(final byte[] key, final byte[] field, final long value) {
+	public Response<Long> hincrBy(final byte[] key, final byte[] field, final long value) {
 		return hincrBy(DataContainer.from(key), DataContainer.from(field), value);
 	}
 
-	private Response<Long> hincrBy(final DataContainer key, final DataContainer field, final long value) {
+	private synchronized Response<Long> hincrBy(final DataContainer key, final DataContainer field, final long value) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Map<DataContainer, DataContainer> m = getHashFromStorage(key, true);
 
@@ -1160,16 +1165,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Double> hincrByFloat(final String key, final String field, final double increment) {
+	public Response<Double> hincrByFloat(final String key, final String field, final double increment) {
 		return hincrByFloat(DataContainer.from(key), DataContainer.from(field), increment);
 	}
 
 	@Override
-	public synchronized Response<Double> hincrByFloat(final byte[] key, final byte[] field, final double increment) {
+	public Response<Double> hincrByFloat(final byte[] key, final byte[] field, final double increment) {
 		return hincrByFloat(DataContainer.from(key), DataContainer.from(field), increment);
 	}
 
-	private Response<Double> hincrByFloat(final DataContainer key, final DataContainer field, final double increment) {
+	private synchronized Response<Double> hincrByFloat(final DataContainer key, final DataContainer field, final double increment) {
 		final Response<Double> response = new Response<Double>(BuilderFactory.DOUBLE);
 		final Map<DataContainer, DataContainer> m = getHashFromStorage(key, true);
 
@@ -1191,16 +1196,16 @@ public class MockPipeline extends Pipeline {
 
 
 	@Override
-	public synchronized Response<Long> hdel(final String key, final String... field) {
+	public Response<Long> hdel(final String key, final String... field) {
 		return hdel(DataContainer.from(key), DataContainer.from(field));
 	}
 
 	@Override
-	public synchronized Response<Long> hdel(final byte[] key, final byte[]... field) {
+	public Response<Long> hdel(final byte[] key, final byte[]... field) {
 		return hdel(DataContainer.from(key), DataContainer.from(field));
 	}
 
-	private Response<Long> hdel(final DataContainer key, final DataContainer... fields) {
+	private synchronized Response<Long> hdel(final DataContainer key, final DataContainer... fields) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Map<DataContainer, DataContainer> m = getHashFromStorage(key, true);
 		long result = 0L;
@@ -1215,16 +1220,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Boolean> hexists(final String key, final String field) {
+	public Response<Boolean> hexists(final String key, final String field) {
 		return hexists(DataContainer.from(key), DataContainer.from(field));
 	}
 
 	@Override
-	public synchronized Response<Boolean> hexists(final byte[] key, final byte[] field) {
+	public Response<Boolean> hexists(final byte[] key, final byte[] field) {
 		return hexists(DataContainer.from(key), DataContainer.from(field));
 	}
 
-	private Response<Boolean> hexists(final DataContainer key, final DataContainer field) {
+	private synchronized Response<Boolean> hexists(final DataContainer key, final DataContainer field) {
 		final Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
 		final Map<DataContainer, DataContainer> hash = getHashFromStorage(key, false);
 		response.set(hash != null && hash.containsKey(field) ? 1L : 0L);
@@ -1234,16 +1239,16 @@ public class MockPipeline extends Pipeline {
 
 
 	@Override
-	public synchronized Response<Long> hlen(final String key) {
+	public Response<Long> hlen(final String key) {
 		return hlen(DataContainer.from(key));
 	}
 
 	@Override
-	public synchronized Response<Long> hlen(final byte[] key) {
+	public Response<Long> hlen(final byte[] key) {
 		return hlen(DataContainer.from(key));
 	}
 
-	private Response<Long> hlen(final DataContainer key) {
+	private synchronized Response<Long> hlen(final DataContainer key) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Map<DataContainer, DataContainer> hash = getHashFromStorage(key, false);
 		if (hash != null) {
@@ -1256,16 +1261,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> lpush(final String key, final String... string) {
+	public Response<Long> lpush(final String key, final String... string) {
 		return lpush(DataContainer.from(key), DataContainer.from(string));
 	}
 
 	@Override
-	public synchronized Response<Long> lpush(final byte[] key, final byte[]... string) {
+	public Response<Long> lpush(final byte[] key, final byte[]... string) {
 		return lpush(DataContainer.from(key), DataContainer.from(string));
 	}
 
-	private Response<Long> lpush(final DataContainer key, final DataContainer... string) {
+	private synchronized Response<Long> lpush(final DataContainer key, final DataContainer... string) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		List<DataContainer> list = getListFromStorage(key, true);
 		if (list == null) {
@@ -1302,7 +1307,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> llen(final String key) {
+	public Response<Long> llen(final String key) {
 		return llen(DataContainer.from(key));
 	}
 
@@ -1338,7 +1343,7 @@ public class MockPipeline extends Pipeline {
 		return response;
 	}
 
-	public List<DataContainer> lrange(final DataContainer key, long start, long end) {
+	public synchronized List<DataContainer> lrange(final DataContainer key, long start, long end) {
 		final List<DataContainer> full = getListFromStorage(key, false);
 
 		List<DataContainer> result = new ArrayList<DataContainer>();
@@ -1367,7 +1372,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Set<String>> keys(final String pattern) {
+	public Response<Set<String>> keys(final String pattern) {
 		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
 		Set<DataContainer> result = keys(DataContainer.from(pattern));
 		response.set(DataContainer.toBytes(result));
@@ -1375,7 +1380,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Set<byte[]>> keys(final byte[] pattern) {
+	public Response<Set<byte[]>> keys(final byte[] pattern) {
 		final Response<Set<byte[]>> response = new Response<Set<byte[]>>(BuilderFactory.BYTE_ARRAY_ZSET);
 		Set<DataContainer> result = keys(DataContainer.from(pattern));
 		response.set(DataContainer.toBytes(result));
@@ -1515,16 +1520,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> sadd(final String key, final String... member) {
+	public Response<Long> sadd(final String key, final String... member) {
 		return sadd(DataContainer.from(key), DataContainer.from(member));
 	}
 
 	@Override
-	public synchronized Response<Long> sadd(final byte[] key, final byte[]... member) {
+	public Response<Long> sadd(final byte[] key, final byte[]... member) {
 		return sadd(DataContainer.from(key), DataContainer.from(member));
 	}
 
-	private Response<Long> sadd(final DataContainer key, final DataContainer... members) {
+	private synchronized Response<Long> sadd(final DataContainer key, final DataContainer... members) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Set<DataContainer> set = getSetFromStorage(key, true);
 
@@ -1540,16 +1545,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> srem(final String key, final String... member) {
+	public Response<Long> srem(final String key, final String... member) {
 		return srem(DataContainer.from(key), DataContainer.from(member));
 	}
 
 	@Override
-	public synchronized Response<Long> srem(final byte[] key, final byte[]... member) {
+	public Response<Long> srem(final byte[] key, final byte[]... member) {
 		return srem(DataContainer.from(key), DataContainer.from(member));
 	}
 
-	private Response<Long> srem(final DataContainer key, final DataContainer... member) {
+	private synchronized Response<Long> srem(final DataContainer key, final DataContainer... member) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Set<DataContainer> set = getSetFromStorage(key, true);
 		Long removed = 0L;
@@ -1564,16 +1569,16 @@ public class MockPipeline extends Pipeline {
 
 
 	@Override
-	public synchronized Response<Long> scard(final String key) {
+	public Response<Long> scard(final String key) {
 		return scard(DataContainer.from(key));
 	}
 
 	@Override
-	public synchronized Response<Long> scard(final byte[] key) {
+	public Response<Long> scard(final byte[] key) {
 		return scard(DataContainer.from(key));
 	}
 
-	private Response<Long> scard(final DataContainer key) {
+	private synchronized Response<Long> scard(final DataContainer key) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Set<DataContainer> set = getSetFromStorage(key, true);
 		response.set((long) set.size());
@@ -1582,7 +1587,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Set<String>> sdiff(final String... keys) {
+	public Response<Set<String>> sdiff(final String... keys) {
 		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
 		DataContainer[] keyContainers = DataContainer.from(keys);
 		Collection<DataContainer> collection = sdiff(keyContainers);
@@ -1592,7 +1597,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Set<byte[]>> sdiff(final byte[]... keys) {
+	public Response<Set<byte[]>> sdiff(final byte[]... keys) {
 		final Response<Set<byte[]>> response = new Response<Set<byte[]>>(BuilderFactory.BYTE_ARRAY_ZSET);
 		DataContainer[] keyContainers = DataContainer.from(keys);
 		Collection<DataContainer> collection = sdiff(keyContainers);
@@ -1601,7 +1606,7 @@ public class MockPipeline extends Pipeline {
 		return response;
 	}
 
-	private Set<DataContainer> sdiff(final DataContainer... keys) {
+	private synchronized Set<DataContainer> sdiff(final DataContainer... keys) {
 		final int l = keys.length;
 		if (l <= 0) {
 			throw new JedisDataException("ERR wrong number of arguments for 'sdiff' command");
@@ -1616,16 +1621,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> sdiffstore(final String dstKey, final String... keys) {
+	public Response<Long> sdiffstore(final String dstKey, final String... keys) {
 		return sdiffstore(DataContainer.from(dstKey), DataContainer.from(keys));
 	}
 
 	@Override
-	public synchronized Response<Long> sdiffstore(final byte[] dstKey, final byte[]... keys) {
+	public Response<Long> sdiffstore(final byte[] dstKey, final byte[]... keys) {
 		return sdiffstore(DataContainer.from(dstKey), DataContainer.from(keys));
 	}
 
-	private Response<Long> sdiffstore(final DataContainer dstKey, final DataContainer... keys) {
+	private synchronized Response<Long> sdiffstore(final DataContainer dstKey, final DataContainer... keys) {
 		if (keys.length <= 0) {
 			throw new JedisDataException("ERR wrong number of arguments for 'sdiff' command");
 		}
@@ -1642,7 +1647,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Set<String>> sinter(final String... keys) {
+	public Response<Set<String>> sinter(final String... keys) {
 		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
 		DataContainer[] keyContainers = DataContainer.from(keys);
 		Collection<DataContainer> collection = sinter(keyContainers);
@@ -1652,7 +1657,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Set<byte[]>> sinter(final byte[]... keys) {
+	public Response<Set<byte[]>> sinter(final byte[]... keys) {
 		final Response<Set<byte[]>> response = new Response<Set<byte[]>>(BuilderFactory.BYTE_ARRAY_ZSET);
 		DataContainer[] keyContainers = DataContainer.from(keys);
 		Collection<DataContainer> collection = sinter(keyContainers);
@@ -1661,7 +1666,7 @@ public class MockPipeline extends Pipeline {
 		return response;
 	}
 
-	private Set<DataContainer> sinter(final DataContainer... keys) {
+	private synchronized Set<DataContainer> sinter(final DataContainer... keys) {
 		final int l = keys.length;
 		if (l <= 0) {
 			throw new JedisDataException("ERR wrong number of arguments for 'sinter' command");
@@ -1677,16 +1682,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> sinterstore(final String dstKey, final String... keys) {
+	public Response<Long> sinterstore(final String dstKey, final String... keys) {
 		return sinterstore(DataContainer.from(dstKey), DataContainer.from(keys));
 	}
 
 	@Override
-	public synchronized Response<Long> sinterstore(final byte[] dstkey, final byte[]... keys) {
+	public Response<Long> sinterstore(final byte[] dstkey, final byte[]... keys) {
 		return sinterstore(DataContainer.from(dstkey), DataContainer.from(keys));
 	}
 
-	private Response<Long> sinterstore(final DataContainer dstKey, final DataContainer... keys) {
+	private synchronized Response<Long> sinterstore(final DataContainer dstKey, final DataContainer... keys) {
 		if (keys.length <= 0) {
 			throw new JedisDataException("ERR wrong number of arguments for 'sinterstore' command");
 		}
@@ -1703,16 +1708,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Boolean> sismember(final String key, final String member) {
+	public Response<Boolean> sismember(final String key, final String member) {
 		return sismember(DataContainer.from(key), DataContainer.from(member));
 	}
 
 	@Override
-	public synchronized Response<Boolean> sismember(final byte[] key, final byte[] member) {
+	public Response<Boolean> sismember(final byte[] key, final byte[] member) {
 		return sismember(DataContainer.from(key), DataContainer.from(member));
 	}
 
-	private Response<Boolean> sismember(final DataContainer key, final DataContainer member) {
+	private synchronized Response<Boolean> sismember(final DataContainer key, final DataContainer member) {
 		final Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
 		final Set<DataContainer> set = getSetFromStorage(key, false);
 		response.set(set != null && set.contains(member) ? 1L : 0L);
@@ -1720,16 +1725,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> smove(final String srckey, final String dstkey, final String member) {
+	public Response<Long> smove(final String srckey, final String dstkey, final String member) {
 		return smove(DataContainer.from(srckey), DataContainer.from(dstkey), DataContainer.from(member));
 	}
 
 	@Override
-	public synchronized Response<Long> smove(final byte[] srckey, final byte[] dstkey, final byte[] member) {
+	public Response<Long> smove(final byte[] srckey, final byte[] dstkey, final byte[] member) {
 		return smove(DataContainer.from(srckey), DataContainer.from(dstkey), DataContainer.from(member));
 	}
 
-	private Response<Long> smove(final DataContainer srckey, final DataContainer dstkey, final DataContainer member) {
+	private synchronized Response<Long> smove(final DataContainer srckey, final DataContainer dstkey, final DataContainer member) {
 		final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
 		final Set<DataContainer> src = getSetFromStorage(srckey, false);
 		final Set<DataContainer> dst = getSetFromStorage(dstkey, true);
@@ -1744,7 +1749,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<String> spop(final String key) {
+	public Response<String> spop(final String key) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		DataContainer result = spop(DataContainer.from(key));
 		response.set(DataContainer.toBytes(result));
@@ -1752,14 +1757,14 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<byte[]> spop(final byte[] key) {
+	public Response<byte[]> spop(final byte[] key) {
 		final Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
 		DataContainer result = spop(DataContainer.from(key));
 		response.set(DataContainer.toBytes(result));
 		return response;
 	}
 
-	private DataContainer spop(final DataContainer key) {
+	private synchronized DataContainer spop(final DataContainer key) {
 		DataContainer member = srandmember(key);
 		if (member != null) {
 			final Set<DataContainer> src = getSetFromStorage(key, false);
@@ -1769,7 +1774,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<String> srandmember(final String key) {
+	public Response<String> srandmember(final String key) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
 		final DataContainer result = srandmember(DataContainer.from(key));
 		response.set(result == null ? null : result.getBytes());
@@ -1777,14 +1782,14 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<byte[]> srandmember(final byte[] key) {
+	public Response<byte[]> srandmember(final byte[] key) {
 		final Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
 		final DataContainer result = srandmember(DataContainer.from(key));
 		response.set(result == null ? null : result.getBytes());
 		return response;
 	}
 
-	private DataContainer srandmember(final DataContainer key) {
+	private synchronized DataContainer srandmember(final DataContainer key) {
 		final Set<DataContainer> src = getSetFromStorage(key, false);
 		if (src == null) {
 			return null;
@@ -1794,7 +1799,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Set<String>> smembers(final String key) {
+	public Response<Set<String>> smembers(final String key) {
 		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
 		final Set<DataContainer> members = smembers(DataContainer.from(key));
 		response.set(DataContainer.toBytes(members));
@@ -1803,7 +1808,7 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Set<byte[]>> smembers(final byte[] key) {
+	public Response<Set<byte[]>> smembers(final byte[] key) {
 		final Response<Set<byte[]>> response = new Response<Set<byte[]>>(BuilderFactory.BYTE_ARRAY_ZSET);
 		final Set<DataContainer> members = smembers(DataContainer.from(key));
 		response.set(DataContainer.toBytes(members));
@@ -1811,13 +1816,13 @@ public class MockPipeline extends Pipeline {
 		return response;
 	}
 
-	private Set<DataContainer> smembers(final DataContainer key) {
+	private synchronized Set<DataContainer> smembers(final DataContainer key) {
 		return getSetFromStorage(key, true);
 	}
 
 
 	@Override
-	public synchronized Response<Set<String>> sunion(final String... keys) {
+	public Response<Set<String>> sunion(final String... keys) {
 		final Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
 		Set<DataContainer> result = sunion(DataContainer.from(keys));
 		response.set(DataContainer.toBytes(result));
@@ -1825,14 +1830,14 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Set<byte[]>> sunion(final byte[]... keys) {
+	public Response<Set<byte[]>> sunion(final byte[]... keys) {
 		final Response<Set<byte[]>> response = new Response<Set<byte[]>>(BuilderFactory.BYTE_ARRAY_ZSET);
 		Set<DataContainer> result = sunion(DataContainer.from(keys));
 		response.set(DataContainer.toBytes(result));
 		return response;
 	}
 
-	private Set<DataContainer> sunion(final DataContainer... keys) {
+	private synchronized Set<DataContainer> sunion(final DataContainer... keys) {
 		final int l = keys.length;
 		if (l <= 0) {
 			throw new JedisDataException("ERR wrong number of arguments for 'sunion' command");
@@ -1847,16 +1852,16 @@ public class MockPipeline extends Pipeline {
 	}
 
 	@Override
-	public synchronized Response<Long> sunionstore(final String dstkey, final String... keys) {
+	public Response<Long> sunionstore(final String dstkey, final String... keys) {
 		return sunionstore(DataContainer.from(dstkey), DataContainer.from(keys));
 	}
 
 	@Override
-	public synchronized Response<Long> sunionstore(final byte[] dstkey, final byte[]... keys) {
+	public Response<Long> sunionstore(final byte[] dstkey, final byte[]... keys) {
 		return sunionstore(DataContainer.from(dstkey), DataContainer.from(keys));
 	}
 
-	private Response<Long> sunionstore(final DataContainer dstkey, final DataContainer... keys) {
+	private synchronized Response<Long> sunionstore(final DataContainer dstkey, final DataContainer... keys) {
 		if (keys.length <= 0) {
 			throw new JedisDataException("ERR wrong number of arguments for 'sunionstore' command");
 		}
