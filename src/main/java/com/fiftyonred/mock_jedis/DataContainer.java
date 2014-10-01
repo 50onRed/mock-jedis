@@ -36,7 +36,7 @@ public class DataContainer implements Comparable<DataContainer> {
 		return new DataContainer(copy, str, Source.BYTES);
 	}
 
-	public static DataContainer from(String str) {
+	public static DataContainer from(final String str) {
 		if (str == null) {
 			return null;
 		}
@@ -44,13 +44,13 @@ public class DataContainer implements Comparable<DataContainer> {
 		return new DataContainer(bytes, str, Source.STRING);
 	}
 
-	public static DataContainer[] from(String[] strings) {
+	public static DataContainer[] from(final String[] strings) {
 		if (strings == null) {
 			return null;
 		}
-		DataContainer[] result = new DataContainer[strings.length];
+		final DataContainer[] result = new DataContainer[strings.length];
 		for (int i = 0; i < strings.length; i++) {
-			result[i] = DataContainer.from(strings[i]);
+			result[i] = from(strings[i]);
 		}
 		return result;
 	}
@@ -59,18 +59,33 @@ public class DataContainer implements Comparable<DataContainer> {
 		if (byteArrays == null) {
 			return null;
 		}
-		DataContainer[] result = new DataContainer[byteArrays.length];
+		final DataContainer[] result = new DataContainer[byteArrays.length];
 		for (int i = 0; i < byteArrays.length; i++) {
-			result[i] = DataContainer.from(byteArrays[i]);
+			result[i] = from(byteArrays[i]);
 		}
 		return result;
 	}
 
-	public static String toString(DataContainer container) {
-		if (container == null) {
+	public static Map<DataContainer, DataContainer> fromByteMap(final Map<byte[], byte[]> byteMap) {
+		if (byteMap == null) {
 			return null;
 		}
-		return container.getString();
+		final Map<DataContainer, DataContainer> result = new HashMap<DataContainer, DataContainer>(byteMap.size());
+		for (final Map.Entry<byte[], byte[]> entry : byteMap.entrySet()) {
+			result.put(from(entry.getKey()), from(entry.getValue()));
+		}
+		return result;
+	}
+
+	public static Map<DataContainer, DataContainer> fromStringMap(final Map<String, String> byteMap) {
+		if (byteMap == null) {
+			return null;
+		}
+		final Map<DataContainer, DataContainer> result = new HashMap<DataContainer, DataContainer>(byteMap.size());
+		for (final Map.Entry<String, String> entry : byteMap.entrySet()) {
+			result.put(from(entry.getKey()), from(entry.getValue()));
+		}
+		return result;
 	}
 
 	public static byte[] toBytes(DataContainer container) {
