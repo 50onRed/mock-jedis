@@ -133,6 +133,10 @@ public class MockPipeline extends Pipeline {
 				listStorage.put(newkey, listStorage.get(oldkey));
 				listStorage.remove(oldkey);
 				break;
+			case SET:
+				setStorage.put(newkey, setStorage.get(oldkey));
+				setStorage.remove(oldkey);
+				break;
 			case STRING:
 			default:
 				storage.put(newkey, storage.get(oldkey));
@@ -901,6 +905,9 @@ public class MockPipeline extends Pipeline {
 					break;
 				case LIST:
 					listStorage.remove(key);
+					break;
+				case SET:
+					setStorage.remove(key);
 					break;
 				case STRING:
 				default:
