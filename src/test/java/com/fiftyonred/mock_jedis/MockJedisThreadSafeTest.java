@@ -1,10 +1,11 @@
 package com.fiftyonred.mock_jedis;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
-import redis.clients.jedis.Jedis;
 
-import static org.junit.Assert.assertEquals;
+import redis.clients.jedis.Jedis;
 
 public class MockJedisThreadSafeTest {
 	private Jedis j = null;
@@ -17,7 +18,6 @@ public class MockJedisThreadSafeTest {
 	@Test
 	public void testThreadSafety() throws InterruptedException {
 		final Thread t1 = new Thread(new Runnable() {
-			@Override
 			public void run() {
 				for (int i = 0; i < 1000; ++i) {
 					j.incr("test");
@@ -25,7 +25,6 @@ public class MockJedisThreadSafeTest {
 			}
 		});
 		final Thread t2 = new Thread(new Runnable() {
-			@Override
 			public void run() {
 				for (int i = 0; i < 1000; ++i) {
 					j.decr("test");
