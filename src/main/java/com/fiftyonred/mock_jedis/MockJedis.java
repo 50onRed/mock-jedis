@@ -1,12 +1,12 @@
 package com.fiftyonred.mock_jedis;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Pipeline;
-import redis.clients.jedis.SortingParams;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.SortingParams;
 
 public class MockJedis extends Jedis {
 
@@ -780,5 +780,25 @@ public class MockJedis extends Jedis {
 	@Override
 	public String quit() {
 		return "OK";
+	}
+
+	@Override
+	public Long rpush(byte[] key, byte[]... strings) {
+	    return 0l;
+	}
+
+	@Override
+	public Long rpush(String key, String... strings) {
+	    return 0l;
+	}
+
+	@Override
+	public Long rpushx(byte[] key, byte[]... string) {
+	    return 0l;
+	}
+
+	@Override
+	public Long rpushx(String key, String... string) {
+	    return 0l;
 	}
 }

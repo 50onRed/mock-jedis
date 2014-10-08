@@ -1,9 +1,12 @@
 package com.fiftyonred.mock_jedis;
 
-import redis.clients.jedis.Protocol;
-
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
+import redis.clients.jedis.Protocol;
 
 /**
  * Container for redis data (key/value bytes).
@@ -125,8 +128,12 @@ public class DataContainer implements Comparable<DataContainer> {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof DataContainer)) return false;
+		if (this == o) {
+            return true;
+        }
+		if (!(o instanceof DataContainer)) {
+            return false;
+        }
 
 		DataContainer that = (DataContainer) o;
 
@@ -165,7 +172,6 @@ public class DataContainer implements Comparable<DataContainer> {
 		return string;
 	}
 
-	@Override
 	public int compareTo(DataContainer o) {
 		// compare string representation of data (in the same way as redis does)
 		return string.compareTo(o.getString());

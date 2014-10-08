@@ -1,12 +1,26 @@
 package com.fiftyonred.mock_jedis;
 
-import com.fiftyonred.utils.WildcardMatcher;
-import redis.clients.jedis.*;
+import static com.fiftyonred.mock_jedis.DataContainer.CHARSET;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import redis.clients.jedis.BuilderFactory;
+import redis.clients.jedis.Pipeline;
+import redis.clients.jedis.Protocol;
+import redis.clients.jedis.Response;
+import redis.clients.jedis.SortingParams;
 import redis.clients.jedis.exceptions.JedisDataException;
 
-import java.util.*;
-
-import static com.fiftyonred.mock_jedis.DataContainer.CHARSET;
+import com.fiftyonred.utils.WildcardMatcher;
 
 public class MockPipeline extends Pipeline {
 
@@ -743,14 +757,12 @@ public class MockPipeline extends Pipeline {
 		final int direction = params.contains(Protocol.Keyword.DESC.name().toLowerCase()) ? -1 : 1;
 		if (params.contains(Protocol.Keyword.ALPHA.name().toLowerCase())) {
 			comparator = new Comparator<DataContainer>() {
-				@Override
 				public int compare(final DataContainer o1, final DataContainer o2) {
 					return o1.compareTo(o2) * direction;
 				}
 			};
 		} else {
 			comparator = new Comparator<DataContainer>() {
-				@Override
 				public int compare(final DataContainer o1, final DataContainer o2) {
 					final Long i1, i2;
 					try {
