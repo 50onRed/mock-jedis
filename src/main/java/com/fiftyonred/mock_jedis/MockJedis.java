@@ -1540,7 +1540,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public byte[] rpop(byte[] key) {
-        	return pipeline.lpop(key).get();
+        	return pipeline.rpop(key).get();
     	}
 
 	@Override
