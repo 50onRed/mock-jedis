@@ -805,8 +805,8 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long rpush(String key, String... strings) {
-        return pipeline.rpush(key, strings).get();
-    }
+        	return pipeline.rpush(key, strings).get();
+    	}
 
 	@Override
 	public String ltrim(String key, long start, long end) {
@@ -830,8 +830,8 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public String rpop(String key) {
-        return pipeline.rpop(key).get();
-    }
+        	return pipeline.rpop(key).get();
+    	}
 
 	@Override
 	public String rpoplpush(String srckey, String dstkey) {
@@ -1515,8 +1515,8 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long rpush(byte[] key, byte[]... strings) {
-        return pipeline.rpush(key, strings).get();
-    }
+        	return pipeline.rpush(key, strings).get();
+    	}
 
 	@Override
 	public String ltrim(byte[] key, long start, long end) {
@@ -1540,8 +1540,8 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public byte[] rpop(byte[] key) {
-        return pipeline.lpop(key).get();
-    }
+        	return pipeline.lpop(key).get();
+    	}
 
 	@Override
 	public byte[] rpoplpush(byte[] srckey, byte[] dstkey) {
