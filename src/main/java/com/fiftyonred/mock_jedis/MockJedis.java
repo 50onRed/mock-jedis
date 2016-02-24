@@ -1615,7 +1615,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Transaction multi() {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return new MockTransaction(pipeline);
 	}
 
 	@Override
