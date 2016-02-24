@@ -905,7 +905,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public String watch(String... keys) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return "test";
 	}
 
 	@Override
