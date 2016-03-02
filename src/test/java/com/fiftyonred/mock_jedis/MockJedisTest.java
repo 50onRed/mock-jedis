@@ -106,7 +106,102 @@ public class MockJedisTest {
 		assertEquals("a", j.lpop("test"));
 
 		assertEquals(Long.valueOf(0), j.llen("test"));
+
+        j.lpush("test", "a");
+        j.lpush("test", "b");
+        j.lpush("test", "c");
+
+        assertEquals(Long.valueOf(3), j.llen("test"));
+
+        assertEquals("a", j.rpop("test"));
+        assertEquals("b", j.rpop("test"));
+        assertEquals("c", j.rpop("test"));
+
+        assertEquals(Long.valueOf(0), j.llen("test"));
+
+        j.rpush("test", "x");
+        j.rpush("test", "y");
+        j.rpush("test", "z");
+
+        assertEquals(Long.valueOf(3), j.llen("test"));
+
+        assertEquals("x", j.lpop("test"));
+        assertEquals("y", j.lpop("test"));
+        assertEquals("z", j.lpop("test"));
+
+        assertEquals(Long.valueOf(0), j.llen("test"));
+
+        j.rpush("test", "x");
+        j.rpush("test", "y");
+        j.rpush("test", "z");
+
+        assertEquals(Long.valueOf(3), j.llen("test"));
+
+        assertEquals("z", j.rpop("test"));
+        assertEquals("y", j.rpop("test"));
+        assertEquals("x", j.rpop("test"));
+
+        assertEquals(Long.valueOf(0), j.llen("test"));
 	}
+
+    @Test
+    public void testMixedListPush() {
+        assertEquals(Long.valueOf(0), j.llen("test"));
+
+        j.lpush("test", "a");
+        j.rpush("test", "x");
+        j.lpush("test", "b");
+        j.rpush("test", "y");
+        j.lpush("test", "c");
+        j.rpush("test", "z");
+
+        assertEquals(Long.valueOf(6), j.llen("test"));
+
+        assertEquals("c", j.lpop("test"));
+        assertEquals("b", j.lpop("test"));
+        assertEquals("a", j.lpop("test"));
+        assertEquals("x", j.lpop("test"));
+        assertEquals("y", j.lpop("test"));
+        assertEquals("z", j.lpop("test"));
+
+        assertEquals(Long.valueOf(0), j.llen("test"));
+
+        j.lpush("test", "a");
+        j.rpush("test", "x");
+        j.lpush("test", "b");
+        j.rpush("test", "y");
+        j.lpush("test", "c");
+        j.rpush("test", "z");
+
+        assertEquals(Long.valueOf(6), j.llen("test"));
+
+        assertEquals("z", j.rpop("test"));
+        assertEquals("y", j.rpop("test"));
+        assertEquals("x", j.rpop("test"));
+        assertEquals("a", j.rpop("test"));
+        assertEquals("b", j.rpop("test"));
+        assertEquals("c", j.rpop("test"));
+
+        assertEquals(Long.valueOf(0), j.llen("test"));
+
+        j.lpush("test", "a");
+        j.rpush("test", "x");
+        j.lpush("test", "b");
+        j.rpush("test", "y");
+        j.lpush("test", "c");
+        j.rpush("test", "z");
+
+        assertEquals(Long.valueOf(6), j.llen("test"));
+
+        assertEquals("z", j.rpop("test"));
+        assertEquals("c", j.lpop("test"));
+        assertEquals("y", j.rpop("test"));
+        assertEquals("b", j.lpop("test"));
+        assertEquals("x", j.rpop("test"));
+        assertEquals("a", j.lpop("test"));
+
+        assertEquals(Long.valueOf(0), j.llen("test"));
+    }
 
 	@Test
 	public void testLRange() {
