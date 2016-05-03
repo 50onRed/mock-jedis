@@ -106,6 +106,28 @@ public class MockJedisTest {
 		assertEquals("a", j.lpop("test"));
 
 		assertEquals(Long.valueOf(0), j.llen("test"));
+
+		j.rpush("test", "a");
+		j.rpush("test", "b", "c");
+
+		assertEquals(Long.valueOf(3), j.llen("test"));
+
+		assertEquals("c", j.rpop("test"));
+		assertEquals("b", j.rpop("test"));
+		assertEquals("a", j.rpop("test"));
+
+		assertEquals(Long.valueOf(0), j.llen("test"));
+
+		j.rpush("test", "a");
+		j.rpush("test", "b", "c");
+
+		assertEquals(Long.valueOf(3), j.llen("test"));
+
+		assertEquals("a", j.lpop("test"));
+		assertEquals("b", j.lpop("test"));
+		assertEquals("c", j.lpop("test"));
+
+		assertEquals(Long.valueOf(0), j.llen("test"));
 	}
 
 	@Test

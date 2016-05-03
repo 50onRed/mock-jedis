@@ -560,6 +560,21 @@ public class MockStorage {
 		return list == null || list.isEmpty() ? null : list.remove(list.size() - 1);
 	}
 
+	public synchronized int rpush(final DataContainer key, final DataContainer... string) {
+		List<DataContainer> list = getListFromStorage(key, true);
+		if (list == null) {
+			list = new ArrayList<DataContainer>();
+			listStorage.put(key, list);
+		}
+		for (DataContainer d: string) list.add(0, d);
+		return list.size();
+	}
+
+	public synchronized DataContainer rpop(final DataContainer key) {
+		final List<DataContainer> list = getListFromStorage(key, true);
+		return list == null || list.isEmpty() ? null : list.remove(0);
+	}
+
 	public synchronized int llen(final DataContainer key) {
 		final List<DataContainer> list = getListFromStorage(key, false);
 		return list == null ? 0 : list.size();
