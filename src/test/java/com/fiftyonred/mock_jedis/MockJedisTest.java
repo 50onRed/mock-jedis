@@ -132,6 +132,8 @@ public class MockJedisTest {
 
 	@Test
 	public void testLRange() {
+		assertEquals(0, j.lrange("missingkey", 0, 100).size());
+		
 		j.lpush("test", "a");
 		j.lpush("test", "b");
 		j.lpush("test", "c");

@@ -582,6 +582,10 @@ public class MockStorage {
 
 	public synchronized List<DataContainer> lrange(final DataContainer key, long start, long end) {
 		final List<DataContainer> full = getListFromStorage(key, false);
+		
+		if (full == null) {
+			return Collections.emptyList();
+		}
 
 		final List<DataContainer> result = new ArrayList<DataContainer>();
 
