@@ -43,6 +43,17 @@ public class MockJedisExpireTest {
 	}
 
 	@Test
+	public void testSetexWithHighTtl() throws InterruptedException {
+		int delay = 7776000; //90 days in seconds
+
+		j.setex("test", delay, "value");
+
+		assertTrue(j.ttl("test") > 0);
+		assertNotNull(j.get("test"));
+		assertEquals("value",j.get("test"));
+	}
+
+	@Test
 	public void testExpire() throws InterruptedException {
 		int delay = 1;
 
