@@ -5,6 +5,8 @@ import org.junit.Test;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.SortingParams;
 import redis.clients.jedis.exceptions.JedisDataException;
+import redis.clients.jedis.ScanParams;
+import redis.clients.jedis.ScanResult;
 
 import java.util.*;
 
@@ -215,5 +217,26 @@ public class MockJedisTest {
 		assertEquals(0L, j.dbSize().longValue());
 		j.select(5);
 		assertEquals(1L, j.dbSize().longValue());
+	}
+
+	/**
+	 * In this simple proposal, we're not testing complex iterations
+	 * of scan cursor. SCAN is simply a wrapper for KEYS, and the result
+	 * is given in one single response, no matter the COUNT argument.
+	 */
+	@Test
+	public void testScan() {
+		j.set("key1", "val1");
+		j.set("key2", "val2");
+		j.set("kk", "val3");
+
+		ScanParams scanParams = new ScanParams();
+		scanParams.count(100).match("key*");
+		ScanResult<String> scanResult;
+		scanResult = j.scan("0", scanParams);
+
+
+		assertEquals(2L, scanResult.getResult().size());
+		assertEquals("0", scanResult.getStringCursor());
 	}
 }
