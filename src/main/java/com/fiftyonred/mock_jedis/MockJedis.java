@@ -3,10 +3,14 @@ package com.fiftyonred.mock_jedis;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import redis.clients.jedis.*;
 import redis.clients.util.Pool;
 import redis.clients.util.Slowlog;
+
+import static redis.clients.jedis.Protocol.Keyword.MATCH;
 
 public class MockJedis extends Jedis {
 
@@ -1320,14 +1324,46 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public ScanResult<String> scan(String cursor) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return scan(cursor, (new ScanParams()).match("*"));
 	}
 
+	/**
+	 * In this simple proposal, we're not testing complex iterations
+	 * of scan cursor. SCAN is simply a wrapper for KEYS, and the result
+	 * is given in one single response, no matter the COUNT argument.
+	 */
 	@Override
 	public ScanResult<String> scan(String cursor, ScanParams params) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
-	}
+		// We need to extract the MATCH argument from the scan params
+		Collection<byte[]> rawParams = params.getParams();
+		
+		// Raw collection is a list of byte[], made of: key1, value1, key2, value2, etc.
+		boolean isKey = true;
+		String match = null;
+		boolean foundMatchKey = false;
+		
+		// So, we run over the list, where any even index is a key, and the following data is its value.
+		for (byte[] raw : rawParams) {
+			if (isKey) {
+				String key = new String(raw);
+				if (key.equals(new String(MATCH.raw))) {
+					// What really interests us is the MATCH key.
+					foundMatchKey = true;
+				}
+			}
+			// As soon as we've found the MATCH key, we can stop searching.
+			else if (foundMatchKey) {
+				match = new String(raw);
+				break;
+			}
+			isKey = !isKey;
+		}
 
+		// Our simple implementation of SCAN is really a plain wrapper for KEYS,
+		// relying on the current mock implementation of the pattern search.
+		return new ScanResult<String>("0", new ArrayList<String>(keys(match)));
+	}
+	
 	@Override
 	public ScanResult<Map.Entry<String, String>> hscan(String key, String cursor) {
 		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
