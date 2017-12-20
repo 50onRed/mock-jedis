@@ -809,7 +809,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long rpush(String key, String... strings) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return pipeline.rpush(key, strings).get();
 	}
 
 	@Override
@@ -834,7 +834,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public String rpop(String key) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return pipeline.rpop(key).get();
 	}
 
 	@Override
@@ -1551,7 +1551,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long rpush(byte[] key, byte[]... strings) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return pipeline.rpush(key, strings).get();
 	}
 
 	@Override
@@ -1576,7 +1576,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public byte[] rpop(byte[] key) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return pipeline.rpop(key).get();
 	}
 
 	@Override
