@@ -809,8 +809,8 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long rpush(String key, String... strings) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
-	}
+        	return pipeline.rpush(key, strings).get();
+    	}
 
 	@Override
 	public String ltrim(String key, long start, long end) {
@@ -834,8 +834,8 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public String rpop(String key) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
-	}
+        	return pipeline.rpop(key).get();
+    	}
 
 	@Override
 	public String rpoplpush(String srckey, String dstkey) {
@@ -909,7 +909,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public String watch(String... keys) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return "test";
 	}
 
 	@Override
@@ -1551,8 +1551,8 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Long rpush(byte[] key, byte[]... strings) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
-	}
+        	return pipeline.rpush(key, strings).get();
+    	}
 
 	@Override
 	public String ltrim(byte[] key, long start, long end) {
@@ -1576,8 +1576,8 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public byte[] rpop(byte[] key) {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
-	}
+        	return pipeline.rpop(key).get();
+    	}
 
 	@Override
 	public byte[] rpoplpush(byte[] srckey, byte[] dstkey) {
@@ -1651,7 +1651,7 @@ public class MockJedis extends Jedis {
 
 	@Override
 	public Transaction multi() {
-		throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+		return new MockTransaction(pipeline);
 	}
 
 	@Override

@@ -236,7 +236,7 @@ public class MockStorage {
 
 	public synchronized boolean persist(final DataContainer key) {
 		final KeyInformation info = keys.get(key);
-		if (info.getTTL() == -1) {
+		if (info == null || info.getTTL() == -1) {
 			return false;
 		}
 		info.setExpiration(-1L);
@@ -559,10 +559,31 @@ public class MockStorage {
 		return list.size();
 	}
 
+    public synchronized int rpush(final DataContainer key, final DataContainer... string) {
+        List<DataContainer> list = getListFromStorage(key, true);
+        if (list == null) {
+            list = new ArrayList<DataContainer>();
+            listStorage.put(key, list);
+        }
+
+        List<DataContainer> elems = Arrays.asList(string);
+        for (int i = elems.size() -1; i > -1; i--) {
+            DataContainer elem =  elems.get(i);
+            list.add(0, elem);
+        }
+
+        return list.size();
+    }
+
 	public synchronized DataContainer lpop(final DataContainer key) {
 		final List<DataContainer> list = getListFromStorage(key, true);
 		return list == null || list.isEmpty() ? null : list.remove(list.size() - 1);
 	}
+
+    public synchronized DataContainer rpop(final DataContainer key) {
+        final List<DataContainer> list = getListFromStorage(key, true);
+        return list == null || list.isEmpty() ? null : list.remove(0);
+    }
 
 	public synchronized int llen(final DataContainer key) {
 		final List<DataContainer> list = getListFromStorage(key, false);

@@ -921,6 +921,20 @@ public class MockPipeline extends Pipeline {
 		return response;
 	}
 
+    @Override
+    public Response<Long> rpush(final String key, final String... string) {
+        final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+        response.set((long) mockStorage.rpush(DataContainer.from(key), DataContainer.from(string)));
+        return response;
+    }
+
+    @Override
+    public Response<Long> rpush(final byte[] key, final byte[]... string) {
+        final Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+        response.set((long) mockStorage.rpush(DataContainer.from(key), DataContainer.from(string)));
+        return response;
+    }
+
 	@Override
 	public Response<String> lpop(final String key) {
 		final Response<String> response = new Response<String>(BuilderFactory.STRING);
@@ -936,6 +950,22 @@ public class MockPipeline extends Pipeline {
 		response.set(result == null ? null : result.getBytes());
 		return response;
 	}
+
+    @Override
+    public Response<String> rpop(final String key) {
+        final Response<String> response = new Response<String>(BuilderFactory.STRING);
+        final DataContainer result = mockStorage.rpop(DataContainer.from(key));
+        response.set(result == null ? null : result.getBytes());
+        return response;
+    }
+
+    @Override
+    public Response<byte[]> rpop(final byte[] key) {
+        final Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
+        final DataContainer result = mockStorage.rpop(DataContainer.from(key));
+        response.set(result == null ? null : result.getBytes());
+        return response;
+    }
 
 	@Override
 	public Response<Long> llen(final String key) {
