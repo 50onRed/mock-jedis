@@ -4,7 +4,7 @@ apply plugin: 'signing'
 apply plugin: 'eclipse'
 
 group = 'com.fiftyonred'
-version = '0.4.0'
+version = '0.5.0-SNAPSHOT'
 
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-    compile 'redis.clients:jedis:2.6.0'
+    compile 'redis.clients:jedis:2.9.0'
     testCompile 'junit:junit:4.11'
 }
 
