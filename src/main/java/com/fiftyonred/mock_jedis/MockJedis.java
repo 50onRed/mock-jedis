@@ -881,12 +881,12 @@ public class MockJedis extends Jedis {
 
   @Override
   public Long zrem(String key, String... members) {
-    return pipeline.zrem(key, members).get();
+    throw new UnsupportedOperationException(NOT_IMPLEMENTED);
   }
 
   @Override
   public Double zincrby(String key, double score, String member) {
-    return pipeline.zincrby(key, score, member).get();
+    throw new UnsupportedOperationException(NOT_IMPLEMENTED);
   }
 
   @Override
@@ -896,7 +896,7 @@ public class MockJedis extends Jedis {
 
   @Override
   public Long zrevrank(String key, String member) {
-    return pipeline.zrevrank(key, member).get();
+    throw new UnsupportedOperationException(NOT_IMPLEMENTED);
   }
 
   @Override
