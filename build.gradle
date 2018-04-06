@@ -13,6 +13,14 @@ repositories {
     mavenCentral()
 }
 
+def getRepositoryUsername() {
+    return hasProperty('sonatypeUsername') ? sonatypeUsername : ""
+}
+
+def getRepositoryPassword() {
+    return hasProperty('sonatypePassword') ? sonatypePassword : ""
+}
+
 dependencies {
     compile 'redis.clients:jedis:2.6.0'
     testCompile 'junit:junit:4.11'
@@ -48,7 +56,7 @@ uploadArchives {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-              authentication(userName: sonatypeUsername, password: sonatypePassword)
+              authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
             }
 
             pom.project {
