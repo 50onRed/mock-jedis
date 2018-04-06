@@ -891,7 +891,7 @@ public class MockJedis extends Jedis {
 
   @Override
   public Long zrank(String key, String member) {
-    return pipeline.zrank(key, member).get();
+    throw new UnsupportedOperationException(NOT_IMPLEMENTED);
   }
 
   @Override
