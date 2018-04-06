@@ -3,6 +3,7 @@ package com.fiftyonred.mock_jedis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +20,7 @@ import redis.clients.jedis.exceptions.JedisDataException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -39,14 +41,14 @@ public class MockJedisTest {
   public void testGet() {
     j.set("test", "123");
     assertEquals("123", j.get("test"));
-    assertEquals(null, j.get("unknown"));
+    assertNull(j.get("unknown"));
   }
 
   @Test
   public void testHashes() {
     assertEquals(0L, j.hlen("test").longValue());
     assertEquals(0L, j.hdel("test", "name").longValue());
-    assertEquals(null, j.hget("test", "name"));
+    assertNull(j.hget("test", "name"));
     j.hset("test", "name", "value");
     final Set<String> keys = j.hkeys("test");
     final Map<String, String> entries = j.hgetAll("test");
@@ -133,6 +135,21 @@ public class MockJedisTest {
     assertEquals(Collections.singletonList("c"), j.lrange("test", -2, -2));
     assertEquals(0, j.lrange("test", -7, -6).size());
     assertEquals(0, j.lrange("test", 6, 7).size());
+  }
+
+  @Test
+  public void testZRange() {
+    j.zadd("test", 2, "c");
+    j.zadd("test", 1, "b");
+    j.zadd("test", 0, "a");
+    j.zadd("test", 3, "d");
+
+    assertEquals(new HashSet<String>(Arrays.asList("a", "b")), j.zrange("test", 0, 1));
+    assertEquals(new HashSet<String>(Arrays.asList("c", "d")), j.zrange("test", 2, 5));
+    assertEquals(new HashSet<String>(Arrays.asList("c", "d")), j.zrange("test", -2, -1));
+    assertEquals(Collections.singleton("c"), j.zrange("test", -2, -2));
+    assertEquals(0, j.zrange("test", -7, -6).size());
+    assertEquals(0, j.zrange("test", 6, 7).size());
   }
 
   @Test

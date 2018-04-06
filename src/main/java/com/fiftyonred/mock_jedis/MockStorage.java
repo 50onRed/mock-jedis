@@ -590,24 +590,27 @@ public class MockStorage {
 
   public synchronized List<DataContainer> lrange(DataContainer key, long start, long end) {
     List<DataContainer> full = getListFromStorage(key, false);
-    List<DataContainer> result = new ArrayList<DataContainer>();
+    return (List<DataContainer>) slice(full, new ArrayList<DataContainer>(), start, end);
+  }
 
+  private <T extends DataContainer> Collection<T> slice(List<T> input, Collection<T> output,
+      long start, long end) {
     if (start < 0L) {
-      start = Math.max(full.size() + start, 0L);
+      start = Math.max(input.size() + start, 0L);
     }
     if (end < 0L) {
-      end = full.size() + end;
+      end = input.size() + end;
     }
-    if (start > full.size() || start > end) {
-      return Collections.emptyList();
+    if (start > input.size() || start > end) {
+      return output;
     }
 
-    end = Math.min(full.size() - 1, end);
+    end = Math.min(input.size() - 1, end);
 
     for (int i = (int) start; i <= end; i++) {
-      result.add(full.get(i));
+      output.add(input.get(i));
     }
-    return result;
+    return output;
   }
 
   public Set<DataContainer> keys(DataContainer pattern) {
@@ -928,15 +931,26 @@ public class MockStorage {
     return new HashSet<DataContainerWithScore>(full.subSet(first, true, last, true));
   }
 
-  public Set<DataContainer> zrangeByScore(DataContainerImpl key, String min, String max) {
+  public Set<DataContainer> zrangeByScore(DataContainer key, String min, String max) {
     // TODO: Handle non-inclusive min/max
     double doubleMin = min.equals("-inf") ? Double.NEGATIVE_INFINITY : Double.parseDouble(min);
     double doubleMax = max.equals("+inf") ? Double.POSITIVE_INFINITY : Double.parseDouble(max);
     return zrangeByScore(key, doubleMin, doubleMax);
   }
 
-  public Set<DataContainer> zrangeByScore(DataContainerImpl from, double min, double max) {
-    Set<DataContainerWithScore> rangeWithScores = zrangeByScoreWithScores(from, min, max);
+  public Set<DataContainer> zrangeByScore(DataContainer key, double min, double max) {
+    Set<DataContainerWithScore> rangeWithScores = zrangeByScoreWithScores(key, min, max);
+    Set<DataContainer> items = new HashSet<DataContainer>(rangeWithScores.size());
+    for (DataContainerWithScore containerWithScore : rangeWithScores) {
+      items.add(DataContainerImpl.from(containerWithScore.getString()));
+    }
+    return items;
+  }
+
+  public Set<DataContainer> zrange(DataContainerImpl key, long start, long end) {
+    NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, false);
+    Set<DataContainerWithScore> rangeWithScores = (Set<DataContainerWithScore>) slice(
+        new ArrayList<DataContainerWithScore>(full), new HashSet<DataContainerWithScore>(), start, end);
     Set<DataContainer> items = new HashSet<DataContainer>(rangeWithScores.size());
     for (DataContainerWithScore containerWithScore : rangeWithScores) {
       items.add(DataContainerImpl.from(containerWithScore.getString()));
