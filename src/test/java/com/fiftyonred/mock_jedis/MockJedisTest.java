@@ -138,6 +138,45 @@ public class MockJedisTest {
   }
 
   @Test
+  public void testLTrim() {
+    j.lpush("test", "a");
+    j.lpush("test", "b");
+    j.lpush("test", "c");
+    j.lpush("test", "d");
+    j.ltrim("test", 0, 1);
+    assertEquals(Arrays.asList("a", "b"), j.lrange("test", 0, -1));
+    j.lpush("test", "c");
+    j.lpush("test", "d");
+    j.ltrim("test", 2, 5);
+    assertEquals(Arrays.asList("c", "d"), j.lrange("test", 0, -1));
+    j.ltrim("test", 0, 0);
+    j.lpush("test", "a");
+    j.lpush("test", "b");
+    j.lpush("test", "c");
+    j.lpush("test", "d");
+    j.ltrim("test", -2, -1);
+    assertEquals(Arrays.asList("c", "d"), j.lrange("test", 0, -1));
+    j.ltrim("test", 0, 0);
+    j.lpush("test", "a");
+    j.lpush("test", "b");
+    j.lpush("test", "c");
+    j.lpush("test", "d");
+    assertEquals(Collections.singletonList("c"), j.lrange("test", -2, -2));
+    j.ltrim("test", 0, 0);
+    j.lpush("test", "a");
+    j.lpush("test", "b");
+    j.lpush("test", "c");
+    j.lpush("test", "d");
+    assertEquals(0, j.lrange("test", -7, -6).size());
+    j.ltrim("test", 0, 0);
+    j.lpush("test", "a");
+    j.lpush("test", "b");
+    j.lpush("test", "c");
+    j.lpush("test", "d");
+    assertEquals(0, j.lrange("test", 6, 7).size());
+  }
+
+  @Test
   public void testZRange() {
     j.zadd("test", 2, "c");
     j.zadd("test", 1, "b");

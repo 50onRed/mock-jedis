@@ -1270,4 +1270,11 @@ public class MockPipeline extends Pipeline {
         mockStorage.zrange(DataContainerImpl.from(key), start, end)));
     return response;
   }
+
+  @Override public Response<String> ltrim(String key, long start, long end) {
+    mockStorage.ltrim(DataContainerImpl.from(key), start, end);
+    Response<String> response = new Response<String>(BuilderFactory.STRING);
+    response.set(OK_RESPONSE);
+    return response;
+  }
 }

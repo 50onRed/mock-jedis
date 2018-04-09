@@ -593,6 +593,13 @@ public class MockStorage {
     return (List<DataContainer>) slice(full, new ArrayList<DataContainer>(), start, end);
   }
 
+  public synchronized void ltrim(DataContainer key, long start, long end) {
+    List<DataContainer> full = getListFromStorage(key, false);
+    List<DataContainer> slice = (List<DataContainer>) slice(full, new ArrayList<DataContainer>(),
+        start, end);
+    listStorage.put(key, slice);
+  }
+
   private <T extends DataContainer> Collection<T> slice(List<T> input, Collection<T> output,
       long start, long end) {
     if (start < 0L) {
