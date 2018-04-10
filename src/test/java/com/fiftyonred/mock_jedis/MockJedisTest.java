@@ -178,6 +178,7 @@ public class MockJedisTest {
 
   @Test
   public void testZRange() {
+    assertEquals(Collections.emptySet(), j.zrange("test", -1, -1));
     j.zadd("test", 2, "c");
     j.zadd("test", 1, "b");
     j.zadd("test", 0, "a");
@@ -193,6 +194,7 @@ public class MockJedisTest {
 
   @Test
   public void testZRank() {
+    assertNull(j.zrank("test", "foo"));
     j.zadd("test", 2, "c");
     j.zadd("test", 1, "b");
     j.zadd("test", 0, "a");

@@ -924,7 +924,7 @@ public class MockStorage {
 
   public Set<DataContainerWithScore> zrangeByScoreWithScores(DataContainer key, double min,
       double max) {
-    NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, false);
+    NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, true);
     if (full.isEmpty()) {
       return Collections.emptySet();
     }
@@ -962,7 +962,7 @@ public class MockStorage {
   }
 
   public Set<DataContainer> zrange(DataContainerImpl key, long start, long end) {
-    NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, false);
+    NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, true);
     Set<DataContainerWithScore> rangeWithScores = (Set<DataContainerWithScore>) slice(
         new ArrayList<DataContainerWithScore>(full), new HashSet<DataContainerWithScore>(),
         start, end);
@@ -974,7 +974,7 @@ public class MockStorage {
   }
 
   public Long zrank(DataContainerImpl key, String member) {
-    NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, false);
+    NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, true);
     Iterator<DataContainerWithScore> iterator = full.iterator();
     long index = 0;
     while (iterator.hasNext()) {
