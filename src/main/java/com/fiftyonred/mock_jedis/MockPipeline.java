@@ -1277,4 +1277,10 @@ public class MockPipeline extends Pipeline {
     response.set(OK_RESPONSE);
     return response;
   }
+
+  @Override public Response<Long> zrank(String key, String member) {
+    Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+    response.set(mockStorage.zrank(DataContainerImpl.from(key), member));
+    return response;
+  }
 }

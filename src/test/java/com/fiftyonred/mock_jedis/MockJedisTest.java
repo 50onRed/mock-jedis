@@ -192,6 +192,20 @@ public class MockJedisTest {
   }
 
   @Test
+  public void testZRank() {
+    j.zadd("test", 2, "c");
+    j.zadd("test", 1, "b");
+    j.zadd("test", 0, "a");
+    j.zadd("test", 3, "d");
+
+    assertEquals((Long) 0L, j.zrank("test", "a"));
+    assertEquals((Long) 1L, j.zrank("test", "b"));
+    assertEquals((Long) 2L, j.zrank("test", "c"));
+    assertEquals((Long) 3L, j.zrank("test", "d"));
+    assertNull(j.zrank("test", "e"));
+  }
+
+  @Test
   public void testZRangeByScore() {
     j.zadd("test", 2, "foo");
     j.zadd("test", 1, "bar");

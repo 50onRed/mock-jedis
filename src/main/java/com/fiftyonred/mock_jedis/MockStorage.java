@@ -49,7 +49,8 @@ public class MockStorage {
     allHashStorage = new ArrayList<Map<DataContainer, Map<DataContainer, DataContainer>>>(NUM_DBS);
     allListStorage = new ArrayList<Map<DataContainer, List<DataContainer>>>(NUM_DBS);
     allSetStorage = new ArrayList<Map<DataContainer, Set<DataContainer>>>(NUM_DBS);
-    allSortedSetStorage = new ArrayList<Map<DataContainer, NavigableSet<DataContainerWithScore>>>(NUM_DBS);
+    allSortedSetStorage = new ArrayList<Map<DataContainer, NavigableSet<DataContainerWithScore>>>
+        (NUM_DBS);
     for (int i = 0; i < NUM_DBS; ++i) {
       allKeys.add(new HashMap<DataContainer, KeyInformation>());
       allStorage.add(new HashMap<DataContainer, DataContainer>());
@@ -327,7 +328,8 @@ public class MockStorage {
     DataContainer val = getContainerFromStorage(key, true);
     double result;
     try {
-      result = val == null || val.getString().isEmpty() ? increment : Double.parseDouble(val.getString()) + increment;
+      result = val == null || val.getString().isEmpty() ? increment : Double.parseDouble(val
+          .getString()) + increment;
     } catch (NumberFormatException ignored) {
       throw new JedisDataException("ERR value is not a valid float");
     }
@@ -379,7 +381,8 @@ public class MockStorage {
           result.addAll(sortedSetStorage.get(key));
           break;
         default:
-          throw new JedisDataException("WRONGTYPE Operation against a key holding the wrong kind of value");
+          throw new JedisDataException("WRONGTYPE Operation against a key holding the wrong kind " +
+              "of value");
       }
     }
 
@@ -407,7 +410,8 @@ public class MockStorage {
     return result;
   }
 
-  public synchronized int sort(DataContainer key, SortingParams sortingParameters, DataContainer dstkey) {
+  public synchronized int sort(DataContainer key, SortingParams sortingParameters, DataContainer
+      dstkey) {
     List<DataContainer> sorted = sort(key, sortingParameters);
 
     del(dstkey);
@@ -529,7 +533,8 @@ public class MockStorage {
     return result;
   }
 
-  public synchronized DataContainer hincrByFloat(DataContainer key, DataContainer field, double increment) {
+  public synchronized DataContainer hincrByFloat(DataContainer key, DataContainer field, double
+      increment) {
     Map<DataContainer, DataContainer> m = getHashFromStorage(key, true);
 
     DataContainer val = m.get(field);
@@ -669,7 +674,8 @@ public class MockStorage {
     return storage.get(key);
   }
 
-  protected Map<DataContainer, DataContainer> getHashFromStorage(DataContainer key, boolean createIfNotExist) {
+  protected Map<DataContainer, DataContainer> getHashFromStorage(DataContainer key, boolean
+      createIfNotExist) {
     KeyInformation info = keys.get(key);
     if (info == null) {
       if (createIfNotExist) {
@@ -852,7 +858,8 @@ public class MockStorage {
     return set != null && set.contains(member);
   }
 
-  public synchronized boolean smove(DataContainer srckey, DataContainer dstkey, DataContainer member) {
+  public synchronized boolean smove(DataContainer srckey, DataContainer dstkey, DataContainer
+      member) {
     Set<DataContainer> src = getSetFromStorage(srckey, false);
     Set<DataContainer> dst = getSetFromStorage(dstkey, true);
     if (!src.remove(member)) {
@@ -957,12 +964,26 @@ public class MockStorage {
   public Set<DataContainer> zrange(DataContainerImpl key, long start, long end) {
     NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, false);
     Set<DataContainerWithScore> rangeWithScores = (Set<DataContainerWithScore>) slice(
-        new ArrayList<DataContainerWithScore>(full), new HashSet<DataContainerWithScore>(), start, end);
+        new ArrayList<DataContainerWithScore>(full), new HashSet<DataContainerWithScore>(),
+        start, end);
     Set<DataContainer> items = new HashSet<DataContainer>(rangeWithScores.size());
     for (DataContainerWithScore containerWithScore : rangeWithScores) {
       items.add(DataContainerImpl.from(containerWithScore.getString()));
     }
     return items;
+  }
+
+  public Long zrank(DataContainerImpl key, String member) {
+    NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, false);
+    Iterator<DataContainerWithScore> iterator = full.iterator();
+    long index = 0;
+    while (iterator.hasNext()) {
+      if (iterator.next().getString().equals(member)) {
+        return index;
+      }
+      index++;
+    }
+    return null;
   }
 }
 
