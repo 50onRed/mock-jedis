@@ -1289,4 +1289,10 @@ public class MockPipeline extends Pipeline {
     response.set(mockStorage.zremrangeByRank(DataContainerImpl.from(key), start, end));
     return response;
   }
+
+  @Override public Response<Long> zcard(String key) {
+    Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+    response.set(mockStorage.zcard(DataContainerImpl.from(key)));
+    return response;
+  }
 }

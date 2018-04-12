@@ -916,7 +916,7 @@ public class MockJedis extends Jedis {
 
   @Override
   public Long zcard(String key) {
-    throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+    return pipeline.zcard(key).get();
   }
 
   @Override

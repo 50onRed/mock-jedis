@@ -232,6 +232,15 @@ public class MockJedisTest {
   }
 
   @Test
+  public void testZCard() {
+    assertEquals((Long) 0L, j.zcard("test"));
+    j.zadd("test", 2, "c");
+    assertEquals((Long) 1L, j.zcard("test"));
+    j.zadd("test", 1, "a");
+    assertEquals((Long) 2L, j.zcard("test"));
+  }
+
+  @Test
   public void testZRank() {
     assertNull(j.zrank("test", "foo"));
     j.zadd("test", 2, "c");
