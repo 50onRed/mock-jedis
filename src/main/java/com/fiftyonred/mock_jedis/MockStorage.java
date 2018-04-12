@@ -985,5 +985,14 @@ public class MockStorage {
     }
     return null;
   }
+
+  public long zremrangeByRank(DataContainerImpl key, long start, long end) {
+    NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, false);
+    NavigableSet<DataContainerWithScore> slice = (NavigableSet<DataContainerWithScore>) slice(
+        new ArrayList<DataContainerWithScore>(full), new TreeSet<DataContainerWithScore>(),
+        start, end);
+    sortedSetStorage.put(key, slice);
+    return full.size() - slice.size();
+  }
 }
 

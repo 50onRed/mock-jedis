@@ -177,6 +177,45 @@ public class MockJedisTest {
   }
 
   @Test
+  public void testZremrangeByRank() {
+    j.zadd("test", 0, "a");
+    j.zadd("test", 1, "b");
+    j.zadd("test", 2, "c");
+    j.zadd("test", 3, "d");
+    j.zremrangeByRank("test", 0, 1);
+    assertEquals(new HashSet<String>(Arrays.asList("a", "b")), j.zrange("test", 0, -1));
+    j.zadd("test", 2, "c");
+    j.zadd("test", 3, "d");
+    j.zremrangeByRank("test", 2, 5);
+    assertEquals(new HashSet<String>(Arrays.asList("c", "d")), j.zrange("test", 0, -1));
+    j.zremrangeByRank("test", 0, 0);
+    j.zadd("test", 0, "a");
+    j.zadd("test", 1, "b");
+    j.zadd("test", 2, "c");
+    j.zadd("test", 3, "d");
+    j.zremrangeByRank("test", -2, -1);
+    assertEquals(new HashSet<String>(Arrays.asList("c", "d")), j.zrange("test", 0, -1));
+    j.zremrangeByRank("test", 0, 0);
+    j.zadd("test", 0, "a");
+    j.zadd("test", 1, "b");
+    j.zadd("test", 2, "c");
+    j.zadd("test", 3, "d");
+    assertEquals(Collections.singleton("c"), j.zrange("test", -2, -2));
+    j.zremrangeByRank("test", 0, 0);
+    j.zadd("test", 0, "a");
+    j.zadd("test", 1, "b");
+    j.zadd("test", 2, "c");
+    j.zadd("test", 3, "d");
+    assertEquals(0, j.zrange("test", -7, -6).size());
+    j.zremrangeByRank("test", 0, 0);
+    j.zadd("test", 0, "a");
+    j.zadd("test", 1, "b");
+    j.zadd("test", 2, "c");
+    j.zadd("test", 3, "d");
+    assertEquals(0, j.zrange("test", 6, 7).size());
+  }
+
+  @Test
   public void testZRange() {
     assertEquals(Collections.emptySet(), j.zrange("test", -1, -1));
     j.zadd("test", 2, "c");
