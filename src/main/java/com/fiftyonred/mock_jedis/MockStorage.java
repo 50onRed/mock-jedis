@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
@@ -1001,10 +1002,8 @@ public class MockStorage {
 
   public Set<DataContainerWithScore> zrangeWithScores(DataContainer key, long start, long end) {
     NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, true);
-    Set<DataContainerWithScore> rangeWithScores = (Set<DataContainerWithScore>) slice(
-        new ArrayList<DataContainerWithScore>(full), new HashSet<DataContainerWithScore>(),
-        start, end);
-    return new HashSet<DataContainerWithScore>(rangeWithScores);
+    return (Set<DataContainerWithScore>) slice(new ArrayList<DataContainerWithScore>(full),
+        new LinkedHashSet<DataContainerWithScore>(), start, end);
   }
 
   public Set<DataContainerWithScore> zrevrangeWithScores(DataContainer key, long start, long end) {
@@ -1013,7 +1012,7 @@ public class MockStorage {
         new ArrayList<DataContainerWithScore>(full), new ArrayList<DataContainerWithScore>(),
         start, end);
     Collections.reverse(rangeWithScores);
-    return new HashSet<DataContainerWithScore>(rangeWithScores);
+    return new LinkedHashSet<DataContainerWithScore>(rangeWithScores);
   }
 }
 

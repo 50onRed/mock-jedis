@@ -18,6 +18,7 @@ import redis.clients.jedis.SortingParams;
 import redis.clients.jedis.Tuple;
 import redis.clients.jedis.exceptions.JedisDataException;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -240,38 +241,40 @@ public class MockJedisTest {
     j.zadd("test", 0, "a");
     j.zadd("test", 3, "d");
 
-    assertEquals(new HashSet<Tuple>(Arrays.asList(new Tuple("a", 0D), new Tuple("b", 1D),
-        new Tuple("c", 2D), new Tuple("d", 3D))), j.zrangeWithScores("test", 0, -1));
-    assertEquals(new HashSet<Tuple>(Arrays.asList(new Tuple("a", 0D), new Tuple("b", 1D))),
-        j.zrangeWithScores("test", 0, 1));
-    assertEquals(new HashSet<Tuple>(Arrays.asList(new Tuple("c", 2D), new Tuple("d", 3D))),
-        j.zrangeWithScores("test", 2, 5));
-    assertEquals(new HashSet<Tuple>(Arrays.asList(new Tuple("c", 2D), new Tuple("d", 3D))),
-        j.zrangeWithScores("test", -2, -1));
+    assertArrayEquals(Arrays.asList(new Tuple("a", 0D), new Tuple("b", 1D),
+        new Tuple("c", 2D), new Tuple("d", 3D)).toArray(), j.zrangeWithScores("test", 0, -1).toArray());
+    assertArrayEquals(Arrays.asList(new Tuple("a", 0D), new Tuple("b", 1D)).toArray(),
+        j.zrangeWithScores("test", 0, 1).toArray());
+    assertArrayEquals(Arrays.asList(new Tuple("c", 2D), new Tuple("d", 3D)).toArray(),
+        j.zrangeWithScores("test", 2, 5).toArray());
+    assertArrayEquals(Arrays.asList(new Tuple("c", 2D), new Tuple("d", 3D)).toArray(),
+        j.zrangeWithScores("test", -2, -1).toArray());
     assertEquals(Collections.singleton(new Tuple("c", 2D)), j.zrangeWithScores("test", -2, -2));
-    assertEquals(0, j.zrangeWithScores("test", -7, -6).size());
-    assertEquals(0, j.zrangeWithScores("test", 6, 7).size());
+    assertEquals(Collections.emptySet(), j.zrangeWithScores("test", -7, -6));
+    assertEquals(Collections.emptySet(), j.zrangeWithScores("test", 6, 7));
   }
 
   @Test
   public void testZRevRangeWithScores() {
     assertEquals(Collections.emptySet(), j.zrange("test", -1, -1));
-    j.zadd("test", 2, "c");
-    j.zadd("test", 1, "b");
-    j.zadd("test", 0, "a");
-    j.zadd("test", 3, "d");
+    j.zadd("test", 2D, "c");
+    j.zadd("test", 1D, "b");
+    j.zadd("test", 0D, "a");
+    j.zadd("test", 3D, "d");
 
-    assertEquals(new HashSet<Tuple>(Arrays.asList(new Tuple("d", 3D), new Tuple("c", 2D),
-        new Tuple("b", 1D), new Tuple("a", 0D))), j.zrevrangeWithScores("test", 0, -1));
-    assertEquals(new HashSet<Tuple>(Arrays.asList(new Tuple("b", 1D), new Tuple("a", 0D))),
-        j.zrevrangeWithScores("test", 0, 1));
-    assertEquals(new HashSet<Tuple>(Arrays.asList(new Tuple("d", 3D), new Tuple("c", 2D))),
-        j.zrevrangeWithScores("test", 2, 5));
-    assertEquals(new HashSet<Tuple>(Arrays.asList(new Tuple("d", 3D), new Tuple("c", 2D))),
-        j.zrevrangeWithScores("test", -2, -1));
-    assertEquals(Collections.singleton(new Tuple("c", 2D)), j.zrevrangeWithScores("test", -2, -2));
-    assertEquals(0, j.zrevrangeWithScores("test", -7, -6).size());
-    assertEquals(0, j.zrevrangeWithScores("test", 6, 7).size());
+    assertArrayEquals(Arrays.asList(new Tuple("d", 3D), new Tuple("c", 2D),
+        new Tuple("b", 1D), new Tuple("a", 0D)).toArray(), j.zrevrangeWithScores("test", 0, -1)
+        .toArray());
+    assertArrayEquals(Arrays.asList(new Tuple("b", 1D), new Tuple("a", 0D)).toArray(),
+        j.zrevrangeWithScores("test", 0, 1).toArray());
+    assertArrayEquals(Arrays.asList(new Tuple("d", 3D), new Tuple("c", 2D)).toArray(),
+        j.zrevrangeWithScores("test", 2, 5).toArray());
+    assertArrayEquals(Arrays.asList(new Tuple("d", 3D), new Tuple("c", 2D)).toArray(),
+        j.zrevrangeWithScores("test", -2, -1).toArray());
+    assertArrayEquals(new Object[]{new Tuple("c", 2D)}, j.zrevrangeWithScores("test", -2, -2)
+        .toArray());
+    assertEquals(Collections.emptySet(), j.zrevrangeWithScores("test", -7, -6));
+    assertEquals(Collections.emptySet(), j.zrevrangeWithScores("test", 6, 7));
   }
 
   @Test
