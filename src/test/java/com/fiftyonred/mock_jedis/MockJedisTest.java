@@ -232,6 +232,25 @@ public class MockJedisTest {
   }
 
   @Test
+  public void testZRangeWithScores() {
+    assertEquals(Collections.emptySet(), j.zrange("test", -1, -1));
+    j.zadd("test", 2, "c");
+    j.zadd("test", 1, "b");
+    j.zadd("test", 0, "a");
+    j.zadd("test", 3, "d");
+
+    assertEquals(new HashSet<Tuple>(Arrays.asList(new Tuple("a", 0D), new Tuple("b", 1D))),
+        j.zrangeWithScores("test", 0, 1));
+    assertEquals(new HashSet<Tuple>(Arrays.asList(new Tuple("c", 2D), new Tuple("d", 3D))),
+        j.zrangeWithScores("test", 2, 5));
+    assertEquals(new HashSet<Tuple>(Arrays.asList(new Tuple("c", 2D), new Tuple("d", 3D))),
+        j.zrangeWithScores("test", -2, -1));
+    assertEquals(Collections.singleton(new Tuple("c", 2D)), j.zrangeWithScores("test", -2, -2));
+    assertEquals(0, j.zrangeWithScores("test", -7, -6).size());
+    assertEquals(0, j.zrangeWithScores("test", 6, 7).size());
+  }
+
+  @Test
   public void testZCard() {
     assertEquals((Long) 0L, j.zcard("test"));
     j.zadd("test", 2, "c");

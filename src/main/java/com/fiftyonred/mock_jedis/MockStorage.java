@@ -998,5 +998,13 @@ public class MockStorage {
   public long zcard(DataContainerImpl key) {
     return getSortedSetFromStorage(key, true).size();
   }
+
+  public Set<DataContainerWithScore> zrangeWithScores(DataContainer key, long start, long end) {
+    NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, true);
+    Set<DataContainerWithScore> rangeWithScores = (Set<DataContainerWithScore>) slice(
+        new ArrayList<DataContainerWithScore>(full), new HashSet<DataContainerWithScore>(),
+        start, end);
+    return new HashSet<DataContainerWithScore>(rangeWithScores);
+  }
 }
 
