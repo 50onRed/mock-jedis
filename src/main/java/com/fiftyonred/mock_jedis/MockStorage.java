@@ -1006,5 +1006,14 @@ public class MockStorage {
         start, end);
     return new HashSet<DataContainerWithScore>(rangeWithScores);
   }
+
+  public Set<DataContainerWithScore> zrevrangeWithScores(DataContainer key, long start, long end) {
+    NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, true);
+    List<DataContainerWithScore> rangeWithScores = (List<DataContainerWithScore>) slice(
+        new ArrayList<DataContainerWithScore>(full), new ArrayList<DataContainerWithScore>(),
+        start, end);
+    Collections.reverse(rangeWithScores);
+    return new HashSet<DataContainerWithScore>(rangeWithScores);
+  }
 }
 

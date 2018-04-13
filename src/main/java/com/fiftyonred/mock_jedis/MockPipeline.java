@@ -1302,4 +1302,11 @@ public class MockPipeline extends Pipeline {
         mockStorage.zrangeWithScores(DataContainerImpl.from(key), start, end)));
     return response;
   }
+
+  @Override public Response<Set<Tuple>> zrevrangeWithScores(String key, long start, long end) {
+    Response<Set<Tuple>> response = new Response<Set<Tuple>>(BuilderFactory.TUPLE_ZSET);
+    response.set(DataContainerImpl.toBytes(
+        mockStorage.zrevrangeWithScores(DataContainerImpl.from(key), start, end)));
+    return response;
+  }
 }
