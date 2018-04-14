@@ -310,10 +310,10 @@ public class MockJedisTest {
     j.zadd("test", -1, "blah");
     j.zadd("test", 10, "kit");
     j.zadd("test", 16.92131, "kat");
-    assertEquals(new TreeSet<String>(Arrays.asList("blah", "qux",
-        "bar", "foo", "baz", "kit", "kat")), j.zrangeByScore("test", "-inf", "+inf"));
-    assertEquals(new TreeSet<String>(Arrays.asList("blah", "qux", "bar", "foo")),
-        j.zrangeByScore("test", "-inf", "2"));
+    assertArrayEquals(Arrays.asList("blah", "qux", "bar", "foo", "baz", "kit", "kat").toArray(),
+        j.zrangeByScore("test", "-inf", "+inf").toArray());
+    assertArrayEquals(Arrays.asList("blah", "qux", "bar", "foo").toArray(),
+        j.zrangeByScore("test", "-inf", "2").toArray());
     assertEquals(Collections.emptySet(), j.zrangeByScore("test", "20", "30"));
     assertEquals(Collections.emptySet(), j.zrangeByScore("test", 20, 30));
     assertEquals(Collections.emptySet(), j.zrangeByScore("test", "0", "-2"));
@@ -322,6 +322,29 @@ public class MockJedisTest {
     assertEquals(Collections.emptySet(), j.zrangeByScore("test", 2, 1));
     assertEquals(Collections.singleton("foo"), j.zrangeByScore("test", "2", "2"));
     assertEquals(Collections.singleton("foo"), j.zrangeByScore("test", 2, 2));
+  }
+
+  @Test
+  public void testZRevRangeByScore() {
+    j.zadd("test", 2, "foo");
+    j.zadd("test", 1, "bar");
+    j.zadd("test", 3.4, "baz");
+    j.zadd("test", 0, "qux");
+    j.zadd("test", -1, "blah");
+    j.zadd("test", 10, "kit");
+    j.zadd("test", 16.92131, "kat");
+    assertArrayEquals(Arrays.asList("kat", "kit", "baz", "foo", "bar", "qux", "blah").toArray(),
+        j.zrevrangeByScore("test", Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY).toArray());
+    assertEquals(new TreeSet<String>(Arrays.asList("blah", "qux", "bar", "foo")),
+        j.zrevrangeByScore("test", "2", "-inf"));
+    assertEquals(Collections.emptySet(), j.zrevrangeByScore("test", "30", "20"));
+    assertEquals(Collections.emptySet(), j.zrevrangeByScore("test", 30, 20));
+    assertEquals(Collections.emptySet(), j.zrevrangeByScore("test", "-2", "0"));
+    assertEquals(Collections.emptySet(), j.zrevrangeByScore("test", -2, 0));
+    assertEquals(Collections.emptySet(), j.zrevrangeByScore("test", "1", "2"));
+    assertEquals(Collections.emptySet(), j.zrevrangeByScore("test", 1, 2));
+    assertEquals(Collections.singleton("foo"), j.zrevrangeByScore("test", "2", "2"));
+    assertEquals(Collections.singleton("foo"), j.zrevrangeByScore("test", 2, 2));
   }
 
   @Test

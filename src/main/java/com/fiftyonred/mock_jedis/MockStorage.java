@@ -943,7 +943,7 @@ public class MockStorage {
     while (iterator.hasNext() && max < last.getScore()) {
       last = descendingIterator.next();
     }
-    return new HashSet<DataContainerWithScore>(full.subSet(first, true, last, true));
+    return new LinkedHashSet<DataContainerWithScore>(full.subSet(first, true, last, true));
   }
 
   public Set<DataContainer> zrangeByScore(DataContainer key, String min, String max) {
@@ -955,7 +955,7 @@ public class MockStorage {
 
   public Set<DataContainer> zrangeByScore(DataContainer key, double min, double max) {
     Set<DataContainerWithScore> rangeWithScores = zrangeByScoreWithScores(key, min, max);
-    Set<DataContainer> items = new HashSet<DataContainer>(rangeWithScores.size());
+    Set<DataContainer> items = new LinkedHashSet<DataContainer>(rangeWithScores.size());
     for (DataContainerWithScore containerWithScore : rangeWithScores) {
       items.add(DataContainerImpl.from(containerWithScore.getString()));
     }
@@ -965,9 +965,9 @@ public class MockStorage {
   public Set<DataContainer> zrange(DataContainerImpl key, long start, long end) {
     NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, true);
     Set<DataContainerWithScore> rangeWithScores = (Set<DataContainerWithScore>) slice(
-        new ArrayList<DataContainerWithScore>(full), new HashSet<DataContainerWithScore>(),
+        new ArrayList<DataContainerWithScore>(full), new LinkedHashSet<DataContainerWithScore>(),
         start, end);
-    Set<DataContainer> items = new HashSet<DataContainer>(rangeWithScores.size());
+    Set<DataContainer> items = new LinkedHashSet<DataContainer>(rangeWithScores.size());
     for (DataContainerWithScore containerWithScore : rangeWithScores) {
       items.add(DataContainerImpl.from(containerWithScore.getString()));
     }
@@ -1013,6 +1013,16 @@ public class MockStorage {
         start, end);
     Collections.reverse(rangeWithScores);
     return new LinkedHashSet<DataContainerWithScore>(rangeWithScores);
+  }
+
+  public Set<DataContainer> zrevrangeByScore(DataContainer key, String max, String min) {
+    List<DataContainer> rangeWithScores = new ArrayList<DataContainer>(zrangeByScore(key, min, max));
+    Collections.reverse(rangeWithScores);
+    return new LinkedHashSet<DataContainer>(rangeWithScores);
+  }
+
+  public Set<DataContainer> zrevrangeByScore(DataContainer key, double max, double min) {
+    return zrevrangeByScore(key, Double.toString(max), Double.toString(min));
   }
 }
 
