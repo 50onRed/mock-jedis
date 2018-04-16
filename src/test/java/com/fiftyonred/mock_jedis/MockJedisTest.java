@@ -348,6 +348,15 @@ public class MockJedisTest {
   }
 
   @Test
+  public void testZAdd() {
+    j.zadd("test", 0, "foo");
+    assertEquals(Collections.singleton("foo"), j.zrange("test", 0, -1));
+    j.zadd("test", 2, "foo");
+    assertEquals(Collections.singleton("foo"), j.zrange("test", 0, -1));
+    assertEquals(Collections.singleton(new Tuple("foo", 2D)), j.zrangeWithScores("test", 0, -1));
+  }
+
+  @Test
   public void testZRangeByScoreWithScores() {
     j.zadd("test", 2, "foo");
     j.zadd("test", 1, "bar");

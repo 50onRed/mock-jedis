@@ -29,6 +29,18 @@ public class DataContainerWithScore implements DataContainer<DataContainerWithSc
     return score;
   }
 
+  @Override public boolean equals(Object obj) {
+    if (obj instanceof DataContainerWithScore) {
+      return delegate.equals(((DataContainerWithScore) obj).delegate);
+    } else {
+      return delegate.equals(obj);
+    }
+  }
+
+  @Override public int hashCode() {
+    return delegate.hashCode();
+  }
+
   @Override public int compareTo(DataContainerWithScore o) {
     // Sort by score first
     int result = Double.compare(score, o.score);
