@@ -1024,5 +1024,18 @@ public class MockStorage {
   public Set<DataContainer> zrevrangeByScore(DataContainer key, double max, double min) {
     return zrevrangeByScore(key, Double.toString(max), Double.toString(min));
   }
+
+  public Set<DataContainerWithScore> zrevrangeByScoreWithScores(DataContainer key, double max, double min) {
+    List<DataContainerWithScore> items = new ArrayList<DataContainerWithScore>(
+        zrangeByScoreWithScores(key, Double.toString(min), Double.toString(max)));
+    Collections.reverse(items);
+    return new LinkedHashSet<DataContainerWithScore>(items);
+  }
+
+  public Set<DataContainerWithScore> zrevrangeByScoreWithScores(DataContainer key, String max, String min) {
+    double doubleMin = min.equals("-inf") ? Double.NEGATIVE_INFINITY : Double.parseDouble(min);
+    double doubleMax = max.equals("+inf") ? Double.POSITIVE_INFINITY : Double.parseDouble(max);
+    return zrevrangeByScoreWithScores(key, doubleMax, doubleMin);
+  }
 }
 

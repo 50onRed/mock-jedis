@@ -365,12 +365,13 @@ public class MockJedisTest {
     j.zadd("test", -1, "blah");
     j.zadd("test", 10, "kit");
     j.zadd("test", 16.92131, "kat");
-    assertEquals(new TreeSet<Tuple>(Arrays.asList(new Tuple("blah", -1D), new Tuple("qux", 0D),
+    assertArrayEquals(Arrays.asList(new Tuple("blah", -1D), new Tuple("qux", 0D),
         new Tuple("bar", 1D), new Tuple("foo", 2D), new Tuple("baz", 3.4D), new Tuple("kit", 10D),
-        new Tuple("kat", 16.92131D))), j.zrangeByScoreWithScores("test", "-inf", "+inf"));
-    assertEquals(new TreeSet<Tuple>(Arrays.asList(new Tuple("blah", -1D), new Tuple("qux", 0D),
-        new Tuple("bar", 1D), new Tuple("foo", 2D))),
-        j.zrangeByScoreWithScores("test", "-inf", "2"));
+        new Tuple("kat", 16.92131D)).toArray(),
+        j.zrangeByScoreWithScores("test", "-inf", "+inf").toArray());
+    assertArrayEquals(Arrays.asList(new Tuple("blah", -1D), new Tuple("qux", 0D),
+        new Tuple("bar", 1D), new Tuple("foo", 2D)).toArray(),
+        j.zrangeByScoreWithScores("test", "-inf", "2").toArray());
     assertEquals(Collections.emptySet(), j.zrangeByScoreWithScores("test", "20", "30"));
     assertEquals(Collections.emptySet(), j.zrangeByScoreWithScores("test", 20, 30));
     assertEquals(Collections.emptySet(), j.zrangeByScoreWithScores("test", "0", "-2"));
@@ -381,6 +382,38 @@ public class MockJedisTest {
         j.zrangeByScoreWithScores("test", "2", "2"));
     assertEquals(Collections.singleton(new Tuple("foo", 2D)),
         j.zrangeByScoreWithScores("test", 2, 2));
+  }
+
+  @Test
+  public void testZRevrangeByScoreWithScores() {
+    j.zadd("test", 2, "foo");
+    j.zadd("test", 1, "bar");
+    j.zadd("test", 3.4, "baz");
+    j.zadd("test", 0, "qux");
+    j.zadd("test", -1, "blah");
+    j.zadd("test", 10, "kit");
+    j.zadd("test", 16.92131, "kat");
+    List<Tuple> full = Arrays.asList(new Tuple("blah", -1D), new Tuple("qux", 0D),
+        new Tuple("bar", 1D), new Tuple("foo", 2D), new Tuple("baz", 3.4D), new Tuple("kit", 10D),
+        new Tuple("kat", 16.92131D));
+    Collections.reverse(full);
+    assertArrayEquals(full.toArray(),
+        j.zrevrangeByScoreWithScores("test", "+inf", "-inf").toArray());
+    List<Tuple> partial = Arrays.asList(new Tuple("blah", -1D), new Tuple("qux", 0D),
+        new Tuple("bar", 1D), new Tuple("foo", 2D));
+    Collections.reverse(partial);
+    assertArrayEquals(partial.toArray(),
+        j.zrevrangeByScoreWithScores("test", "2", "-inf").toArray());
+    assertEquals(Collections.emptySet(), j.zrevrangeByScoreWithScores("test", "30", "20"));
+    assertEquals(Collections.emptySet(), j.zrevrangeByScoreWithScores("test", 30, 20));
+    assertEquals(Collections.emptySet(), j.zrevrangeByScoreWithScores("test", "-2", "0"));
+    assertEquals(Collections.emptySet(), j.zrevrangeByScoreWithScores("test", -2, 0));
+    assertEquals(Collections.emptySet(), j.zrevrangeByScoreWithScores("test", "1", "2"));
+    assertEquals(Collections.emptySet(), j.zrevrangeByScoreWithScores("test", 1, 2));
+    assertEquals(Collections.singleton(new Tuple("foo", 2D)),
+        j.zrevrangeByScoreWithScores("test", "2", "2"));
+    assertEquals(Collections.singleton(new Tuple("foo", 2D)),
+        j.zrevrangeByScoreWithScores("test", 2, 2));
   }
 
   @Test

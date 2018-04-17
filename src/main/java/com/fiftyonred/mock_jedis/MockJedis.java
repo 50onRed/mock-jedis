@@ -1026,7 +1026,7 @@ public class MockJedis extends Jedis {
 
   @Override
   public Set<Tuple> zrevrangeByScoreWithScores(String key, double max, double min) {
-    throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+    return pipeline.zrevrangeByScoreWithScores(key, max, min).get();
   }
 
   @Override
@@ -1046,7 +1046,7 @@ public class MockJedis extends Jedis {
 
   @Override
   public Set<Tuple> zrevrangeByScoreWithScores(String key, String max, String min) {
-    throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+    return pipeline.zrevrangeByScoreWithScores(key, max, min).get();
   }
 
   @Override
