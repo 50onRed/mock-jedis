@@ -2,7 +2,7 @@ package com.fiftyonred.mock_jedis;
 
 public class DataContainerWithScore implements DataContainer<DataContainerWithScore> {
   private final DataContainer delegate;
-  private final double score;
+  private double score;
 
   DataContainerWithScore(DataContainer delegate, double score) {
     this.delegate = delegate;
@@ -27,6 +27,10 @@ public class DataContainerWithScore implements DataContainer<DataContainerWithSc
 
   public double getScore() {
     return score;
+  }
+
+  public void setScore(double score) {
+    this.score = score;
   }
 
   @Override public boolean equals(Object obj) {

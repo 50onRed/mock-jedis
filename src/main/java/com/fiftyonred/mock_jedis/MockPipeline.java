@@ -1270,8 +1270,8 @@ public class MockPipeline extends Pipeline {
 
   @Override public Response<Long> zadd(String key, double score, String member) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.zadd(DataContainerImpl.from(key), score, DataContainerImpl.from
-        (member)));
+    response.set(
+        mockStorage.zadd(DataContainerImpl.from(key), score, DataContainerImpl.from(member)));
     return response;
   }
 

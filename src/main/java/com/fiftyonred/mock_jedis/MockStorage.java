@@ -780,7 +780,15 @@ public class MockStorage {
 
   public synchronized long zadd(DataContainer key, double score, DataContainer member) {
     SortedSet<DataContainerWithScore> set = getSortedSetFromStorage(key, true);
-    return set.add(new DataContainerWithScore(member, score)) ? 1 : 0;
+    DataContainerWithScore newItem = new DataContainerWithScore(member, score);
+    for (DataContainerWithScore existingItem : set) {
+      if (existingItem.equals(newItem)) {
+        existingItem.setScore(newItem.getScore());
+        return 0;
+      }
+    }
+    set.add(newItem);
+    return 1L;
   }
 
   public synchronized long srem(DataContainer key, DataContainer... member) {

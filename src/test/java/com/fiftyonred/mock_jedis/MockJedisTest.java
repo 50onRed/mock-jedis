@@ -373,9 +373,11 @@ public class MockJedisTest {
   public void testZAdd() {
     j.zadd("test", 0, "foo");
     assertEquals(Collections.singleton("foo"), j.zrange("test", 0, -1));
+    assertEquals(Collections.singleton(new Tuple("foo", 0D)), j.zrangeWithScores("test", 0, -1));
     j.zadd("test", 2, "foo");
-    assertEquals(Collections.singleton("foo"), j.zrange("test", 0, -1));
-    assertEquals(Collections.singleton(new Tuple("foo", 2D)), j.zrangeWithScores("test", 0, -1));
+    Tuple tuple = j.zrangeWithScores("test", 0, -1).iterator().next();
+    assertEquals("foo", tuple.getElement());
+    assertEquals(2D, tuple.getScore(), 0);
   }
 
   @Test
