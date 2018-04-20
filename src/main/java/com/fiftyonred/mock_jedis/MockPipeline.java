@@ -103,14 +103,16 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<Long> renamenx(final String oldkey, final String newkey) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.renamenx(DataContainerImpl.from(oldkey), DataContainerImpl.from(newkey)) ? 1L : 0L);
+    response.set(mockStorage.renamenx(DataContainerImpl.from(oldkey), DataContainerImpl.from
+        (newkey)) ? 1L : 0L);
     return response;
   }
 
   @Override
   public Response<Long> renamenx(final byte[] oldkey, final byte[] newkey) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.renamenx(DataContainerImpl.from(oldkey), DataContainerImpl.from(newkey)) ? 1L : 0L);
+    response.set(mockStorage.renamenx(DataContainerImpl.from(oldkey), DataContainerImpl.from
+        (newkey)) ? 1L : 0L);
     return response;
   }
 
@@ -133,14 +135,16 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<Long> setnx(final String key, final String value) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.setnx(DataContainerImpl.from(key), DataContainerImpl.from(value)) ? 1L : 0L);
+    response.set(mockStorage.setnx(DataContainerImpl.from(key), DataContainerImpl.from(value)) ?
+        1L : 0L);
     return response;
   }
 
   @Override
   public Response<Long> setnx(final byte[] key, final byte[] value) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.setnx(DataContainerImpl.from(key), DataContainerImpl.from(value)) ? 1L : 0L);
+    response.set(mockStorage.setnx(DataContainerImpl.from(key), DataContainerImpl.from(value)) ?
+        1L : 0L);
     return response;
   }
 
@@ -163,7 +167,8 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<String> getSet(final String key, final String value) {
     Response<String> response = new Response<String>(BuilderFactory.STRING);
-    final DataContainer result = mockStorage.getSet(DataContainerImpl.from(key), DataContainerImpl.from(value));
+    final DataContainer result = mockStorage.getSet(DataContainerImpl.from(key),
+        DataContainerImpl.from(value));
     response.set(result == null ? null : result.getBytes());
     return response;
   }
@@ -171,7 +176,8 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<byte[]> getSet(final byte[] key, final byte[] value) {
     Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
-    final DataContainer result = mockStorage.getSet(DataContainerImpl.from(key), DataContainerImpl.from(value));
+    final DataContainer result = mockStorage.getSet(DataContainerImpl.from(key),
+        DataContainerImpl.from(value));
     response.set(result == null ? null : result.getBytes());
     return response;
   }
@@ -373,14 +379,16 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<Long> pexpireAt(final String key, final long millisecondsTimestamp) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.pexpireAt(DataContainerImpl.from(key), millisecondsTimestamp) ? 1L : 0L);
+    response.set(mockStorage.pexpireAt(DataContainerImpl.from(key), millisecondsTimestamp) ? 1L :
+        0L);
     return response;
   }
 
   @Override
   public Response<Long> pexpireAt(final byte[] key, final long millisecondsTimestamp) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.pexpireAt(DataContainerImpl.from(key), millisecondsTimestamp) ? 1L : 0L);
+    response.set(mockStorage.pexpireAt(DataContainerImpl.from(key), millisecondsTimestamp) ? 1L :
+        0L);
     return response;
   }
 
@@ -598,7 +606,8 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<List<String>> sort(final String key, final SortingParams sortingParameters) {
     Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
-    List<DataContainer> sortedList = mockStorage.sort(DataContainerImpl.from(key), sortingParameters);
+    List<DataContainer> sortedList = mockStorage.sort(DataContainerImpl.from(key),
+        sortingParameters);
     response.set(DataContainerImpl.toBytes(sortedList));
     return response;
   }
@@ -606,22 +615,27 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<List<byte[]>> sort(final byte[] key, final SortingParams sortingParameters) {
     Response<List<byte[]>> response = new Response<List<byte[]>>(BuilderFactory.BYTE_ARRAY_LIST);
-    List<DataContainer> sortedList = mockStorage.sort(DataContainerImpl.from(key), sortingParameters);
+    List<DataContainer> sortedList = mockStorage.sort(DataContainerImpl.from(key),
+        sortingParameters);
     response.set(DataContainerImpl.toBytes(sortedList));
     return response;
   }
 
   @Override
-  public Response<Long> sort(final String key, final SortingParams sortingParameters, final String dstkey) {
+  public Response<Long> sort(final String key, final SortingParams sortingParameters, final
+  String dstkey) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set((long) mockStorage.sort(DataContainerImpl.from(key), sortingParameters, DataContainerImpl.from(dstkey)));
+    response.set((long) mockStorage.sort(DataContainerImpl.from(key), sortingParameters,
+        DataContainerImpl.from(dstkey)));
     return response;
   }
 
   @Override
-  public Response<Long> sort(final byte[] key, final SortingParams sortingParameters, final byte[] dstkey) {
+  public Response<Long> sort(final byte[] key, final SortingParams sortingParameters, final
+  byte[] dstkey) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set((long) mockStorage.sort(DataContainerImpl.from(key), sortingParameters, DataContainerImpl.from(dstkey)));
+    response.set((long) mockStorage.sort(DataContainerImpl.from(key), sortingParameters,
+        DataContainerImpl.from(dstkey)));
     return response;
   }
 
@@ -685,7 +699,8 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<String> hget(final String key, final String field) {
     Response<String> response = new Response<String>(BuilderFactory.STRING);
-    final DataContainer result = mockStorage.hget(DataContainerImpl.from(key), DataContainerImpl.from(field));
+    final DataContainer result = mockStorage.hget(DataContainerImpl.from(key), DataContainerImpl
+        .from(field));
     response.set(result == null ? null : result.getBytes());
     return response;
   }
@@ -693,15 +708,18 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<byte[]> hget(final byte[] key, final byte[] field) {
     Response<byte[]> response = new Response<byte[]>(BuilderFactory.BYTE_ARRAY);
-    final DataContainer result = mockStorage.hget(DataContainerImpl.from(key), DataContainerImpl.from(field));
+    final DataContainer result = mockStorage.hget(DataContainerImpl.from(key), DataContainerImpl
+        .from(field));
     response.set(result == null ? null : result.getBytes());
     return response;
   }
 
   @Override
   public Response<Map<String, String>> hgetAll(final String key) {
-    Response<Map<String, String>> response = new Response<Map<String, String>>(BuilderFactory.STRING_MAP);
-    final Map<DataContainer, DataContainer> result = mockStorage.hgetAll(DataContainerImpl.from(key));
+    Response<Map<String, String>> response = new Response<Map<String, String>>(BuilderFactory
+        .STRING_MAP);
+    final Map<DataContainer, DataContainer> result = mockStorage.hgetAll(DataContainerImpl.from
+        (key));
 
     if (result != null) {
       final List<byte[]> encodedResult = new ArrayList<byte[]>(result.size());
@@ -718,8 +736,10 @@ public class MockPipeline extends Pipeline {
 
   @Override
   public Response<Map<byte[], byte[]>> hgetAll(final byte[] key) {
-    Response<Map<byte[], byte[]>> response = new Response<Map<byte[], byte[]>>(BuilderFactory.BYTE_ARRAY_MAP);
-    final Map<DataContainer, DataContainer> result = mockStorage.hgetAll(DataContainerImpl.from(key));
+    Response<Map<byte[], byte[]>> response = new Response<Map<byte[], byte[]>>(BuilderFactory
+        .BYTE_ARRAY_MAP);
+    final Map<DataContainer, DataContainer> result = mockStorage.hgetAll(DataContainerImpl.from
+        (key));
 
     if (result != null) {
       final List<byte[]> encodedResult = new ArrayList<byte[]>(result.size());
@@ -769,7 +789,8 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<Long> hset(final String key, final String field, final String value) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.hset(DataContainerImpl.from(key), DataContainerImpl.from(field), DataContainerImpl.from(value)) ? 1L : 0L);
+    response.set(mockStorage.hset(DataContainerImpl.from(key), DataContainerImpl.from(field),
+        DataContainerImpl.from(value)) ? 1L : 0L);
     return response;
 
   }
@@ -777,21 +798,24 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<Long> hset(final byte[] key, final byte[] field, final byte[] value) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.hset(DataContainerImpl.from(key), DataContainerImpl.from(field), DataContainerImpl.from(value)) ? 1L : 0L);
+    response.set(mockStorage.hset(DataContainerImpl.from(key), DataContainerImpl.from(field),
+        DataContainerImpl.from(value)) ? 1L : 0L);
     return response;
   }
 
   @Override
   public Response<Long> hsetnx(final String key, final String field, final String value) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.hsetnx(DataContainerImpl.from(key), DataContainerImpl.from(field), DataContainerImpl.from(value)) ? 1L : 0L);
+    response.set(mockStorage.hsetnx(DataContainerImpl.from(key), DataContainerImpl.from(field),
+        DataContainerImpl.from(value)) ? 1L : 0L);
     return response;
   }
 
   @Override
   public Response<Long> hsetnx(final byte[] key, final byte[] field, final byte[] value) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.hsetnx(DataContainerImpl.from(key), DataContainerImpl.from(field), DataContainerImpl.from(value)) ? 1L : 0L);
+    response.set(mockStorage.hsetnx(DataContainerImpl.from(key), DataContainerImpl.from(field),
+        DataContainerImpl.from(value)) ? 1L : 0L);
     return response;
   }
 
@@ -799,7 +823,8 @@ public class MockPipeline extends Pipeline {
   public Response<List<String>> hmget(final String key, final String... fields) {
     Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
     final List<byte[]> result = new ArrayList<byte[]>(fields.length);
-    final List<DataContainer> hash = mockStorage.hmget(DataContainerImpl.from(key), DataContainerImpl.from(fields));
+    final List<DataContainer> hash = mockStorage.hmget(DataContainerImpl.from(key),
+        DataContainerImpl.from(fields));
     if (hash == null) {
       for (final String ignored : fields) {
         result.add(null);
@@ -817,7 +842,8 @@ public class MockPipeline extends Pipeline {
   public Response<List<byte[]>> hmget(final byte[] key, final byte[]... fields) {
     Response<List<byte[]>> response = new Response<List<byte[]>>(BuilderFactory.BYTE_ARRAY_LIST);
     final List<byte[]> result = new ArrayList<byte[]>(fields.length);
-    final List<DataContainer> hash = mockStorage.hmget(DataContainerImpl.from(key), DataContainerImpl.from(fields));
+    final List<DataContainer> hash = mockStorage.hmget(DataContainerImpl.from(key),
+        DataContainerImpl.from(fields));
     if (hash == null) {
       for (final byte[] ignored : fields) {
         result.add(null);
@@ -850,28 +876,34 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<Long> hincrBy(final String key, final String field, final long value) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.hincrBy(DataContainerImpl.from(key), DataContainerImpl.from(field), value));
+    response.set(mockStorage.hincrBy(DataContainerImpl.from(key), DataContainerImpl.from(field),
+        value));
     return response;
   }
 
   @Override
   public Response<Long> hincrBy(final byte[] key, final byte[] field, final long value) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.hincrBy(DataContainerImpl.from(key), DataContainerImpl.from(field), value));
+    response.set(mockStorage.hincrBy(DataContainerImpl.from(key), DataContainerImpl.from(field),
+        value));
     return response;
   }
 
   @Override
-  public Response<Double> hincrByFloat(final String key, final String field, final double increment) {
+  public Response<Double> hincrByFloat(final String key, final String field, final double
+      increment) {
     Response<Double> response = new Response<Double>(BuilderFactory.DOUBLE);
-    response.set(mockStorage.hincrByFloat(DataContainerImpl.from(key), DataContainerImpl.from(field), increment).getBytes());
+    response.set(mockStorage.hincrByFloat(DataContainerImpl.from(key), DataContainerImpl.from
+        (field), increment).getBytes());
     return response;
   }
 
   @Override
-  public Response<Double> hincrByFloat(final byte[] key, final byte[] field, final double increment) {
+  public Response<Double> hincrByFloat(final byte[] key, final byte[] field, final double
+      increment) {
     Response<Double> response = new Response<Double>(BuilderFactory.DOUBLE);
-    response.set(mockStorage.hincrByFloat(DataContainerImpl.from(key), DataContainerImpl.from(field), increment).getBytes());
+    response.set(mockStorage.hincrByFloat(DataContainerImpl.from(key), DataContainerImpl.from
+        (field), increment).getBytes());
     return response;
   }
 
@@ -892,14 +924,16 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<Boolean> hexists(final String key, final String field) {
     Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
-    response.set(mockStorage.hexists(DataContainerImpl.from(key), DataContainerImpl.from(field)) ? 1L : 0L);
+    response.set(mockStorage.hexists(DataContainerImpl.from(key), DataContainerImpl.from(field))
+        ? 1L : 0L);
     return response;
   }
 
   @Override
   public Response<Boolean> hexists(final byte[] key, final byte[] field) {
     Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
-    response.set(mockStorage.hexists(DataContainerImpl.from(key), DataContainerImpl.from(field)) ? 1L : 0L);
+    response.set(mockStorage.hexists(DataContainerImpl.from(key), DataContainerImpl.from(field))
+        ? 1L : 0L);
     return response;
   }
 
@@ -920,14 +954,16 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<Long> lpush(final String key, final String... string) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set((long) mockStorage.lpush(DataContainerImpl.from(key), DataContainerImpl.from(string)));
+    response.set((long) mockStorage.lpush(DataContainerImpl.from(key), DataContainerImpl.from
+        (string)));
     return response;
   }
 
   @Override
   public Response<Long> lpush(final byte[] key, final byte[]... string) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set((long) mockStorage.lpush(DataContainerImpl.from(key), DataContainerImpl.from(string)));
+    response.set((long) mockStorage.lpush(DataContainerImpl.from(key), DataContainerImpl.from
+        (string)));
     return response;
   }
 
@@ -964,14 +1000,16 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<List<String>> lrange(final String key, final long start, final long end) {
     Response<List<String>> response = new Response<List<String>>(BuilderFactory.STRING_LIST);
-    response.set(DataContainerImpl.toBytes(mockStorage.lrange(DataContainerImpl.from(key), start, end)));
+    response.set(DataContainerImpl.toBytes(mockStorage.lrange(DataContainerImpl.from(key), start,
+        end)));
     return response;
   }
 
   @Override
   public Response<List<byte[]>> lrange(final byte[] key, final long start, final long end) {
     Response<List<byte[]>> response = new Response<List<byte[]>>(BuilderFactory.BYTE_ARRAY_LIST);
-    response.set(DataContainerImpl.toBytes(mockStorage.lrange(DataContainerImpl.from(key), start, end)));
+    response.set(DataContainerImpl.toBytes(mockStorage.lrange(DataContainerImpl.from(key), start,
+        end)));
     return response;
   }
 
@@ -1061,14 +1099,16 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<Long> sdiffstore(final String dstkey, final String... keys) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set((long) mockStorage.sdiffstore(DataContainerImpl.from(dstkey), DataContainerImpl.from(keys)));
+    response.set((long) mockStorage.sdiffstore(DataContainerImpl.from(dstkey), DataContainerImpl
+        .from(keys)));
     return response;
   }
 
   @Override
   public Response<Long> sdiffstore(final byte[] dstkey, final byte[]... keys) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set((long) mockStorage.sdiffstore(DataContainerImpl.from(dstkey), DataContainerImpl.from(keys)));
+    response.set((long) mockStorage.sdiffstore(DataContainerImpl.from(dstkey), DataContainerImpl
+        .from(keys)));
     return response;
   }
 
@@ -1097,42 +1137,48 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<Long> sinterstore(final String dstkey, final String... keys) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set((long) mockStorage.sinterstore(DataContainerImpl.from(dstkey), DataContainerImpl.from(keys)));
+    response.set((long) mockStorage.sinterstore(DataContainerImpl.from(dstkey), DataContainerImpl
+        .from(keys)));
     return response;
   }
 
   @Override
   public Response<Long> sinterstore(final byte[] dstkey, final byte[]... keys) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set((long) mockStorage.sinterstore(DataContainerImpl.from(dstkey), DataContainerImpl.from(keys)));
+    response.set((long) mockStorage.sinterstore(DataContainerImpl.from(dstkey), DataContainerImpl
+        .from(keys)));
     return response;
   }
 
   @Override
   public Response<Boolean> sismember(final String key, final String member) {
     Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
-    response.set(mockStorage.sismember(DataContainerImpl.from(key), DataContainerImpl.from(member)) ? 1L : 0L);
+    response.set(mockStorage.sismember(DataContainerImpl.from(key), DataContainerImpl.from
+        (member)) ? 1L : 0L);
     return response;
   }
 
   @Override
   public Response<Boolean> sismember(final byte[] key, final byte[] member) {
     Response<Boolean> response = new Response<Boolean>(BuilderFactory.BOOLEAN);
-    response.set(mockStorage.sismember(DataContainerImpl.from(key), DataContainerImpl.from(member)) ? 1L : 0L);
+    response.set(mockStorage.sismember(DataContainerImpl.from(key), DataContainerImpl.from
+        (member)) ? 1L : 0L);
     return response;
   }
 
   @Override
   public Response<Long> smove(final String srckey, final String dstkey, final String member) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.smove(DataContainerImpl.from(srckey), DataContainerImpl.from(dstkey), DataContainerImpl.from(member)) ? 1L : 0L);
+    response.set(mockStorage.smove(DataContainerImpl.from(srckey), DataContainerImpl.from(dstkey)
+        , DataContainerImpl.from(member)) ? 1L : 0L);
     return response;
   }
 
   @Override
   public Response<Long> smove(final byte[] srckey, final byte[] dstkey, final byte[] member) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.smove(DataContainerImpl.from(srckey), DataContainerImpl.from(dstkey), DataContainerImpl.from(member)) ? 1L : 0L);
+    response.set(mockStorage.smove(DataContainerImpl.from(srckey), DataContainerImpl.from(dstkey)
+        , DataContainerImpl.from(member)) ? 1L : 0L);
     return response;
   }
 
@@ -1209,20 +1255,23 @@ public class MockPipeline extends Pipeline {
   @Override
   public Response<Long> sunionstore(final String dstkey, final String... keys) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set((long) mockStorage.sunionstore(DataContainerImpl.from(dstkey), DataContainerImpl.from(keys)));
+    response.set((long) mockStorage.sunionstore(DataContainerImpl.from(dstkey), DataContainerImpl
+        .from(keys)));
     return response;
   }
 
   @Override
   public Response<Long> sunionstore(final byte[] dstkey, final byte[]... keys) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set((long) mockStorage.sunionstore(DataContainerImpl.from(dstkey), DataContainerImpl.from(keys)));
+    response.set((long) mockStorage.sunionstore(DataContainerImpl.from(dstkey), DataContainerImpl
+        .from(keys)));
     return response;
   }
 
   @Override public Response<Long> zadd(String key, double score, String member) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
-    response.set(mockStorage.zadd(DataContainerImpl.from(key), score, DataContainerImpl.from(member)));
+    response.set(mockStorage.zadd(DataContainerImpl.from(key), score, DataContainerImpl.from
+        (member)));
     return response;
   }
 
@@ -1265,7 +1314,7 @@ public class MockPipeline extends Pipeline {
   }
 
   @Override public Response<Set<String>> zrange(String key, long start, long end) {
-    Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_SET);
+    Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_ZSET);
     response.set(DataContainerImpl.toBytes(
         mockStorage.zrange(DataContainerImpl.from(key), start, end)));
     return response;
@@ -1324,7 +1373,8 @@ public class MockPipeline extends Pipeline {
     return response;
   }
 
-  @Override public Response<Set<Tuple>> zrevrangeByScoreWithScores(String key, double max, double min) {
+  @Override
+  public Response<Set<Tuple>> zrevrangeByScoreWithScores(String key, double max, double min) {
     Response<Set<Tuple>> response = new Response<Set<Tuple>>(BuilderFactory.TUPLE_ZSET);
     response.set(DataContainerImpl.toBytes(
         mockStorage.zrevrangeByScoreWithScores(DataContainerImpl.from(key), max, min)));
@@ -1336,6 +1386,13 @@ public class MockPipeline extends Pipeline {
     Response<Set<Tuple>> response = new Response<Set<Tuple>>(BuilderFactory.TUPLE_ZSET);
     response.set(DataContainerImpl.toBytes(
         mockStorage.zrevrangeByScoreWithScores(DataContainerImpl.from(key), max, min)));
+    return response;
+  }
+
+  @Override public Response<Set<String>> zrevrange(String key, long start, long end) {
+    Response<Set<String>> response = new Response<Set<String>>(BuilderFactory.STRING_ZSET);
+    response.set(DataContainerImpl.toBytes(
+        mockStorage.zrevrange(DataContainerImpl.from(key), start, end)));
     return response;
   }
 }

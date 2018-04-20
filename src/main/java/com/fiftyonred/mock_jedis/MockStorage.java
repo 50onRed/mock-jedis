@@ -962,7 +962,7 @@ public class MockStorage {
     return items;
   }
 
-  public Set<DataContainer> zrange(DataContainerImpl key, long start, long end) {
+  public Set<DataContainer> zrange(DataContainer key, long start, long end) {
     NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, true);
     Set<DataContainerWithScore> rangeWithScores = (Set<DataContainerWithScore>) slice(
         new ArrayList<DataContainerWithScore>(full), new LinkedHashSet<DataContainerWithScore>(),
@@ -1036,6 +1036,12 @@ public class MockStorage {
     double doubleMin = min.equals("-inf") ? Double.NEGATIVE_INFINITY : Double.parseDouble(min);
     double doubleMax = max.equals("+inf") ? Double.POSITIVE_INFINITY : Double.parseDouble(max);
     return zrevrangeByScoreWithScores(key, doubleMax, doubleMin);
+  }
+
+  public Set<DataContainer> zrevrange(DataContainer key, long start, long end) {
+    List<DataContainer> rangeWithScores = new ArrayList<DataContainer>(zrange(key, start, end));
+    Collections.reverse(rangeWithScores);
+    return new LinkedHashSet<DataContainer>(rangeWithScores);
   }
 }
 

@@ -224,13 +224,35 @@ public class MockJedisTest {
     j.zadd("test", 0, "a");
     j.zadd("test", 3, "d");
 
-    assertEquals(new HashSet<String>(Arrays.asList("a", "b", "c", "d")), j.zrange("test", 0, -1));
-    assertEquals(new HashSet<String>(Arrays.asList("a", "b")), j.zrange("test", 0, 1));
-    assertEquals(new HashSet<String>(Arrays.asList("c", "d")), j.zrange("test", 2, 5));
-    assertEquals(new HashSet<String>(Arrays.asList("c", "d")), j.zrange("test", -2, -1));
+    assertArrayEquals(Arrays.asList("a", "b", "c", "d").toArray(), j.zrange("test", 0, -1).toArray());
+    assertArrayEquals(new String[] {"c", "d"}, j.zrange("test", 2, 3).toArray());
+    assertArrayEquals(Arrays.asList("a", "b").toArray(), j.zrange("test", 0, 1).toArray());
+    assertArrayEquals(Arrays.asList("a", "b", "c", "d").toArray(), j.zrange("test", 0, 3).toArray());
+    assertArrayEquals(Arrays.asList("c", "d").toArray(), j.zrange("test", 2, 5).toArray());
+    assertArrayEquals(Arrays.asList("c", "d").toArray(), j.zrange("test", -2, -1).toArray());
     assertEquals(Collections.singleton("c"), j.zrange("test", -2, -2));
     assertEquals(0, j.zrange("test", -7, -6).size());
     assertEquals(0, j.zrange("test", 6, 7).size());
+  }
+
+  @Test
+  public void testZRevRange() {
+    assertEquals(Collections.emptySet(), j.zrange("test", -1, -1));
+    j.zadd("test", 2, "c");
+    j.zadd("test", 1, "b");
+    j.zadd("test", 0, "a");
+    j.zadd("test", 3, "d");
+
+    assertArrayEquals(Arrays.asList("d", "c", "b", "a").toArray(),
+        j.zrevrange("test", 0, -1).toArray());
+    assertArrayEquals(Arrays.asList("d", "c", "b", "a").toArray(),
+        j.zrevrange("test", 0, 3).toArray());
+    assertArrayEquals(Arrays.asList("b", "a").toArray(), j.zrevrange("test", 0, 1).toArray());
+    assertArrayEquals(Arrays.asList("d", "c").toArray(), j.zrevrange("test", 2, 5).toArray());
+    assertArrayEquals(Arrays.asList("d", "c").toArray(), j.zrevrange("test", -2, -1).toArray());
+    assertEquals(Collections.singleton("c"), j.zrevrange("test", -2, -2));
+    assertEquals(0, j.zrevrange("test", -7, -6).size());
+    assertEquals(0, j.zrevrange("test", 6, 7).size());
   }
 
   @Test

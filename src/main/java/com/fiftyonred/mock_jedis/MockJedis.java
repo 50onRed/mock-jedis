@@ -901,7 +901,7 @@ public class MockJedis extends Jedis {
 
   @Override
   public Set<String> zrevrange(String key, long start, long end) {
-    throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+    return pipeline.zrevrange(key, start, end).get();
   }
 
   @Override
