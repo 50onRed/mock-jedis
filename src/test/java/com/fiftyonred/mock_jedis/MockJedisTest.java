@@ -423,6 +423,8 @@ public class MockJedisTest {
     Collections.reverse(full);
     assertArrayEquals(full.toArray(),
         j.zrevrangeByScoreWithScores("test", "+inf", "-inf").toArray());
+    assertArrayEquals(Arrays.asList(new Tuple("qux", 0D), new Tuple("blah", -1D)).toArray(),
+        j.zrevrangeByScoreWithScores("test", "+inf", "-inf", 0, 2).toArray());
     List<Tuple> partial = Arrays.asList(new Tuple("blah", -1D), new Tuple("qux", 0D),
         new Tuple("bar", 1D), new Tuple("foo", 2D));
     Collections.reverse(partial);
