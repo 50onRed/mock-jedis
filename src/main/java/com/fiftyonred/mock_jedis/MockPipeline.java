@@ -1404,4 +1404,16 @@ public class MockPipeline extends Pipeline {
         mockStorage.zrevrange(DataContainerImpl.from(key), start, end)));
     return response;
   }
+
+  @Override public Response<Long> zremrangeByScore(String key, String start, String end) {
+    Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+    response.set(mockStorage.zremrangeByScore(DataContainerImpl.from(key), start, end));
+    return response;
+  }
+
+  @Override public Response<Long> zremrangeByScore(String key, double start, double end) {
+    Response<Long> response = new Response<Long>(BuilderFactory.LONG);
+    response.set(mockStorage.zremrangeByScore(DataContainerImpl.from(key), start, end));
+    return response;
+  }
 }

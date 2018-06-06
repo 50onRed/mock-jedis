@@ -1040,8 +1040,7 @@ public class MockStorage {
   }
 
   public Set<DataContainer> zrevrangeByScore(DataContainer key, String max, String min) {
-    List<DataContainer> rangeWithScores = new ArrayList<DataContainer>(zrangeByScore(key, min,
-        max));
+    List<DataContainer> rangeWithScores = new ArrayList<DataContainer>(zrangeByScore(key, min, max));
     Collections.reverse(rangeWithScores);
     return new LinkedHashSet<DataContainer>(rangeWithScores);
   }
@@ -1082,6 +1081,22 @@ public class MockStorage {
     List<DataContainer> rangeWithScores = new ArrayList<DataContainer>(zrange(key, start, end));
     Collections.reverse(rangeWithScores);
     return new LinkedHashSet<DataContainer>(rangeWithScores);
+  }
+
+  public Long zremrangeByScore(DataContainerImpl key, double start, double end) {
+    return zremrangeByScore(key, Double.toString(start), Double.toString(end));
+  }
+
+  public Long zremrangeByScore(DataContainer key, String start, String end) {
+    NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, true);
+    Set<DataContainerWithScore> slice = zrangeByScoreWithScores(key, start, end);
+    for (DataContainerWithScore item : new ArrayList<DataContainerWithScore>(full)) {
+      if (slice.contains(item)) {
+        full.remove(item);
+      }
+    }
+    sortedSetStorage.put(key, full);
+    return (long) full.size() - slice.size();
   }
 }
 

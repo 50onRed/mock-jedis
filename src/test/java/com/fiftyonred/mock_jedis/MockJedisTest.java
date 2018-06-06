@@ -217,6 +217,28 @@ public class MockJedisTest {
   }
 
   @Test
+  public void zremrangeByScore() {
+    j.zadd("test", 0, "a");
+    j.zadd("test", 1, "b");
+    j.zadd("test", 2, "c");
+    j.zadd("test", 3, "d");
+    j.zremrangeByScore("test", 2, 3);
+    assertArrayEquals(Arrays.asList("a", "b").toArray(), j.zrange("test", 0, -1).toArray());
+    j.zadd("test", 0, "a");
+    j.zadd("test", 1, "b");
+    j.zadd("test", 2, "c");
+    j.zadd("test", 3, "d");
+    j.zremrangeByScore("test", "-inf", "+inf");
+    assertArrayEquals(new String[] {}, j.zrange("test", 0, -1).toArray());
+    j.zadd("test", 0, "a");
+    j.zadd("test", 1, "b");
+    j.zadd("test", 2, "c");
+    j.zadd("test", 3, "d");
+    j.zremrangeByScore("test", 1, 2);
+    assertArrayEquals(Arrays.asList("a", "d").toArray(), j.zrange("test", 0, -1).toArray());
+  }
+
+  @Test
   public void testZRange() {
     assertEquals(Collections.emptySet(), j.zrange("test", -1, -1));
     j.zadd("test", 2, "c");
