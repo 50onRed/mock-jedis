@@ -45,13 +45,12 @@ public class MockStorage {
   private Map<DataContainer, NavigableSet<DataContainerWithScore>> sortedSetStorage;
 
   public MockStorage() {
-    allKeys = new ArrayList<Map<DataContainer, KeyInformation>>(NUM_DBS);
-    allStorage = new ArrayList<Map<DataContainer, DataContainer>>(NUM_DBS);
-    allHashStorage = new ArrayList<Map<DataContainer, Map<DataContainer, DataContainer>>>(NUM_DBS);
-    allListStorage = new ArrayList<Map<DataContainer, List<DataContainer>>>(NUM_DBS);
-    allSetStorage = new ArrayList<Map<DataContainer, Set<DataContainer>>>(NUM_DBS);
-    allSortedSetStorage = new ArrayList<Map<DataContainer, NavigableSet<DataContainerWithScore>>>
-        (NUM_DBS);
+    this(new ArrayList<Map<DataContainer, KeyInformation>>(NUM_DBS),
+        new ArrayList<Map<DataContainer, DataContainer>>(NUM_DBS),
+        new ArrayList<Map<DataContainer, Map<DataContainer, DataContainer>>>(NUM_DBS),
+        new ArrayList<Map<DataContainer, List<DataContainer>>>(NUM_DBS),
+        new ArrayList<Map<DataContainer, Set<DataContainer>>>(NUM_DBS),
+        new ArrayList<Map<DataContainer, NavigableSet<DataContainerWithScore>>>(NUM_DBS));
     for (int i = 0; i < NUM_DBS; ++i) {
       allKeys.add(new HashMap<DataContainer, KeyInformation>());
       allStorage.add(new HashMap<DataContainer, DataContainer>());
@@ -61,6 +60,40 @@ public class MockStorage {
       allSortedSetStorage.add(new HashMap<DataContainer, NavigableSet<DataContainerWithScore>>());
     }
     select(0);
+  }
+
+  public MockStorage(
+      List<Map<DataContainer, KeyInformation>> allKeys,
+      List<Map<DataContainer, DataContainer>> allStorage,
+      List<Map<DataContainer, Map<DataContainer, DataContainer>>> allHashStorage,
+      List<Map<DataContainer, List<DataContainer>>> allListStorage,
+      List<Map<DataContainer, Set<DataContainer>>> allSetStorage,
+      List<Map<DataContainer, NavigableSet<DataContainerWithScore>>> allSortedSetStorage
+  ) {
+    this.allKeys = allKeys;
+    this.allStorage = allStorage;
+    this.allHashStorage = allHashStorage;
+    this.allListStorage = allListStorage;
+    this.allSetStorage = allSetStorage;
+    this.allSortedSetStorage = allSortedSetStorage;
+  }
+
+  public MockStorage cloneStorage() {
+    MockStorage clone = new MockStorage(
+        new ArrayList<Map<DataContainer, KeyInformation>>(allKeys),
+        new ArrayList<Map<DataContainer, DataContainer>>(allStorage),
+        new ArrayList<Map<DataContainer, Map<DataContainer, DataContainer>>>(allHashStorage),
+        new ArrayList<Map<DataContainer, List<DataContainer>>>(allListStorage),
+        new ArrayList<Map<DataContainer, Set<DataContainer>>>(allSetStorage),
+        new ArrayList<Map<DataContainer, NavigableSet<DataContainerWithScore>>>(allSortedSetStorage));
+    clone.currentDB = currentDB;
+    clone.keys = new HashMap<DataContainer, KeyInformation>(keys);
+    clone.storage = new HashMap<DataContainer, DataContainer>(storage);
+    clone.hashStorage = new HashMap<DataContainer, Map<DataContainer, DataContainer>>(hashStorage);
+    clone.listStorage = new HashMap<DataContainer, List<DataContainer>>(listStorage);
+    clone.setStorage = new HashMap<DataContainer, Set<DataContainer>>(setStorage);
+    clone.sortedSetStorage = new HashMap<DataContainer, NavigableSet<DataContainerWithScore>>(sortedSetStorage);
+    return clone;
   }
 
   public int getCurrentDB() {
@@ -1040,7 +1073,8 @@ public class MockStorage {
   }
 
   public Set<DataContainer> zrevrangeByScore(DataContainer key, String max, String min) {
-    List<DataContainer> rangeWithScores = new ArrayList<DataContainer>(zrangeByScore(key, min, max));
+    List<DataContainer> rangeWithScores = new ArrayList<DataContainer>(zrangeByScore(key, min,
+        max));
     Collections.reverse(rangeWithScores);
     return new LinkedHashSet<DataContainer>(rangeWithScores);
   }

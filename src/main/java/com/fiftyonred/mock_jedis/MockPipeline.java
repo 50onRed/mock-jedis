@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import redis.clients.jedis.Builder;
 import redis.clients.jedis.BuilderFactory;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Protocol;
@@ -26,7 +27,32 @@ public class MockPipeline extends Pipeline {
   private static final byte[] OK_RESPONSE = "OK".getBytes(CHARSET);
   private static final byte[] PONG_RESPONSE = "PONG".getBytes(CHARSET);
 
-  private final MockStorage mockStorage;
+  private static final Builder<List<Object>> OBJECT_LIST = new Builder<List<Object>>() {
+    @SuppressWarnings("unchecked")
+    public List<Object> build(Object data) {
+      if (null == data) {
+        return null;
+      }
+      List<byte[]> l = (List<byte[]>) data;
+      final ArrayList<Object> result = new ArrayList<Object>(l.size());
+      for (final byte[] barray : l) {
+        if (barray == null) {
+          result.add(null);
+        } else {
+          result.add(barray);
+        }
+      }
+      return result;
+    }
+
+    public String toString() {
+      return "List<Object>";
+    }
+
+  };
+
+  private MockStorage mockStorage;
+  private MockStorage oldMockStorage;
 
   public MockPipeline() {
     mockStorage = new MockStorage();
@@ -1414,6 +1440,30 @@ public class MockPipeline extends Pipeline {
   @Override public Response<Long> zremrangeByScore(String key, double start, double end) {
     Response<Long> response = new Response<Long>(BuilderFactory.LONG);
     response.set(mockStorage.zremrangeByScore(DataContainerImpl.from(key), start, end));
+    return response;
+  }
+
+  @Override public Response<String> multi() {
+    MockStorage tmpMockStorage = mockStorage.cloneStorage();
+    oldMockStorage = mockStorage;
+    mockStorage = tmpMockStorage;
+    Response<String> response = new Response<String>(BuilderFactory.STRING);
+    response.set(OK_RESPONSE);
+    return response;
+  }
+
+  @Override public Response<List<Object>> exec() {
+    oldMockStorage = null;
+    Response<List<Object>> response = new Response<List<Object>>(OBJECT_LIST);
+    response.set(null);
+    return response;
+  }
+
+  @Override public Response<String> discard() {
+    mockStorage = oldMockStorage;
+    oldMockStorage = null;
+    Response<String> response = new Response<String>(BuilderFactory.STRING);
+    response.set(OK_RESPONSE);
     return response;
   }
 }

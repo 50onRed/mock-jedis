@@ -15,6 +15,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.ScanParams;
 import redis.clients.jedis.ScanResult;
 import redis.clients.jedis.SortingParams;
+import redis.clients.jedis.Transaction;
 import redis.clients.jedis.Tuple;
 import redis.clients.jedis.exceptions.JedisDataException;
 
@@ -579,5 +580,25 @@ public class MockJedisTest {
 
     assertEquals(2L, scanResult.getResult().size());
     assertEquals("0", scanResult.getStringCursor());
+  }
+
+  @Test
+  public void testMultiExec() {
+    Transaction transaction = j.multi();
+    j.set("key1", "val1");
+    j.set("key2", "val2");
+    transaction.exec();
+    assertEquals(j.get("key1"), "val1");
+    assertEquals(j.get("key2"), "val2");
+  }
+
+  @Test
+  public void testMultiDiscard() {
+    Transaction transaction = j.multi();
+    j.set("key1", "val1");
+    j.set("key2", "val2");
+    transaction.discard();
+    assertNull(j.get("key1"));
+    assertNull(j.get("key2"));
   }
 }
