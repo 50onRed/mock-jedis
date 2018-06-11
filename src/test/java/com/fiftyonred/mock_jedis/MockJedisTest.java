@@ -585,8 +585,8 @@ public class MockJedisTest {
   @Test
   public void testMultiExec() {
     Transaction transaction = j.multi();
-    j.set("key1", "val1");
-    j.set("key2", "val2");
+    transaction.set("key1", "val1");
+    transaction.set("key2", "val2");
     transaction.exec();
     assertEquals(j.get("key1"), "val1");
     assertEquals(j.get("key2"), "val2");
@@ -595,8 +595,8 @@ public class MockJedisTest {
   @Test
   public void testMultiDiscard() {
     Transaction transaction = j.multi();
-    j.set("key1", "val1");
-    j.set("key2", "val2");
+    transaction.set("key1", "val1");
+    transaction.set("key2", "val2");
     transaction.discard();
     assertNull(j.get("key1"));
     assertNull(j.get("key2"));
