@@ -816,7 +816,8 @@ public class MockStorage {
     DataContainerWithScore newItem = new DataContainerWithScore(member, score);
     for (DataContainerWithScore existingItem : set) {
       if (existingItem.equals(newItem)) {
-        existingItem.setScore(newItem.getScore());
+        set.remove(existingItem);
+        set.add(newItem);
         return 0;
       }
     }

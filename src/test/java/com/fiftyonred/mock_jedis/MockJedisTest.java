@@ -433,6 +433,15 @@ public class MockJedisTest {
 
   @Test
   public void testZRevrangeByScoreWithScores() {
+    j.zadd("foo", 2, "bar");
+    j.zadd("foo", 3, "baz");
+    j.zadd("foo", 4, "gee");
+    j.zadd("foo", 5, "bar");
+    j.zadd("foo", 4, "baz");
+    j.zadd("foo", 3, "gee");
+    assertArrayEquals(
+        new Tuple[] { new Tuple("bar", 5D), new Tuple("baz", 4D), new Tuple("gee", 3D) },
+        j.zrevrangeByScoreWithScores("foo", "+inf", "-inf", 0, 10).toArray());
     j.zadd("test", 2, "foo");
     j.zadd("test", 1, "bar");
     j.zadd("test", 3.4, "baz");
@@ -453,6 +462,8 @@ public class MockJedisTest {
     Collections.reverse(partial);
     assertArrayEquals(partial.toArray(),
         j.zrevrangeByScoreWithScores("test", "2", "-inf").toArray());
+    assertArrayEquals(new Tuple[] { new Tuple("kat", 16.92131D), new Tuple("kit", 10D) },
+        j.zrevrangeByScoreWithScores("test", "+inf", "10").toArray());
     assertEquals(Collections.emptySet(), j.zrevrangeByScoreWithScores("test", "30", "20"));
     assertEquals(Collections.emptySet(), j.zrevrangeByScoreWithScores("test", 30, 20));
     assertEquals(Collections.emptySet(), j.zrevrangeByScoreWithScores("test", "-2", "0"));
