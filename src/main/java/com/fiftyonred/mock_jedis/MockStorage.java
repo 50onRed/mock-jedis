@@ -1133,5 +1133,15 @@ public class MockStorage {
     sortedSetStorage.put(key, full);
     return (long) full.size() - slice.size();
   }
+
+  public DataContainer zscore(DataContainer key, String member) {
+    NavigableSet<DataContainerWithScore> full = getSortedSetFromStorage(key, true);
+    for (DataContainerWithScore item : full) {
+      if (item.getString().equals(member)) {
+        return DataContainerImpl.from(Double.toString(item.getScore()));
+      }
+    }
+    return null;
+  }
 }
 

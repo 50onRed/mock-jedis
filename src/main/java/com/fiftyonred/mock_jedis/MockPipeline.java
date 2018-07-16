@@ -1371,6 +1371,13 @@ public class MockPipeline extends Pipeline {
     return response;
   }
 
+  @Override public Response<Double> zscore(String key, String member) {
+    Response<Double> response = new Response<Double>(BuilderFactory.DOUBLE);
+    DataContainer result = mockStorage.zscore(DataContainerImpl.from(key), member);
+    response.set(result == null ? null : result.getBytes());
+    return response;
+  }
+
   @Override public Response<Set<Tuple>> zrangeWithScores(String key, long start, long end) {
     Response<Set<Tuple>> response = new Response<Set<Tuple>>(BuilderFactory.TUPLE_ZSET);
     response.set(DataContainerImpl.toBytes(

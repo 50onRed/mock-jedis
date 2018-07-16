@@ -921,7 +921,7 @@ public class MockJedis extends Jedis {
 
   @Override
   public Double zscore(String key, String member) {
-    throw new UnsupportedOperationException(NOT_IMPLEMENTED);
+    return pipeline.zscore(key, member).get();
   }
 
   @Override

@@ -477,6 +477,20 @@ public class MockJedisTest {
   }
 
   @Test
+  public void testZscore() {
+    j.zadd("foo", 2, "bar");
+    j.zadd("foo", 3, "baz");
+    j.zadd("foo", 4, "gee");
+    j.zadd("foo", 5, "bar");
+    j.zadd("foo", 4, "baz");
+    j.zadd("foo", 3, "gee");
+    assertEquals(5D, j.zscore("foo", "bar"), 0);
+    assertEquals(4D, j.zscore("foo", "baz"), 0);
+    assertEquals(3D, j.zscore("foo", "gee"), 0);
+    assertNull(j.zscore("foo", "geez"));
+  }
+
+  @Test
   public void testSort() {
     j.lpush("test", "a");
     j.lpush("test", "c");
