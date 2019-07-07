@@ -236,7 +236,7 @@ public class MockStorage {
 
 	public synchronized boolean persist(final DataContainer key) {
 		final KeyInformation info = keys.get(key);
-		if (info.getTTL() == -1) {
+		if (info == null || info.getTTL() == -1) {
 			return false;
 		}
 		info.setExpiration(-1L);
